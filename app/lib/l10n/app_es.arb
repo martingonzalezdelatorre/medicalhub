@@ -1,0 +1,15 @@
+{
+  "@@locale": "es",
+  "tituloApp": "MedicalHub",
+  "reintentar": "Reintentar",
+  "errorConexion": "No se ha podido conectar con el servidor. Compruebe su conexión e inténtelo de nuevo.",
+  "errorInesperado": "Se ha producido un error inesperado.",
+  "sinDatos": "No hay datos para mostrar.",
+  "versionEntorno": "Versión {version} · {entorno}",
+  "@versionEntorno": {
+    "placeholders": {
+      "version": { "type": "String" },
+      "entorno": { "type": "String" }
+    }
+  }
+}

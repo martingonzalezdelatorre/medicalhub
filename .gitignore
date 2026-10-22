@@ -1,0 +1,25 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Secretos y configuración local (nunca versionar)
+appsettings.Production.json
+appsettings.*.local.json
+.env
+.env.*
+!.env.example
+*.pfx
+*.key
+secrets.json
+
+# Flutter (el .gitignore de app/ cubre el resto)
+app/build/
+
+# Copias de seguridad
+*.bak
+*.bacpac
+
+# Registros
+*.log
