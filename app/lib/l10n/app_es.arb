@@ -5,11 +5,65 @@
   "errorConexion": "No se ha podido conectar con el servidor. Compruebe su conexión e inténtelo de nuevo.",
   "errorInesperado": "Se ha producido un error inesperado.",
   "sinDatos": "No hay datos para mostrar.",
+  "listaVacia": "Todavía no hay elementos.",
   "versionEntorno": "Versión {version} · {entorno}",
-  "@versionEntorno": {
-    "placeholders": {
-      "version": { "type": "String" },
-      "entorno": { "type": "String" }
-    }
-  }
+  "@versionEntorno": { "placeholders": { "version": { "type": "String" }, "entorno": { "type": "String" } } },
+
+  "loginTitulo": "Iniciar sesión",
+  "campoCorreo": "Correo electrónico",
+  "campoContrasena": "Contraseña",
+  "campoCodigoMfa": "Código de verificación (6 dígitos)",
+  "botonEntrar": "Entrar",
+  "mfaRequeridoAviso": "Introduzca el código de su aplicación autenticadora.",
+  "validaObligatorio": "Campo obligatorio",
+  "validaCorreo": "Introduzca un correo válido",
+  "validaLongitudMinima": "Mínimo {n} caracteres",
+  "@validaLongitudMinima": { "placeholders": { "n": { "type": "int" } } },
+  "validaCodigo": "El código tiene 6 dígitos",
+
+  "mfaTitulo": "Verificación en dos pasos",
+  "mfaInstrucciones": "Escanee el código QR con su aplicación autenticadora e introduzca el código de 6 dígitos para activar la protección.",
+  "mfaClaveManual": "O introduzca esta clave manualmente",
+  "botonActivar": "Activar",
+  "botonCopiar": "Copiar",
+  "copiado": "Copiado al portapapeles",
+
+  "cerrarSesion": "Cerrar sesión",
+  "menuInicio": "Inicio",
+  "menuUsuarios": "Usuarios",
+  "menuOrganizaciones": "Sociedades",
+  "bienvenida": "Hola, {nombre}",
+  "@bienvenida": { "placeholders": { "nombre": { "type": "String" } } },
+  "perfilSociedad": "Sociedad",
+  "perfilRoles": "Roles",
+  "perfilMfa": "Verificación en dos pasos",
+  "mfaActiva": "Activada",
+  "mfaInactiva": "No activada",
+
+  "usuariosTitulo": "Usuarios",
+  "nuevoUsuario": "Nuevo usuario",
+  "campoNombre": "Nombre completo",
+  "campoRoles": "Roles",
+  "validaRol": "Seleccione al menos un rol",
+  "botonGuardar": "Guardar",
+  "botonCancelar": "Cancelar",
+  "estadoActivo": "Activo",
+  "estadoInactivo": "Inactivo",
+  "accionDesactivar": "Desactivar",
+  "accionActivar": "Activar",
+  "accionReiniciarMfa": "Reiniciar verificación en dos pasos",
+  "operacionRealizada": "Operación realizada",
+
+  "organizacionesTitulo": "Sociedades",
+  "nuevaOrganizacion": "Nueva sociedad",
+  "campoNombreSociedad": "Nombre de la sociedad",
+  "campoZonaHoraria": "Zona horaria",
+  "campoMfaObligatorio": "Exigir verificación en dos pasos a administradores y coordinadores",
+  "datosAdministrador": "Administrador inicial",
+
+  "rolAdministradorPlataforma": "Administrador de plataforma",
+  "rolAdministradorSociedad": "Administrador de sociedad",
+  "rolCoordinadorMedico": "Coordinador médico",
+  "rolProfesionalSanitario": "Profesional sanitario",
+  "rolResponsableCentro": "Responsable de centro"
 }

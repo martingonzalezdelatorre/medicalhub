@@ -3,7 +3,21 @@
 SaaS B2B para la gestión de turnos, guardias, disponibilidad y cobertura de profesionales sanitarios.
 Backend ASP.NET Core (.NET 10) + SQL Server; frontend Flutter (web, móvil y escritorio).
 
-Estado: **E0 – Cimientos** completada. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) para el análisis y el plan de entregas.
+Estado: **E0 (cimientos)** y **E1 (identidad y multiempresa)** completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas) y [docs/e1-identidad-y-multiempresa.md](docs/e1-identidad-y-multiempresa.md).
+
+## Arranque rápido (desarrollo)
+```bash
+# 1. API (crea/migra MedicalHub_Dev en LocalDB y el primer administrador de plataforma)
+cd backend
+export Bootstrap__AdministradorPlataforma__Email=<correo>
+export Bootstrap__AdministradorPlataforma__Contrasena=<≥12 caracteres>
+dotnet run --project src/MedicalHub.Api --launch-profile http
+
+# 2. App web (otra terminal)
+cd app && flutter run -d chrome --web-port 8080 --dart-define=API_BASE_URL=http://localhost:5292
+```
+El administrador de plataforma debe configurar su verificación en dos pasos en el primer acceso. Desde «Sociedades» se crean las sociedades y su administrador inicial.
+Compilar para Windows requiere activar el *Modo de desarrollador* de Windows (symlinks de plugins).
 
 ## Requisitos
 - .NET SDK 10, Flutter estable (3.44+), `dotnet-ef` (`dotnet tool install -g dotnet-ef`)
