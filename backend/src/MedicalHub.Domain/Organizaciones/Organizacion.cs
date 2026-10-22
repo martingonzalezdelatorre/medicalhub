@@ -3,20 +3,23 @@ using MedicalHub.Domain.Comun;
 namespace MedicalHub.Domain.Organizaciones;
 
 /// <summary>Sociedad médica cliente del SaaS (inquilino).</summary>
-public sealed class Organizacion : Entidad
+public sealed class Organizacion : Entidad, IAuditable
 {
     public string Nombre { get; private set; }
     public string ZonaHoraria { get; private set; }
     public bool Activa { get; private set; } = true;
+    /// <summary>Si es true, administradores y coordinadores de la sociedad deben usar MFA.</summary>
+    public bool MfaObligatorio { get; private set; } = true;
     public DateTimeOffset FechaCreacion { get; private set; }
 
     private Organizacion() { Nombre = ""; ZonaHoraria = ""; }
 
-    public Organizacion(string nombre, string zonaHoraria, DateTimeOffset ahora)
+    public Organizacion(string nombre, string zonaHoraria, DateTimeOffset ahora, bool mfaObligatorio = true)
     {
         Nombre = ValidarNombre(nombre);
         ZonaHoraria = ValidarZonaHoraria(zonaHoraria);
         FechaCreacion = ahora;
+        MfaObligatorio = mfaObligatorio;
     }
 
     public void Desactivar() => Activa = false;

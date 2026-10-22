@@ -10,6 +10,7 @@ public sealed class SistemaController : ControllerBase
 
     /// <summary>Información pública mínima de la API.</summary>
     [HttpGet("info")]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     [ProducesResponseType<InformacionSistema>(StatusCodes.Status200OK)]
     public ActionResult<InformacionSistema> Info([FromServices] IWebHostEnvironment entorno)
         => new InformacionSistema("MedicalHub API",

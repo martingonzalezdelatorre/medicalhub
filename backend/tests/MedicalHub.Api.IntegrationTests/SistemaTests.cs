@@ -3,13 +3,13 @@ using System.Net.Http.Json;
 
 namespace MedicalHub.Api.IntegrationTests;
 
-public class SistemaTests : IClassFixture<FabricaApi>
+[Collection(ColeccionApi.Nombre)]
+public class SistemaTests
 {
     private readonly HttpClient _cliente;
 
     public SistemaTests(FabricaApi fabrica)
     {
-        fabrica.PrepararBaseDeDatos();
         _cliente = fabrica.CreateClient();
     }
 
@@ -45,10 +45,10 @@ public class SistemaTests : IClassFixture<FabricaApi>
     }
 
     [Fact]
-    public async Task Ruta_inexistente_devuelve_problem_details()
+    public async Task Ruta_inexistente_sin_sesion_exige_autenticacion_sin_revelar_rutas()
     {
         var r = await _cliente.GetAsync("/api/no-existe");
-        Assert.Equal(HttpStatusCode.NotFound, r.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, r.StatusCode);
         Assert.Equal("application/problem+json", r.Content.Headers.ContentType?.MediaType);
     }
 }
