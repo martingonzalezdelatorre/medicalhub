@@ -435,6 +435,414 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Responsable de centro'**
   String get rolResponsableCentro;
+
+  /// No description provided for @menuProfesionales.
+  ///
+  /// In es, this message translates to:
+  /// **'Profesionales'**
+  String get menuProfesionales;
+
+  /// No description provided for @menuCentros.
+  ///
+  /// In es, this message translates to:
+  /// **'Centros'**
+  String get menuCentros;
+
+  /// No description provided for @menuCatalogos.
+  ///
+  /// In es, this message translates to:
+  /// **'Catálogos'**
+  String get menuCatalogos;
+
+  /// No description provided for @editar.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar'**
+  String get editar;
+
+  /// No description provided for @anadir.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir'**
+  String get anadir;
+
+  /// No description provided for @quitar.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar'**
+  String get quitar;
+
+  /// No description provided for @buscar.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar'**
+  String get buscar;
+
+  /// No description provided for @soloActivos.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo activos'**
+  String get soloActivos;
+
+  /// No description provided for @campoDescripcion.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción'**
+  String get campoDescripcion;
+
+  /// No description provided for @catEspecialidades.
+  ///
+  /// In es, this message translates to:
+  /// **'Especialidades'**
+  String get catEspecialidades;
+
+  /// No description provided for @catCategorias.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías'**
+  String get catCategorias;
+
+  /// No description provided for @catCompetencias.
+  ///
+  /// In es, this message translates to:
+  /// **'Competencias'**
+  String get catCompetencias;
+
+  /// No description provided for @catNuevo.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo elemento'**
+  String get catNuevo;
+
+  /// No description provided for @catEditar.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar elemento'**
+  String get catEditar;
+
+  /// No description provided for @centrosTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Centros'**
+  String get centrosTitulo;
+
+  /// No description provided for @nuevoCentro.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo centro'**
+  String get nuevoCentro;
+
+  /// No description provided for @editarCentro.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar centro'**
+  String get editarCentro;
+
+  /// No description provided for @campoTipoCentro.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de centro'**
+  String get campoTipoCentro;
+
+  /// No description provided for @campoDireccion.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección'**
+  String get campoDireccion;
+
+  /// No description provided for @campoResponsables.
+  ///
+  /// In es, this message translates to:
+  /// **'Responsables del centro'**
+  String get campoResponsables;
+
+  /// No description provided for @tipoHospital.
+  ///
+  /// In es, this message translates to:
+  /// **'Hospital'**
+  String get tipoHospital;
+
+  /// No description provided for @tipoClinica.
+  ///
+  /// In es, this message translates to:
+  /// **'Clínica'**
+  String get tipoClinica;
+
+  /// No description provided for @tipoCentroAmbulatorio.
+  ///
+  /// In es, this message translates to:
+  /// **'Centro ambulatorio'**
+  String get tipoCentroAmbulatorio;
+
+  /// No description provided for @tipoOtro.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get tipoOtro;
+
+  /// No description provided for @serviciosTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicios'**
+  String get serviciosTitulo;
+
+  /// No description provided for @nuevoServicio.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo servicio'**
+  String get nuevoServicio;
+
+  /// No description provided for @editarServicio.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar servicio'**
+  String get editarServicio;
+
+  /// No description provided for @campoCoordinador.
+  ///
+  /// In es, this message translates to:
+  /// **'Coordinador del servicio'**
+  String get campoCoordinador;
+
+  /// No description provided for @sinCoordinador.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin coordinador'**
+  String get sinCoordinador;
+
+  /// No description provided for @campoCategoriasAdmitidas.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías admitidas (vacío = cualquiera)'**
+  String get campoCategoriasAdmitidas;
+
+  /// No description provided for @campoCompetenciasRequeridas.
+  ///
+  /// In es, this message translates to:
+  /// **'Competencias requeridas'**
+  String get campoCompetenciasRequeridas;
+
+  /// No description provided for @campoReglas.
+  ///
+  /// In es, this message translates to:
+  /// **'Reglas específicas (JSON, opcional)'**
+  String get campoReglas;
+
+  /// No description provided for @tiposTurnoTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipos de turno'**
+  String get tiposTurnoTitulo;
+
+  /// No description provided for @nuevoTipoTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo tipo de turno'**
+  String get nuevoTipoTurno;
+
+  /// No description provided for @editarTipoTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar tipo de turno'**
+  String get editarTipoTurno;
+
+  /// No description provided for @campoHoraInicio.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio'**
+  String get campoHoraInicio;
+
+  /// No description provided for @campoHoraFin.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin'**
+  String get campoHoraFin;
+
+  /// No description provided for @campoGuardia.
+  ///
+  /// In es, this message translates to:
+  /// **'Es guardia'**
+  String get campoGuardia;
+
+  /// No description provided for @cruzaMedianoche.
+  ///
+  /// In es, this message translates to:
+  /// **'termina al día siguiente'**
+  String get cruzaMedianoche;
+
+  /// No description provided for @duracionHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'{horas} h'**
+  String duracionHoras(String horas);
+
+  /// No description provided for @requisitosTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Requisitos de cobertura'**
+  String get requisitosTitulo;
+
+  /// No description provided for @editarRequisitos.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar requisitos'**
+  String get editarRequisitos;
+
+  /// No description provided for @campoNumeroProfesionales.
+  ///
+  /// In es, this message translates to:
+  /// **'Nº de profesionales'**
+  String get campoNumeroProfesionales;
+
+  /// No description provided for @cualquierCategoria.
+  ///
+  /// In es, this message translates to:
+  /// **'Cualquier categoría'**
+  String get cualquierCategoria;
+
+  /// No description provided for @campoTipoTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de turno'**
+  String get campoTipoTurno;
+
+  /// No description provided for @sinElementos.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin elementos'**
+  String get sinElementos;
+
+  /// No description provided for @validaNumero.
+  ///
+  /// In es, this message translates to:
+  /// **'Número entre 1 y 50'**
+  String get validaNumero;
+
+  /// No description provided for @validaJson.
+  ///
+  /// In es, this message translates to:
+  /// **'No es un JSON válido'**
+  String get validaJson;
+
+  /// No description provided for @profesionalesTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Profesionales'**
+  String get profesionalesTitulo;
+
+  /// No description provided for @nuevoProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo profesional'**
+  String get nuevoProfesional;
+
+  /// No description provided for @editarProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar profesional'**
+  String get editarProfesional;
+
+  /// No description provided for @campoApellidos.
+  ///
+  /// In es, this message translates to:
+  /// **'Apellidos'**
+  String get campoApellidos;
+
+  /// No description provided for @campoTelefono.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono'**
+  String get campoTelefono;
+
+  /// No description provided for @campoColegiado.
+  ///
+  /// In es, this message translates to:
+  /// **'Nº de colegiado'**
+  String get campoColegiado;
+
+  /// No description provided for @campoCategoria.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría profesional'**
+  String get campoCategoria;
+
+  /// No description provided for @campoEspecialidades.
+  ///
+  /// In es, this message translates to:
+  /// **'Especialidades'**
+  String get campoEspecialidades;
+
+  /// No description provided for @campoCompetencias.
+  ///
+  /// In es, this message translates to:
+  /// **'Competencias y habilitaciones'**
+  String get campoCompetencias;
+
+  /// No description provided for @campoServiciosAutorizados.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicios autorizados'**
+  String get campoServiciosAutorizados;
+
+  /// No description provided for @campoUsuarioVinculado.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario vinculado'**
+  String get campoUsuarioVinculado;
+
+  /// No description provided for @sinUsuario.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin usuario'**
+  String get sinUsuario;
+
+  /// No description provided for @vigenteHasta.
+  ///
+  /// In es, this message translates to:
+  /// **'Vigente hasta {fecha}'**
+  String vigenteHasta(String fecha);
+
+  /// No description provided for @sinCaducidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin caducidad'**
+  String get sinCaducidad;
+
+  /// No description provided for @fijarCaducidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Fijar caducidad'**
+  String get fijarCaducidad;
+
+  /// No description provided for @historial.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get historial;
+
+  /// No description provided for @historialVacio.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin cambios registrados.'**
+  String get historialVacio;
+
+  /// No description provided for @cerrar.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get cerrar;
+
+  /// No description provided for @datosContacto.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos de contacto'**
+  String get datosContacto;
+
+  /// No description provided for @sinContacto.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin datos de contacto'**
+  String get sinContacto;
 }
 
 class _AppLocalizationsDelegate

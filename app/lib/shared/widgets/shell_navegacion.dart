@@ -20,12 +20,25 @@ class ShellNavegacion extends ConsumerWidget {
   final String ubicacion;
   final Widget child;
 
-  static List<_Destino> _destinos(AppLocalizations t, PerfilUsuario perfil) => [
-        _Destino('/', Icons.home_outlined, t.menuInicio),
-        if (perfil.tieneRol(Rol.administradorSociedad)) _Destino('/usuarios', Icons.group_outlined, t.menuUsuarios),
-        if (perfil.tieneRol(Rol.administradorPlataforma))
-          _Destino('/organizaciones', Icons.business_outlined, t.menuOrganizaciones),
-      ];
+  static List<_Destino> _destinos(AppLocalizations t, PerfilUsuario perfil) {
+    final admin = perfil.tieneRol(Rol.administradorSociedad);
+    final lectura = admin || perfil.tieneRol(Rol.coordinadorMedico) || perfil.tieneRol(Rol.responsableCentro);
+    return [
+      _Destino('/', Icons.home_outlined, t.menuInicio),
+      if (admin) _Destino('/usuarios', Icons.group_outlined, t.menuUsuarios),
+      if (lectura) _Destino('/profesionales', Icons.badge_outlined, t.menuProfesionales),
+      if (lectura) _Destino('/centros', Icons.local_hospital_outlined, t.menuCentros),
+      if (admin) _Destino('/catalogos', Icons.category_outlined, t.menuCatalogos),
+      if (perfil.tieneRol(Rol.administradorPlataforma)) _Destino('/organizaciones', Icons.business_outlined, t.menuOrganizaciones),
+    ];
+  }
+
+  /// Sección del menú a la que pertenece una ruta anidada (p. ej. /servicios/x pertenece a Centros).
+  static String _seccion(String ubicacion) {
+    if (ubicacion.startsWith('/servicios/')) return '/centros';
+    final partes = ubicacion.split('/');
+    return partes.length > 1 && partes[1].isNotEmpty ? '/${partes[1]}' : '/';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +47,9 @@ class ShellNavegacion extends ConsumerWidget {
     if (perfil == null) return const SizedBox.shrink();
 
     final destinos = _destinos(t, perfil);
-    final indice = destinos.indexWhere((d) => d.ruta == ubicacion).clamp(0, destinos.length - 1);
+    final seccion = _seccion(ubicacion);
+    final indice = destinos.indexWhere((d) => d.ruta == seccion).clamp(0, destinos.length - 1);
+    final esDetalle = ubicacion != seccion && ubicacion.length > seccion.length || ubicacion.startsWith('/servicios/');
     final ancho = MediaQuery.sizeOf(context).width;
     final conRail = ancho >= 600 && destinos.length > 1;
     final conBarra = ancho < 600 && destinos.length > 1;
@@ -43,6 +58,9 @@ class ShellNavegacion extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: esDetalle
+            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go(seccion))
+            : null,
         title: Text(destinos[indice].etiqueta),
         actions: [
           IconButton(

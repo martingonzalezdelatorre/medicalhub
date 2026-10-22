@@ -52,3 +52,12 @@ class FalloApi implements Exception {
   @override
   String toString() => 'FalloApi($tipo, $codigo, $detalle)';
 }
+
+/// Ejecuta una llamada a la API y convierte cualquier error en [FalloApi].
+Future<T> protegerApi<T>(Future<T> Function() accion) async {
+  try {
+    return await accion();
+  } catch (e) {
+    throw FalloApi.desde(e);
+  }
+}

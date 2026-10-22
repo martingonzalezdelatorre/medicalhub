@@ -1,5 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:ui' show Size;
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:medicalhub_app/main.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -65,3 +70,13 @@ Map<String, dynamic> sesionJson({
 
 Map<String, dynamic> problema(int estado, String detalle, {String? codigo}) =>
     {'status': estado, 'title': 'Error', 'detail': detalle, 'codigo': ?codigo};
+
+/// Monta la app completa con un servidor simulado y un tamaño de pantalla, con sesión guardada.
+Future<void> montarApp(WidgetTester t, ServidorFalso servidor, {Size tamano = const Size(1200, 900), String? tokenGuardado = 'R'}) async {
+  t.view.physicalSize = tamano;
+  t.view.devicePixelRatio = 1;
+  addTearDown(t.view.reset);
+  final almacen = AlmacenTokensMemoria()..valor = tokenGuardado;
+  await t.pumpWidget(ProviderScope(overrides: servidor.sobrescrituras(almacen: almacen), child: const MedicalHubApp()));
+  await t.pumpAndSettle();
+}

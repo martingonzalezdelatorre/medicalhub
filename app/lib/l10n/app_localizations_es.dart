@@ -188,4 +188,213 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rolResponsableCentro => 'Responsable de centro';
+
+  @override
+  String get menuProfesionales => 'Profesionales';
+
+  @override
+  String get menuCentros => 'Centros';
+
+  @override
+  String get menuCatalogos => 'Catálogos';
+
+  @override
+  String get editar => 'Editar';
+
+  @override
+  String get anadir => 'Añadir';
+
+  @override
+  String get quitar => 'Quitar';
+
+  @override
+  String get buscar => 'Buscar';
+
+  @override
+  String get soloActivos => 'Solo activos';
+
+  @override
+  String get campoDescripcion => 'Descripción';
+
+  @override
+  String get catEspecialidades => 'Especialidades';
+
+  @override
+  String get catCategorias => 'Categorías';
+
+  @override
+  String get catCompetencias => 'Competencias';
+
+  @override
+  String get catNuevo => 'Nuevo elemento';
+
+  @override
+  String get catEditar => 'Editar elemento';
+
+  @override
+  String get centrosTitulo => 'Centros';
+
+  @override
+  String get nuevoCentro => 'Nuevo centro';
+
+  @override
+  String get editarCentro => 'Editar centro';
+
+  @override
+  String get campoTipoCentro => 'Tipo de centro';
+
+  @override
+  String get campoDireccion => 'Dirección';
+
+  @override
+  String get campoResponsables => 'Responsables del centro';
+
+  @override
+  String get tipoHospital => 'Hospital';
+
+  @override
+  String get tipoClinica => 'Clínica';
+
+  @override
+  String get tipoCentroAmbulatorio => 'Centro ambulatorio';
+
+  @override
+  String get tipoOtro => 'Otro';
+
+  @override
+  String get serviciosTitulo => 'Servicios';
+
+  @override
+  String get nuevoServicio => 'Nuevo servicio';
+
+  @override
+  String get editarServicio => 'Editar servicio';
+
+  @override
+  String get campoCoordinador => 'Coordinador del servicio';
+
+  @override
+  String get sinCoordinador => 'Sin coordinador';
+
+  @override
+  String get campoCategoriasAdmitidas =>
+      'Categorías admitidas (vacío = cualquiera)';
+
+  @override
+  String get campoCompetenciasRequeridas => 'Competencias requeridas';
+
+  @override
+  String get campoReglas => 'Reglas específicas (JSON, opcional)';
+
+  @override
+  String get tiposTurnoTitulo => 'Tipos de turno';
+
+  @override
+  String get nuevoTipoTurno => 'Nuevo tipo de turno';
+
+  @override
+  String get editarTipoTurno => 'Editar tipo de turno';
+
+  @override
+  String get campoHoraInicio => 'Inicio';
+
+  @override
+  String get campoHoraFin => 'Fin';
+
+  @override
+  String get campoGuardia => 'Es guardia';
+
+  @override
+  String get cruzaMedianoche => 'termina al día siguiente';
+
+  @override
+  String duracionHoras(String horas) {
+    return '$horas h';
+  }
+
+  @override
+  String get requisitosTitulo => 'Requisitos de cobertura';
+
+  @override
+  String get editarRequisitos => 'Editar requisitos';
+
+  @override
+  String get campoNumeroProfesionales => 'Nº de profesionales';
+
+  @override
+  String get cualquierCategoria => 'Cualquier categoría';
+
+  @override
+  String get campoTipoTurno => 'Tipo de turno';
+
+  @override
+  String get sinElementos => 'Sin elementos';
+
+  @override
+  String get validaNumero => 'Número entre 1 y 50';
+
+  @override
+  String get validaJson => 'No es un JSON válido';
+
+  @override
+  String get profesionalesTitulo => 'Profesionales';
+
+  @override
+  String get nuevoProfesional => 'Nuevo profesional';
+
+  @override
+  String get editarProfesional => 'Editar profesional';
+
+  @override
+  String get campoApellidos => 'Apellidos';
+
+  @override
+  String get campoTelefono => 'Teléfono';
+
+  @override
+  String get campoColegiado => 'Nº de colegiado';
+
+  @override
+  String get campoCategoria => 'Categoría profesional';
+
+  @override
+  String get campoEspecialidades => 'Especialidades';
+
+  @override
+  String get campoCompetencias => 'Competencias y habilitaciones';
+
+  @override
+  String get campoServiciosAutorizados => 'Servicios autorizados';
+
+  @override
+  String get campoUsuarioVinculado => 'Usuario vinculado';
+
+  @override
+  String get sinUsuario => 'Sin usuario';
+
+  @override
+  String vigenteHasta(String fecha) {
+    return 'Vigente hasta $fecha';
+  }
+
+  @override
+  String get sinCaducidad => 'Sin caducidad';
+
+  @override
+  String get fijarCaducidad => 'Fijar caducidad';
+
+  @override
+  String get historial => 'Historial';
+
+  @override
+  String get historialVacio => 'Sin cambios registrados.';
+
+  @override
+  String get cerrar => 'Cerrar';
+
+  @override
+  String get datosContacto => 'Datos de contacto';
+
+  @override
+  String get sinContacto => 'Sin datos de contacto';
 }

@@ -3,7 +3,7 @@
 SaaS B2B para la gestión de turnos, guardias, disponibilidad y cobertura de profesionales sanitarios.
 Backend ASP.NET Core (.NET 10) + SQL Server; frontend Flutter (web, móvil y escritorio).
 
-Estado: **E0 (cimientos)** y **E1 (identidad y multiempresa)** completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas) y [docs/e1-identidad-y-multiempresa.md](docs/e1-identidad-y-multiempresa.md).
+Estado: **E0 (cimientos)**, **E1 (identidad y multiempresa)** y **E2 (catálogos, centros, servicios y profesionales)** completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas), [docs/e1-identidad-y-multiempresa.md](docs/e1-identidad-y-multiempresa.md) y [docs/e2-catalogos-estructura-profesionales.md](docs/e2-catalogos-estructura-profesionales.md) (incluye la herramienta de datos de demostración).
 
 ## Arranque rápido (desarrollo)
 ```bash
