@@ -16,6 +16,10 @@ public static class DependenciasAplicacion
         servicios.AddScoped<CentrosServicio>();
         servicios.AddScoped<ServiciosServicio>();
         servicios.AddScoped<ProfesionalesServicio>();
+        servicios.AddScoped<CalendarioServicio>();
+        servicios.AddScoped<TurnosServicio>();
+        servicios.AddScoped<AsignacionesServicio>();
+        servicios.AddScoped<CuadrantesServicio>();
         return servicios;
     }
 }

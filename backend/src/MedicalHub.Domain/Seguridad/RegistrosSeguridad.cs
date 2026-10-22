@@ -13,7 +13,8 @@ public enum TipoEventoSeguridad
     TokenRefrescoReutilizado = 7,
     CierreSesion = 8,
     ContrasenaCambiada = 9,
-    AccesoDenegado = 10
+    AccesoDenegado = 10,
+    ExportacionDatos = 11
 }
 
 /// <summary>Evento de seguridad (autenticación y accesos). No lleva datos personales más allá del correo intentado.</summary>

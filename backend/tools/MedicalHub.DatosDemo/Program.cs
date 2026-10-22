@@ -124,28 +124,63 @@ await serv.ReemplazarRequisitosAsync(urgencias, new SolicitudRequisitos([new(uGu
 // 5. Profesionales (algunos con usuario vinculado; uno con una competencia caducada)
 var profesionales = sp.GetRequiredService<ProfesionalesServicio>();
 var hoy = DateOnly.FromDateTime(DateTime.UtcNow);
-async Task Prof(string nombre, string apellidos, Guid categoria, Guid[] esp, (Guid, DateOnly?)[] comp, Guid[] serviciosAut, string? colegiado, string? alias = null)
+async Task<Guid> Prof(string nombre, string apellidos, Guid categoria, Guid[] esp, (Guid, DateOnly?)[] comp, Guid[] serviciosAut, string? colegiado, string? alias = null)
 {
     Guid? usuarioId = alias is null ? null : await Usuario(alias, $"{nombre} {apellidos}", Rol.ProfesionalSanitario);
-    await profesionales.CrearAsync(new SolicitudProfesional(usuarioId, nombre, apellidos, $"{nombre}.{apellidos}".ToLowerInvariant().Replace(" ", "") + "@" + Dominio,
-        null, colegiado, categoria, esp, comp.Select(c => new CompetenciaProfesionalDto(c.Item1, c.Item2)).ToList(), serviciosAut), ct);
+    return (await profesionales.CrearAsync(new SolicitudProfesional(usuarioId, nombre, apellidos, $"{nombre}.{apellidos}".ToLowerInvariant().Replace(" ", "") + "@" + Dominio,
+        null, colegiado, categoria, esp, comp.Select(c => new CompetenciaProfesionalDto(c.Item1, c.Item2)).ToList(), serviciosAut), ct)).Id;
 }
 
-await Prof("Carmen", "Ruiz Demo", catJefe, [espAnest], [(compPediatria, null), (compViaAerea, null), (compEco, null)], [quirofano, reanimacion, obstetricia], "DEMO-001", "carmen");
-await Prof("Javier", "Moreno Demo", catAdjunto, [espAnest], [(compViaAerea, null), (compEco, null)], [quirofano, reanimacion], "DEMO-002", "javier");
-await Prof("Elena", "Santos Demo", catAdjunto, [espAnest], [(compPediatria, hoy.AddYears(1)), (compViaAerea, null)], [quirofano, reanimacion, obstetricia], "DEMO-003", "elena");
-await Prof("Pablo", "Iglesias Demo", catAdjunto, [espAnest, espDolor], [(compViaAerea, null)], [quirofano, reanimacion, urgencias], "DEMO-004", "pablo");
+var pCarmen = await Prof("Carmen", "Ruiz Demo", catJefe, [espAnest], [(compPediatria, null), (compViaAerea, null), (compEco, null)], [quirofano, reanimacion, obstetricia], "DEMO-001", "carmen");
+var pJavier = await Prof("Javier", "Moreno Demo", catAdjunto, [espAnest], [(compViaAerea, null), (compEco, null)], [quirofano, reanimacion], "DEMO-002", "javier");
+var pElena = await Prof("Elena", "Santos Demo", catAdjunto, [espAnest], [(compPediatria, hoy.AddYears(1)), (compViaAerea, null)], [quirofano, reanimacion, obstetricia], "DEMO-003", "elena");
+var pPablo = await Prof("Pablo", "Iglesias Demo", catAdjunto, [espAnest, espDolor], [(compViaAerea, null)], [quirofano, reanimacion, urgencias], "DEMO-004", "pablo");
 await Prof("Lucía", "Navarro Demo", catAdjunto, [espAnest], [(compPediatria, hoy.AddDays(-30)), (compViaAerea, null)], [obstetricia, quirofano], "DEMO-005"); // pediatría CADUCADA
-await Prof("Sergio", "Vega Demo", catAdjunto, [espAnest], [(compCardiaca, null), (compViaAerea, null)], [quirofano, reanimacion, urgencias], "DEMO-006");
+var pSergio = await Prof("Sergio", "Vega Demo", catAdjunto, [espAnest], [(compCardiaca, null), (compViaAerea, null)], [quirofano, reanimacion, urgencias], "DEMO-006");
 await Prof("Marina", "Ortega Demo", catAdjunto, [espAnest], [(compPediatria, null), (compViaAerea, null)], [obstetricia, urgencias], "DEMO-007");
 await Prof("Andrés", "Cano Demo", catAdjunto, [espDolor], [(compEco, null)], [quirofano], "DEMO-008");
 await Prof("Irene", "Prieto Demo", catResidente, [espAnest], [], [quirofano], "DEMO-009");
 await Prof("Hugo", "Lara Demo", catResidente, [espAnest], [], [quirofano], "DEMO-010");
-await Prof("Nuria", "Gil Demo", catAdjunto, [espAnest], [(compViaAerea, null)], [quirofano, reanimacion], "DEMO-011");
+var pNuria = await Prof("Nuria", "Gil Demo", catAdjunto, [espAnest], [(compViaAerea, null)], [quirofano, reanimacion], "DEMO-011");
 await Prof("Raúl", "Fuentes Demo", catAdjunto, [espAnest], [(compViaAerea, null)], [urgencias, quirofano], "DEMO-012");
+
+// 6. Planificación de la semana próxima (lunes a domingo)
+var diasHastaLunes = ((int)DayOfWeek.Monday - (int)hoy.DayOfWeek + 7) % 7;
+var lunes = hoy.AddDays(diasHastaLunes == 0 ? 7 : diasHastaLunes); // el próximo lunes
+var cuadrantes = sp.GetRequiredService<CuadrantesServicio>();
+var calendario = sp.GetRequiredService<CalendarioServicio>();
+var asignaciones = sp.GetRequiredService<AsignacionesServicio>();
+
+async Task<Guid> Necesidad(DateOnly dia, Guid servicioId, Guid tipo, int indice = 0)
+{
+    var turnos = await calendario.ConsultarAsync(new FiltroCalendario(dia, dia, null, servicioId, null, null, null, false), ct);
+    return turnos.Single(t => t.TipoTurnoId == tipo).Necesidades[indice].Id;
+}
+
+var cuadQuirofano = await cuadrantes.CrearAsync(new SolicitudCuadrante(quirofano, null, lunes, lunes.AddDays(6), true), ct);
+var cuadReanimacion = await cuadrantes.CrearAsync(new SolicitudCuadrante(reanimacion, null, lunes, lunes.AddDays(6), true), ct);
+
+for (var d = 0; d < 7; d++)
+{
+    var dia = lunes.AddDays(d);
+    var laborable = d < 5;
+    var manana = await Necesidad(dia, quirofano, qManana);
+    var tarde = await Necesidad(dia, quirofano, qTarde);
+    // Quirófano: mañana con 3 de 4 plazas (queda una vacante) y tarde completa; fines de semana sin cubrir
+    if (laborable)
+    {
+        foreach (var p in new[] { pCarmen, pJavier, pElena }) await asignaciones.AsignarAsync(manana, p, ct);
+        foreach (var p in new[] { pPablo, pSergio }) await asignaciones.AsignarAsync(tarde, p, ct);
+        // Reanimación: noches de lunes a viernes cubiertas; fin de semana sin cubrir
+        await asignaciones.AsignarAsync(await Necesidad(dia, reanimacion, rNoche), pNuria, ct);
+    }
+}
+// La planificación de Reanimación se publica; la de Quirófano queda en borrador para poder editarla
+await cuadrantes.PublicarAsync(cuadReanimacion.Id, ct);
 
 Console.WriteLine($"""
     Sociedad demo creada: {NombreOrganizacion}
+      Planificación:  semana del {lunes:dd/MM/yyyy} (Reanimación publicada; Quirófano en borrador con vacantes)
       Administrador:  {email("admin")}
       Coordinadora:   {email("coordinadora")}
       Responsable:    {email("responsable")}   (centro Hospital Demo Norte)
@@ -166,6 +201,13 @@ static async Task EliminarAsync(MedicalHubDbContext db, Guid orgId)
     // Orden inverso a las dependencias. Solo afecta a la organización indicada.
     string[] borrados =
     [
+        "DELETE FROM Asignaciones WHERE OrganizacionId=@o",
+        "DELETE FROM NecesidadesCobertura WHERE OrganizacionId=@o",
+        "DELETE FROM VersionesCuadrante WHERE OrganizacionId=@o",
+        "DELETE FROM Turnos WHERE OrganizacionId=@o",
+        "DELETE FROM Cuadrantes WHERE OrganizacionId=@o",
+        "DELETE FROM PlantillaLineas WHERE PlantillaId IN (SELECT Id FROM PlantillasCuadrante WHERE OrganizacionId=@o)",
+        "DELETE FROM PlantillasCuadrante WHERE OrganizacionId=@o",
         "DELETE FROM ProfesionalServicios WHERE ProfesionalId IN (SELECT Id FROM Profesionales WHERE OrganizacionId=@o)",
         "DELETE FROM ProfesionalCompetencias WHERE ProfesionalId IN (SELECT Id FROM Profesionales WHERE OrganizacionId=@o)",
         "DELETE FROM ProfesionalEspecialidades WHERE ProfesionalId IN (SELECT Id FROM Profesionales WHERE OrganizacionId=@o)",

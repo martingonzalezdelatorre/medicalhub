@@ -6,6 +6,7 @@ using MedicalHub.Domain.Comun;
 using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
 using MedicalHub.Domain.Organizaciones;
+using MedicalHub.Domain.Planificacion;
 using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Seguridad;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,12 @@ public sealed class MedicalHubDbContext(
     public DbSet<TipoTurno> TiposTurno => Set<TipoTurno>();
     public DbSet<RequisitoCobertura> RequisitosCobertura => Set<RequisitoCobertura>();
     public DbSet<Profesional> Profesionales => Set<Profesional>();
+    public DbSet<Cuadrante> Cuadrantes => Set<Cuadrante>();
+    public DbSet<Turno> Turnos => Set<Turno>();
+    public DbSet<NecesidadCobertura> Necesidades => Set<NecesidadCobertura>();
+    public DbSet<Asignacion> Asignaciones => Set<Asignacion>();
+    public DbSet<VersionCuadrante> VersionesCuadrante => Set<VersionCuadrante>();
+    public DbSet<PlantillaCuadrante> Plantillas => Set<PlantillaCuadrante>();
 
     /// <summary>
     /// Organización de la petición. Es null para usuarios de plataforma y para contextos sin sesión;
@@ -70,6 +77,24 @@ public sealed class MedicalHubDbContext(
         ValidarAislamiento();
         AuditarCambios();
         return base.SaveChanges(aceptarCambios);
+    }
+
+    public Task<T> EnTransaccionAsync<T>(Func<CancellationToken, Task<T>> operacion, CancellationToken ct = default)
+        => Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            ChangeTracker.Clear(); // cada intento parte de un estado limpio
+            await using var tx = await Database.BeginTransactionAsync(ct);
+            var resultado = await operacion(ct);
+            await tx.CommitAsync(ct);
+            return resultado;
+        });
+
+    public async Task BloquearAsync(string recurso, CancellationToken ct = default)
+    {
+        var resultado = await Database
+            .SqlQuery<int>($"DECLARE @r int; EXEC @r = sp_getapplock @Resource = {recurso}, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 10000; SELECT @r AS Value")
+            .ToListAsync(ct); // SQL no componible: se materializa tal cual
+        if (resultado.Single() < 0) throw new ExcepcionConflicto("La operación está siendo realizada por otro usuario. Inténtelo de nuevo.");
     }
 
     /// <summary>Defensa en profundidad: un usuario de sociedad nunca puede escribir filas de otra sociedad.</summary>

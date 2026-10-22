@@ -1,6 +1,7 @@
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
+using MedicalHub.Domain.Planificacion;
 using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Organizaciones;
 using MedicalHub.Domain.Seguridad;
@@ -24,7 +25,22 @@ public interface IAppDbContext
     DbSet<TipoTurno> TiposTurno { get; }
     DbSet<RequisitoCobertura> RequisitosCobertura { get; }
     DbSet<Profesional> Profesionales { get; }
+    DbSet<Cuadrante> Cuadrantes { get; }
+    DbSet<Turno> Turnos { get; }
+    DbSet<NecesidadCobertura> Necesidades { get; }
+    DbSet<Asignacion> Asignaciones { get; }
+    DbSet<VersionCuadrante> VersionesCuadrante { get; }
+    DbSet<PlantillaCuadrante> Plantillas { get; }
     DbSet<T> Set<T>() where T : class;
+
+    /// <summary>
+    /// Ejecuta la operación en una transacción (con reintentos del proveedor). Todo lo que la operación necesite
+    /// debe cargarse DENTRO de ella: el rastreador se limpia al empezar cada intento.
+    /// </summary>
+    Task<T> EnTransaccionAsync<T>(Func<CancellationToken, Task<T>> operacion, CancellationToken ct = default);
+
+    /// <summary>Bloqueo exclusivo hasta el fin de la transacción actual (sp_getapplock). Serializa operaciones concurrentes sobre un recurso.</summary>
+    Task BloquearAsync(string recurso, CancellationToken ct = default);
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
 

@@ -454,6 +454,277 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.ToTable("Organizaciones", (string)null);
                 });
 
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Asignacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AsignadoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<DateTimeOffset>("FechaAsignacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("FechaCancelacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("FinUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("InicioUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("NecesidadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TurnoId");
+
+                    b.HasIndex("NecesidadId", "ProfesionalId")
+                        .IsUnique()
+                        .HasFilter("[Estado] <> 'Cancelada'");
+
+                    b.HasIndex("ProfesionalId", "InicioUtc", "FinUtc");
+
+                    b.ToTable("Asignaciones", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Cuadrante", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("Desde")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("FechaCreacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("FechaPublicacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("Hasta")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PublicadoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServicioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServicioId", "Desde", "Hasta");
+
+                    b.ToTable("Cuadrantes", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.NecesidadCobertura", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CategoriaProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("NumeroPlazas")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaProfesionalId");
+
+                    b.HasIndex("TurnoId", "CategoriaProfesionalId")
+                        .IsUnique()
+                        .HasFilter("[CategoriaProfesionalId] IS NOT NULL");
+
+                    b.ToTable("NecesidadesCobertura", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.PlantillaCuadrante", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DiasPeriodo")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("FechaCreacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServicioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServicioId", "Nombre")
+                        .IsUnique();
+
+                    b.ToTable("PlantillasCuadrante", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Turno", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CuadranteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("Fecha")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("FinUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("InicioUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServicioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TipoTurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoTurnoId");
+
+                    b.HasIndex("OrganizacionId", "Fecha");
+
+                    b.HasIndex("ServicioId", "InicioUtc");
+
+                    b.HasIndex("CuadranteId", "TipoTurnoId", "Fecha")
+                        .IsUnique();
+
+                    b.ToTable("Turnos", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.VersionCuadrante", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContenidoJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CuadranteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("FechaPublicacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PlazasCubiertas")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlazasTotales")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalTurnos")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CuadranteId", "Numero")
+                        .IsUnique();
+
+                    b.ToTable("VersionesCuadrante", (string)null);
+                });
+
             modelBuilder.Entity("MedicalHub.Domain.Profesionales.Profesional", b =>
                 {
                     b.Property<Guid>("Id")
@@ -749,6 +1020,139 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                         });
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Asignacion", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.NecesidadCobertura", null)
+                        .WithMany()
+                        .HasForeignKey("NecesidadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Planificacion.Turno", null)
+                        .WithMany()
+                        .HasForeignKey("TurnoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Cuadrante", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Estructura.Servicio", null)
+                        .WithMany()
+                        .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.NecesidadCobertura", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Catalogos.CategoriaProfesional", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriaProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MedicalHub.Domain.Planificacion.Turno", null)
+                        .WithMany()
+                        .HasForeignKey("TurnoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.PlantillaCuadrante", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Estructura.Servicio", null)
+                        .WithMany()
+                        .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("MedicalHub.Domain.Planificacion.LineaPlantilla", "Lineas", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid?>("CategoriaProfesionalId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("DiaOffset")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("NumeroPlazas")
+                                .HasColumnType("int");
+
+                            b1.Property<Guid>("PlantillaId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("TipoTurnoId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("CategoriaProfesionalId");
+
+                            b1.HasIndex("PlantillaId");
+
+                            b1.HasIndex("TipoTurnoId");
+
+                            b1.ToTable("PlantillaLineas", (string)null);
+
+                            b1.HasOne("MedicalHub.Domain.Catalogos.CategoriaProfesional", null)
+                                .WithMany()
+                                .HasForeignKey("CategoriaProfesionalId")
+                                .OnDelete(DeleteBehavior.Restrict);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PlantillaId");
+
+                            b1.HasOne("MedicalHub.Domain.Estructura.TipoTurno", null)
+                                .WithMany()
+                                .HasForeignKey("TipoTurnoId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Lineas");
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Turno", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.Cuadrante", null)
+                        .WithMany()
+                        .HasForeignKey("CuadranteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Estructura.Servicio", null)
+                        .WithMany()
+                        .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Estructura.TipoTurno", null)
+                        .WithMany()
+                        .HasForeignKey("TipoTurnoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.VersionCuadrante", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.Cuadrante", null)
+                        .WithMany()
+                        .HasForeignKey("CuadranteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MedicalHub.Domain.Profesionales.Profesional", b =>
