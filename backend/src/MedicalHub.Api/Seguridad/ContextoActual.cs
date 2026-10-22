@@ -31,4 +31,10 @@ public static class Politicas
     // Cada política de rol incluye la exigencia de sesión completa (sin MFA pendiente).
     public const string AdministradorPlataforma = nameof(AdministradorPlataforma);
     public const string AdministradorSociedad = nameof(AdministradorSociedad);
+    /// <summary>Administrador, coordinador o responsable de centro (lectura de la planificación y fichas).</summary>
+    public const string LecturaSociedad = nameof(LecturaSociedad);
+    /// <summary>Administrador de sociedad o coordinador médico (elaboración de cuadrantes y búsqueda de candidatos).</summary>
+    public const string GestionPlanificacion = nameof(GestionPlanificacion);
+    /// <summary>Cualquier usuario de una sociedad con sesión completa.</summary>
+    public const string UsuarioSociedad = nameof(UsuarioSociedad);
 }

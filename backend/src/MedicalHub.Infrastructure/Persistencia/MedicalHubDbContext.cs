@@ -1,8 +1,12 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using MedicalHub.Application.Comun;
+using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Comun;
+using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
 using MedicalHub.Domain.Organizaciones;
+using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Seguridad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -19,6 +23,14 @@ public sealed class MedicalHubDbContext(
     public DbSet<TokenRefresco> TokensRefresco => Set<TokenRefresco>();
     public DbSet<EventoSeguridad> EventosSeguridad => Set<EventoSeguridad>();
     public DbSet<RegistroAuditoria> RegistrosAuditoria => Set<RegistroAuditoria>();
+    public DbSet<Especialidad> Especialidades => Set<Especialidad>();
+    public DbSet<CategoriaProfesional> CategoriasProfesionales => Set<CategoriaProfesional>();
+    public DbSet<Competencia> Competencias => Set<Competencia>();
+    public DbSet<Centro> Centros => Set<Centro>();
+    public DbSet<Servicio> Servicios => Set<Servicio>();
+    public DbSet<TipoTurno> TiposTurno => Set<TipoTurno>();
+    public DbSet<RequisitoCobertura> RequisitosCobertura => Set<RequisitoCobertura>();
+    public DbSet<Profesional> Profesionales => Set<Profesional>();
 
     /// <summary>
     /// Organización de la petición. Es null para usuarios de plataforma y para contextos sin sesión;
@@ -30,13 +42,21 @@ public sealed class MedicalHubDbContext(
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MedicalHubDbContext).Assembly);
 
-        // Aislamiento multiempresa: TODA entidad IPerteneceAOrganizacion necesita su filtro aquí.
-        modelBuilder.Entity<Usuario>().HasQueryFilter(u => u.OrganizacionId == OrganizacionActualId);
-        modelBuilder.Entity<RegistroAuditoria>().HasQueryFilter(a => a.OrganizacionId == OrganizacionActualId);
+        // Aislamiento multiempresa: se aplica automáticamente a TODA entidad IPerteneceAOrganizacion
+        // (y una prueba verifica que ninguna se quede sin filtro).
+        var aplicar = typeof(MedicalHubDbContext).GetMethod(nameof(AplicarFiltroOrganizacion),
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        foreach (var tipo in modelBuilder.Model.GetEntityTypes()
+                     .Where(t => !t.IsOwned() && t.BaseType is null && typeof(IPerteneceAOrganizacion).IsAssignableFrom(t.ClrType))
+                     .Select(t => t.ClrType).ToList())
+            aplicar.MakeGenericMethod(tipo).Invoke(this, [modelBuilder]);
 
         foreach (var tipo in modelBuilder.Model.GetEntityTypes().Where(t => !t.IsOwned() && typeof(Entidad).IsAssignableFrom(t.ClrType)))
             modelBuilder.Entity(tipo.ClrType).Property(nameof(Entidad.VersionFila)).IsRowVersion();
     }
+
+    private void AplicarFiltroOrganizacion<T>(ModelBuilder modelBuilder) where T : class, IPerteneceAOrganizacion
+        => modelBuilder.Entity<T>().HasQueryFilter(e => e.OrganizacionId == OrganizacionActualId);
 
     public override Task<int> SaveChangesAsync(bool aceptarCambios, CancellationToken ct = default)
     {
@@ -68,12 +88,15 @@ public sealed class MedicalHubDbContext(
     private static readonly HashSet<string> Sensibles =
         [nameof(Usuario.HashContrasena), nameof(Usuario.MfaSecretoProtegido)];
 
+    private static readonly JsonSerializerOptions OpcionesJson = new() { Converters = { new JsonStringEnumConverter() } };
+
     private void AuditarCambios()
     {
         var ahora = reloj.GetUtcNow();
         var nuevos = new List<RegistroAuditoria>();
+        var entradas = ChangeTracker.Entries().Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
 
-        foreach (var e in ChangeTracker.Entries().Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList())
+        foreach (var e in entradas)
         {
             if (e.Entity is IAuditable)
             {
@@ -87,12 +110,20 @@ public sealed class MedicalHubDbContext(
                 };
                 nuevos.Add(Nuevo(ahora, orgId, e.Metadata.ClrType.Name, ((Entidad)e.Entity).Id.ToString(), e.State, cambios));
             }
-            else if (e.Entity is UsuarioRol rol && e.State is EntityState.Added or EntityState.Deleted)
+            else if (e.Metadata.IsOwned() && e.State is EntityState.Added or EntityState.Deleted)
             {
-                var usuarioId = (Guid)e.Property("UsuarioId").CurrentValue!;
-                var orgId = Usuarios.Local.FirstOrDefault(u => u.Id == usuarioId)?.OrganizacionId;
-                nuevos.Add(Nuevo(ahora, orgId, nameof(UsuarioRol), usuarioId.ToString(), e.State,
-                    new Dictionary<string, object?> { ["Rol"] = ((UsuarioRol)e.Entity).Rol.ToString() }));
+                // Colecciones poseídas (roles, especialidades, competencias…): se auditan bajo el id de su propietario.
+                var propiedad = e.Metadata.FindOwnership()!;
+                var propietarioId = (Guid)e.Property(propiedad.Properties[0].Name).CurrentValue!;
+                var propietario = entradas.Concat(ChangeTracker.Entries())
+                    .FirstOrDefault(x => x.Metadata == propiedad.PrincipalEntityType && x.Entity is Entidad ent && ent.Id == propietarioId);
+                if (propietario?.Entity is not IAuditable) continue;
+
+                var cambios = new Dictionary<string, object?>();
+                foreach (var p in e.Properties.Where(p => !p.Metadata.IsShadowProperty()))
+                    cambios[p.Metadata.Name] = p.CurrentValue;
+                nuevos.Add(Nuevo(ahora, (propietario.Entity as IPerteneceAOrganizacion)?.OrganizacionId,
+                    e.Metadata.ClrType.Name, propietarioId.ToString(), e.State, cambios));
             }
         }
         RegistrosAuditoria.AddRange(nuevos);
@@ -102,7 +133,7 @@ public sealed class MedicalHubDbContext(
         Dictionary<string, object?> cambios)
         => new(orgId, contexto.UsuarioId, entidad, id,
             estado switch { EntityState.Added => "Alta", EntityState.Deleted => "Baja", _ => "Modificación" },
-            cambios.Count == 0 ? null : JsonSerializer.Serialize(cambios), contexto.IdCorrelacion, ahora);
+            cambios.Count == 0 ? null : JsonSerializer.Serialize(cambios, OpcionesJson), contexto.IdCorrelacion, ahora);
 
     private static Dictionary<string, object?> ExtraerCambios(EntityEntry e)
     {

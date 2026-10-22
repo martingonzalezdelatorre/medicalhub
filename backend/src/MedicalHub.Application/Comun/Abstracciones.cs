@@ -1,4 +1,7 @@
+using MedicalHub.Domain.Catalogos;
+using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
+using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Organizaciones;
 using MedicalHub.Domain.Seguridad;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +16,15 @@ public interface IAppDbContext
     DbSet<TokenRefresco> TokensRefresco { get; }
     DbSet<EventoSeguridad> EventosSeguridad { get; }
     DbSet<RegistroAuditoria> RegistrosAuditoria { get; }
+    DbSet<Especialidad> Especialidades { get; }
+    DbSet<CategoriaProfesional> CategoriasProfesionales { get; }
+    DbSet<Competencia> Competencias { get; }
+    DbSet<Centro> Centros { get; }
+    DbSet<Servicio> Servicios { get; }
+    DbSet<TipoTurno> TiposTurno { get; }
+    DbSet<RequisitoCobertura> RequisitosCobertura { get; }
+    DbSet<Profesional> Profesionales { get; }
+    DbSet<T> Set<T>() where T : class;
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
 

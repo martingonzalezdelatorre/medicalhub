@@ -67,6 +67,10 @@ builder.Services.AddAuthorization(o =>
     // Se usan políticas con nombre (no [Authorize(Roles=...)]) para garantizar que se exige sesión completa.
     o.AddPolicy(Politicas.AdministradorPlataforma, p => p.Combine(completa).RequireRole("AdministradorPlataforma"));
     o.AddPolicy(Politicas.AdministradorSociedad, p => p.Combine(completa).RequireRole("AdministradorSociedad"));
+    o.AddPolicy(Politicas.LecturaSociedad, p => p.Combine(completa)
+        .RequireRole("AdministradorSociedad", "CoordinadorMedico", "ResponsableCentro"));
+    o.AddPolicy(Politicas.GestionPlanificacion, p => p.Combine(completa).RequireRole("AdministradorSociedad", "CoordinadorMedico"));
+    o.AddPolicy(Politicas.UsuarioSociedad, p => p.Combine(completa).RequireClaim("org"));
 });
 
 // ── Límite de intentos de autenticación (por IP) ──
