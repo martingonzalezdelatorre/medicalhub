@@ -13,22 +13,28 @@ class _Destino {
   final String etiqueta;
 }
 
-/// Estructura adaptativa: barra inferior en móvil, raíl lateral en tablet y escritorio.
+/// Estructura adaptativa: barra inferior en móvil (con «Más» si hay más de cinco secciones),
+/// raíl lateral en tablet y escritorio.
 class ShellNavegacion extends ConsumerWidget {
   const ShellNavegacion({super.key, required this.ubicacion, required this.child});
 
   final String ubicacion;
   final Widget child;
 
+  static const _maxEnBarra = 5;
+
   static List<_Destino> _destinos(AppLocalizations t, PerfilUsuario perfil) {
     final admin = perfil.tieneRol(Rol.administradorSociedad);
     final lectura = admin || perfil.tieneRol(Rol.coordinadorMedico) || perfil.tieneRol(Rol.responsableCentro);
     return [
       _Destino('/', Icons.home_outlined, t.menuInicio),
-      if (admin) _Destino('/usuarios', Icons.group_outlined, t.menuUsuarios),
+      if (lectura) _Destino('/planificacion', Icons.calendar_month_outlined, t.menuPlanificacion),
+      if (perfil.tieneRol(Rol.profesionalSanitario)) _Destino('/mi-planificacion', Icons.event_available_outlined, t.menuMiPlanificacion),
+      if (lectura) _Destino('/cuadrantes', Icons.view_timeline_outlined, t.menuCuadrantes),
       if (lectura) _Destino('/profesionales', Icons.badge_outlined, t.menuProfesionales),
       if (lectura) _Destino('/centros', Icons.local_hospital_outlined, t.menuCentros),
       if (admin) _Destino('/catalogos', Icons.category_outlined, t.menuCatalogos),
+      if (admin) _Destino('/usuarios', Icons.group_outlined, t.menuUsuarios),
       if (perfil.tieneRol(Rol.administradorPlataforma)) _Destino('/organizaciones', Icons.business_outlined, t.menuOrganizaciones),
     ];
   }
@@ -56,11 +62,27 @@ class ShellNavegacion extends ConsumerWidget {
 
     void ir(int i) => context.go(destinos[i].ruta);
 
+    // En la barra inferior caben cinco; si hay más, la última posición es «Más».
+    final conMas = destinos.length > _maxEnBarra;
+    final visiblesEnBarra = conMas ? destinos.take(_maxEnBarra - 1).toList() : destinos;
+    final indiceBarra = conMas && indice >= _maxEnBarra - 1 ? _maxEnBarra - 1 : indice;
+
+    Future<void> abrirMas() async {
+      final elegido = await showModalBottomSheet<int>(
+        context: context,
+        builder: (c) => SafeArea(
+          child: ListView(shrinkWrap: true, children: [
+            for (var i = _maxEnBarra - 1; i < destinos.length; i++)
+              ListTile(leading: Icon(destinos[i].icono), title: Text(destinos[i].etiqueta), selected: i == indice, onTap: () => Navigator.pop(c, i)),
+          ]),
+        ),
+      );
+      if (elegido != null) ir(elegido);
+    }
+
     return Scaffold(
       appBar: AppBar(
-        leading: esDetalle
-            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go(seccion))
-            : null,
+        leading: esDetalle ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go(seccion)) : null,
         title: Text(destinos[indice].etiqueta),
         actions: [
           IconButton(
@@ -74,6 +96,7 @@ class ShellNavegacion extends ConsumerWidget {
         if (conRail)
           NavigationRail(
             extended: ancho >= 1000,
+            scrollable: true,
             selectedIndex: indice,
             onDestinationSelected: ir,
             destinations: [
@@ -84,9 +107,12 @@ class ShellNavegacion extends ConsumerWidget {
       ]),
       bottomNavigationBar: conBarra
           ? NavigationBar(
-              selectedIndex: indice,
-              onDestinationSelected: ir,
-              destinations: [for (final d in destinos) NavigationDestination(icon: Icon(d.icono), label: d.etiqueta)],
+              selectedIndex: indiceBarra,
+              onDestinationSelected: (i) => conMas && i == _maxEnBarra - 1 ? abrirMas() : ir(i),
+              destinations: [
+                for (final d in visiblesEnBarra) NavigationDestination(icon: Icon(d.icono), label: d.etiqueta),
+                if (conMas) NavigationDestination(icon: const Icon(Icons.more_horiz), label: t.menuMas),
+              ],
             )
           : null,
     );

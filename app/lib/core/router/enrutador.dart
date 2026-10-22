@@ -11,6 +11,10 @@ import '../../features/catalogos/presentation/pagina_catalogos.dart';
 import '../../features/estructura/presentation/pagina_centros.dart';
 import '../../features/estructura/presentation/pagina_servicio.dart';
 import '../../features/profesionales/presentation/pagina_profesional.dart';
+import '../../features/planificacion/data/planificacion_repositorio.dart' show fechaDeApi;
+import '../../features/planificacion/presentation/pagina_cuadrante.dart';
+import '../../features/planificacion/presentation/pagina_cuadrantes.dart';
+import '../../features/planificacion/presentation/pagina_planificacion.dart';
 import '../../features/profesionales/presentation/pagina_profesionales.dart';
 import '../../shared/widgets/shell_navegacion.dart';
 import '../auth/auth_controlador.dart';
@@ -31,7 +35,7 @@ String? redireccionar(EstadoAuth auth, String ubicacion) {
   if (en('/usuarios') && !admin) return '/';
   if (en('/catalogos') && !admin) return '/';
   if (ubicacion == '/profesionales/nuevo' && !admin) return '/';
-  if ((en('/profesionales') || en('/centros') || en('/servicios')) && !lectura) return '/';
+  if ((en('/profesionales') || en('/centros') || en('/servicios') || en('/cuadrantes') || en('/planificacion')) && !lectura) return '/';
   if (en('/organizaciones') && !perfil.tieneRol(Rol.administradorPlataforma)) return '/';
   return null;
 }
@@ -59,6 +63,14 @@ final enrutadorProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/centros', builder: (_, _) => const PaginaCentros()),
           GoRoute(path: '/centros/:id', builder: (_, e) => PaginaCentroDetalle(id: e.pathParameters['id']!)),
           GoRoute(path: '/servicios/:id', builder: (_, e) => PaginaServicio(id: e.pathParameters['id']!)),
+          GoRoute(path: '/planificacion', builder: (_, e) => PaginaPlanificacion(
+                key: ValueKey(e.uri.toString()),
+                cuadranteId: e.uri.queryParameters['cuadrante'],
+                fechaInicial: e.uri.queryParameters['fecha'] == null ? null : fechaDeApi(e.uri.queryParameters['fecha']!),
+              )),
+          GoRoute(path: '/mi-planificacion', builder: (_, _) => const PaginaPlanificacion(propia: true)),
+          GoRoute(path: '/cuadrantes', builder: (_, _) => const PaginaCuadrantes()),
+          GoRoute(path: '/cuadrantes/:id', builder: (_, e) => PaginaCuadrante(id: e.pathParameters['id']!)),
           GoRoute(path: '/profesionales', builder: (_, _) => const PaginaProfesionales()),
           GoRoute(path: '/profesionales/nuevo', builder: (_, _) => const PaginaProfesional()),
           GoRoute(path: '/profesionales/:id', builder: (_, e) => PaginaProfesional(id: e.pathParameters['id'])),

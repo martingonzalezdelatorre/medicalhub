@@ -843,6 +843,396 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin datos de contacto'**
   String get sinContacto;
+
+  /// No description provided for @menuPlanificacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Planificación'**
+  String get menuPlanificacion;
+
+  /// No description provided for @menuCuadrantes.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrantes'**
+  String get menuCuadrantes;
+
+  /// No description provided for @menuMiPlanificacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi planificación'**
+  String get menuMiPlanificacion;
+
+  /// No description provided for @menuMas.
+  ///
+  /// In es, this message translates to:
+  /// **'Más'**
+  String get menuMas;
+
+  /// No description provided for @eliminar.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get eliminar;
+
+  /// No description provided for @crear.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear'**
+  String get crear;
+
+  /// No description provided for @cerrarMenu.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get cerrarMenu;
+
+  /// No description provided for @vistaDia.
+  ///
+  /// In es, this message translates to:
+  /// **'Día'**
+  String get vistaDia;
+
+  /// No description provided for @vistaSemana.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana'**
+  String get vistaSemana;
+
+  /// No description provided for @vistaMes.
+  ///
+  /// In es, this message translates to:
+  /// **'Mes'**
+  String get vistaMes;
+
+  /// No description provided for @vistaAgenda.
+  ///
+  /// In es, this message translates to:
+  /// **'Agenda'**
+  String get vistaAgenda;
+
+  /// No description provided for @anterior.
+  ///
+  /// In es, this message translates to:
+  /// **'Anterior'**
+  String get anterior;
+
+  /// No description provided for @siguiente.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get siguiente;
+
+  /// No description provided for @hoy.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get hoy;
+
+  /// No description provided for @filtroCentro.
+  ///
+  /// In es, this message translates to:
+  /// **'Centro'**
+  String get filtroCentro;
+
+  /// No description provided for @filtroServicio.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio'**
+  String get filtroServicio;
+
+  /// No description provided for @todos.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get todos;
+
+  /// No description provided for @soloSinCubrir.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo sin cubrir'**
+  String get soloSinCubrir;
+
+  /// No description provided for @sinTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin turnos'**
+  String get sinTurnos;
+
+  /// No description provided for @resumenDia.
+  ///
+  /// In es, this message translates to:
+  /// **'{turnos} turnos, {sinCubrir} sin cubrir'**
+  String resumenDia(int turnos, int sinCubrir);
+
+  /// No description provided for @plazasCubiertasSemantica.
+  ///
+  /// In es, this message translates to:
+  /// **'{cubiertas} de {total} plazas cubiertas'**
+  String plazasCubiertasSemantica(int cubiertas, int total);
+
+  /// No description provided for @faltanProfesionales.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{Falta 1 profesional} other{Faltan {n} profesionales}}'**
+  String faltanProfesionales(int n);
+
+  /// No description provided for @cuadranteNoEditable.
+  ///
+  /// In es, this message translates to:
+  /// **'El cuadrante no está en borrador: reábralo para modificarlo.'**
+  String get cuadranteNoEditable;
+
+  /// No description provided for @asignarProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{Asignar profesional (1 plaza libre)} other{Asignar profesional ({n} plazas libres)}}'**
+  String asignarProfesional(int n);
+
+  /// No description provided for @plazasLibres.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 plaza libre} other{{n} plazas libres}}'**
+  String plazasLibres(int n);
+
+  /// No description provided for @sinNecesidades.
+  ///
+  /// In es, this message translates to:
+  /// **'Este turno no tiene necesidades de cobertura definidas.'**
+  String get sinNecesidades;
+
+  /// No description provided for @eliminarTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar turno'**
+  String get eliminarTurno;
+
+  /// No description provided for @confirmaEliminarTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminará el turno con sus necesidades y asignaciones.'**
+  String get confirmaEliminarTurno;
+
+  /// No description provided for @candidatosTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Candidatos'**
+  String get candidatosTitulo;
+
+  /// No description provided for @asignar.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar'**
+  String get asignar;
+
+  /// No description provided for @estadoBorrador.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrador'**
+  String get estadoBorrador;
+
+  /// No description provided for @estadoPublicado.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicado'**
+  String get estadoPublicado;
+
+  /// No description provided for @estadoArchivado.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivado'**
+  String get estadoArchivado;
+
+  /// No description provided for @nuevoCuadrante.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo cuadrante'**
+  String get nuevoCuadrante;
+
+  /// No description provided for @desdePlantilla.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde plantilla'**
+  String get desdePlantilla;
+
+  /// No description provided for @plazasCubiertasDe.
+  ///
+  /// In es, this message translates to:
+  /// **'{cubiertas}/{total} plazas cubiertas'**
+  String plazasCubiertasDe(int cubiertas, int total);
+
+  /// No description provided for @nombreOpcional.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre (opcional)'**
+  String get nombreOpcional;
+
+  /// No description provided for @campoDesde.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde'**
+  String get campoDesde;
+
+  /// No description provided for @campoHasta.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta'**
+  String get campoHasta;
+
+  /// No description provided for @generarTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Generar turnos con los requisitos del servicio'**
+  String get generarTurnos;
+
+  /// No description provided for @plantilla.
+  ///
+  /// In es, this message translates to:
+  /// **'Plantilla'**
+  String get plantilla;
+
+  /// No description provided for @sinPlantillas.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay plantillas. Guarde un cuadrante como plantilla para reutilizarlo.'**
+  String get sinPlantillas;
+
+  /// No description provided for @diasPlantilla.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} días'**
+  String diasPlantilla(int n);
+
+  /// No description provided for @turnosCuenta.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 turno} other{{n} turnos}}'**
+  String turnosCuenta(int n);
+
+  /// No description provided for @versionPublicada.
+  ///
+  /// In es, this message translates to:
+  /// **'Versión publicada: {v}'**
+  String versionPublicada(int v);
+
+  /// No description provided for @verCalendario.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver calendario'**
+  String get verCalendario;
+
+  /// No description provided for @validarYPublicar.
+  ///
+  /// In es, this message translates to:
+  /// **'Validar y publicar'**
+  String get validarYPublicar;
+
+  /// No description provided for @publicar.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicar'**
+  String get publicar;
+
+  /// No description provided for @cuadrantePublicado.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrante publicado'**
+  String get cuadrantePublicado;
+
+  /// No description provided for @anadirTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir turno'**
+  String get anadirTurno;
+
+  /// No description provided for @eliminarCuadrante.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar cuadrante'**
+  String get eliminarCuadrante;
+
+  /// No description provided for @confirmaEliminarCuadrante.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminará el borrador con todos sus turnos y asignaciones.'**
+  String get confirmaEliminarCuadrante;
+
+  /// No description provided for @reabrir.
+  ///
+  /// In es, this message translates to:
+  /// **'Reabrir'**
+  String get reabrir;
+
+  /// No description provided for @archivar.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivar'**
+  String get archivar;
+
+  /// No description provided for @guardarPlantilla.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar como plantilla'**
+  String get guardarPlantilla;
+
+  /// No description provided for @plantillaGuardada.
+  ///
+  /// In es, this message translates to:
+  /// **'Plantilla guardada'**
+  String get plantillaGuardada;
+
+  /// No description provided for @exportarCsv.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar CSV'**
+  String get exportarCsv;
+
+  /// No description provided for @csvCopiado.
+  ///
+  /// In es, this message translates to:
+  /// **'Este dispositivo no permite descargar archivos: el CSV se ha copiado al portapapeles.'**
+  String get csvCopiado;
+
+  /// No description provided for @versiones.
+  ///
+  /// In es, this message translates to:
+  /// **'Versiones publicadas'**
+  String get versiones;
+
+  /// No description provided for @sinVersiones.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no se ha publicado.'**
+  String get sinVersiones;
+
+  /// No description provided for @versionTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Versión {n}'**
+  String versionTitulo(int n);
+
+  /// No description provided for @sinIncidencias.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay incidencias: el cuadrante está listo para publicarse.'**
+  String get sinIncidencias;
+
+  /// No description provided for @errores.
+  ///
+  /// In es, this message translates to:
+  /// **'Errores (impiden publicar)'**
+  String get errores;
+
+  /// No description provided for @advertencias.
+  ///
+  /// In es, this message translates to:
+  /// **'Advertencias (revisables)'**
+  String get advertencias;
+
+  /// No description provided for @yMasAvisos.
+  ///
+  /// In es, this message translates to:
+  /// **'… y {n} avisos más'**
+  String yMasAvisos(int n);
 }
 
 class _AppLocalizationsDelegate

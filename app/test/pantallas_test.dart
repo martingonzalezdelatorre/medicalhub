@@ -63,13 +63,15 @@ void main() {
   });
 
   group('Sesión restaurada', () {
-    testWidgets('un profesional ve solo Inicio (sin navegación de gestión)', (t) async {
+    testWidgets('un profesional solo ve Inicio y Mi planificación (sin secciones de gestión)', (t) async {
       final servidor = ServidorFalso((_) => json(sesionJson(roles: ['ProfesionalSanitario'])));
       await _montar(t, servidor, tokenGuardado: 'R');
 
       expect(find.text('Hola, Ana García'), findsOneWidget);
-      expect(find.byType(NavigationRail), findsNothing);
-      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.text('Mi planificación'), findsWidgets);
+      for (final gestion in ['Usuarios', 'Profesionales', 'Centros', 'Cuadrantes', 'Catálogos', 'Planificación']) {
+        expect(find.text(gestion), findsNothing, reason: gestion);
+      }
       expect(find.text('Profesional sanitario'), findsOneWidget);
     });
 

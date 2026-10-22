@@ -397,4 +397,252 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sinContacto => 'Sin datos de contacto';
+
+  @override
+  String get menuPlanificacion => 'Planificación';
+
+  @override
+  String get menuCuadrantes => 'Cuadrantes';
+
+  @override
+  String get menuMiPlanificacion => 'Mi planificación';
+
+  @override
+  String get menuMas => 'Más';
+
+  @override
+  String get eliminar => 'Eliminar';
+
+  @override
+  String get crear => 'Crear';
+
+  @override
+  String get cerrarMenu => 'Cerrar';
+
+  @override
+  String get vistaDia => 'Día';
+
+  @override
+  String get vistaSemana => 'Semana';
+
+  @override
+  String get vistaMes => 'Mes';
+
+  @override
+  String get vistaAgenda => 'Agenda';
+
+  @override
+  String get anterior => 'Anterior';
+
+  @override
+  String get siguiente => 'Siguiente';
+
+  @override
+  String get hoy => 'Hoy';
+
+  @override
+  String get filtroCentro => 'Centro';
+
+  @override
+  String get filtroServicio => 'Servicio';
+
+  @override
+  String get todos => 'Todos';
+
+  @override
+  String get soloSinCubrir => 'Solo sin cubrir';
+
+  @override
+  String get sinTurnos => 'Sin turnos';
+
+  @override
+  String resumenDia(int turnos, int sinCubrir) {
+    return '$turnos turnos, $sinCubrir sin cubrir';
+  }
+
+  @override
+  String plazasCubiertasSemantica(int cubiertas, int total) {
+    return '$cubiertas de $total plazas cubiertas';
+  }
+
+  @override
+  String faltanProfesionales(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Faltan $n profesionales',
+      one: 'Falta 1 profesional',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cuadranteNoEditable =>
+      'El cuadrante no está en borrador: reábralo para modificarlo.';
+
+  @override
+  String asignarProfesional(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Asignar profesional ($n plazas libres)',
+      one: 'Asignar profesional (1 plaza libre)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String plazasLibres(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n plazas libres',
+      one: '1 plaza libre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sinNecesidades =>
+      'Este turno no tiene necesidades de cobertura definidas.';
+
+  @override
+  String get eliminarTurno => 'Eliminar turno';
+
+  @override
+  String get confirmaEliminarTurno =>
+      'Se eliminará el turno con sus necesidades y asignaciones.';
+
+  @override
+  String get candidatosTitulo => 'Candidatos';
+
+  @override
+  String get asignar => 'Asignar';
+
+  @override
+  String get estadoBorrador => 'Borrador';
+
+  @override
+  String get estadoPublicado => 'Publicado';
+
+  @override
+  String get estadoArchivado => 'Archivado';
+
+  @override
+  String get nuevoCuadrante => 'Nuevo cuadrante';
+
+  @override
+  String get desdePlantilla => 'Desde plantilla';
+
+  @override
+  String plazasCubiertasDe(int cubiertas, int total) {
+    return '$cubiertas/$total plazas cubiertas';
+  }
+
+  @override
+  String get nombreOpcional => 'Nombre (opcional)';
+
+  @override
+  String get campoDesde => 'Desde';
+
+  @override
+  String get campoHasta => 'Hasta';
+
+  @override
+  String get generarTurnos => 'Generar turnos con los requisitos del servicio';
+
+  @override
+  String get plantilla => 'Plantilla';
+
+  @override
+  String get sinPlantillas =>
+      'Todavía no hay plantillas. Guarde un cuadrante como plantilla para reutilizarlo.';
+
+  @override
+  String diasPlantilla(int n) {
+    return '$n días';
+  }
+
+  @override
+  String turnosCuenta(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n turnos',
+      one: '1 turno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionPublicada(int v) {
+    return 'Versión publicada: $v';
+  }
+
+  @override
+  String get verCalendario => 'Ver calendario';
+
+  @override
+  String get validarYPublicar => 'Validar y publicar';
+
+  @override
+  String get publicar => 'Publicar';
+
+  @override
+  String get cuadrantePublicado => 'Cuadrante publicado';
+
+  @override
+  String get anadirTurno => 'Añadir turno';
+
+  @override
+  String get eliminarCuadrante => 'Eliminar cuadrante';
+
+  @override
+  String get confirmaEliminarCuadrante =>
+      'Se eliminará el borrador con todos sus turnos y asignaciones.';
+
+  @override
+  String get reabrir => 'Reabrir';
+
+  @override
+  String get archivar => 'Archivar';
+
+  @override
+  String get guardarPlantilla => 'Guardar como plantilla';
+
+  @override
+  String get plantillaGuardada => 'Plantilla guardada';
+
+  @override
+  String get exportarCsv => 'Exportar CSV';
+
+  @override
+  String get csvCopiado =>
+      'Este dispositivo no permite descargar archivos: el CSV se ha copiado al portapapeles.';
+
+  @override
+  String get versiones => 'Versiones publicadas';
+
+  @override
+  String get sinVersiones => 'Todavía no se ha publicado.';
+
+  @override
+  String versionTitulo(int n) {
+    return 'Versión $n';
+  }
+
+  @override
+  String get sinIncidencias =>
+      'No hay incidencias: el cuadrante está listo para publicarse.';
+
+  @override
+  String get errores => 'Errores (impiden publicar)';
+
+  @override
+  String get advertencias => 'Advertencias (revisables)';
+
+  @override
+  String yMasAvisos(int n) {
+    return '… y $n avisos más';
+  }
 }

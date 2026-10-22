@@ -4,6 +4,7 @@ import 'dart:ui' show Size;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:medicalhub_app/main.dart';
 
 import 'package:dio/dio.dart';
@@ -73,6 +74,7 @@ Map<String, dynamic> problema(int estado, String detalle, {String? codigo}) =>
 
 /// Monta la app completa con un servidor simulado y un tamaño de pantalla, con sesión guardada.
 Future<void> montarApp(WidgetTester t, ServidorFalso servidor, {Size tamano = const Size(1200, 900), String? tokenGuardado = 'R'}) async {
+  await initializeDateFormatting("es_ES");
   t.view.physicalSize = tamano;
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
