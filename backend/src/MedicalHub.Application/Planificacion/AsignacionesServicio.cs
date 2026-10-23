@@ -1,7 +1,10 @@
 using MedicalHub.Application.Comun;
 using MedicalHub.Application.Reglas;
 using MedicalHub.Domain.Comun;
+using MedicalHub.Application.Notificaciones;
 using MedicalHub.Domain.Identidad;
+using MedicalHub.Domain.Notificaciones;
+using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Planificacion;
 using MedicalHub.Domain.Reglas;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +16,7 @@ namespace MedicalHub.Application.Planificacion;
 /// Las operaciones críticas se serializan con bloqueos por necesidad y por profesional dentro de una transacción,
 /// de modo que dos peticiones simultáneas no pueden llenar una plaza dos veces ni solapar a un profesional.
 /// </summary>
-public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual contexto, TimeProvider reloj, EvaluacionServicio evaluacion)
+public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual contexto, TimeProvider reloj, EvaluacionServicio evaluacion, NotificacionesServicio notificaciones)
 {
     /// <param name="vacanteId">Si se indica, la asignación cubre esa vacante (se permite en cuadrantes publicados) y la cierra en la misma transacción.</param>
     public async Task<ResultadoAsignacionDto> AsignarAsync(Guid necesidadId, Guid profesionalId, SolicitudExcepcion? excepcion, CancellationToken ct, Guid? vacanteId = null)
@@ -75,6 +78,7 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
             var asignacion = new Asignacion(org, necesidadId, turno, profesionalId, uid, reloj.GetUtcNow());
             db.Asignaciones.Add(asignacion);
             vacante?.Cubrir(asignacion.Id, reloj.GetUtcNow());
+            if (vacante is not null) await CerrarOfertasAsync(vacante, asignacion, profesional, $"{turno.Fecha:dd/MM/yyyy} · {ligero.Etiqueta} · {servicio.Nombre}", uid, token);
             foreach (var v in bloqueantes)
                 db.Excepciones.Add(new ExcepcionRegla(org, asignacion.Id, turno.Id, profesionalId, v.Clave, v.Codigo, v.ReglaId, v.Mensaje,
                     excepcion!.Justificacion, uid, reloj.GetUtcNow()));
@@ -83,6 +87,29 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
             return new ResultadoAsignacionDto(asignacion.Id, profesionalId, profesional.NombreCompleto, asignacion.Estado,
                 advertencias.Select(ViolacionDto.De).ToList(), bloqueantes.Select(ViolacionDto.De).ToList());
         }, ct);
+    }
+
+    /// <summary>
+    /// Al cubrir una vacante: la oferta aceptada del profesional asignado pasa a aprobada, el resto de ofertas abiertas se cierran
+    /// y cada afectado recibe su aviso. Todo en la misma transacción que la asignación.
+    /// </summary>
+    private async Task CerrarOfertasAsync(Vacante vacante, Asignacion asignacion, Profesional profesional, string turno, Guid uid, CancellationToken ct)
+    {
+        var org = vacante.OrganizacionId!.Value;
+        var ahora = reloj.GetUtcNow();
+        var abiertas = await db.Ofertas.Where(o => o.VacanteId == vacante.Id && (o.Estado == EstadoOferta.Pendiente || o.Estado == EstadoOferta.Aceptada)).ToListAsync(ct);
+        foreach (var o in abiertas)
+        {
+            if (o.ProfesionalId == profesional.Id && o.Estado == EstadoOferta.Aceptada) o.Aprobar(uid, asignacion.Id, ahora);
+            else
+            {
+                o.Cerrar(ahora, "La vacante se ha cubierto con otra persona.");
+                await notificaciones.CrearParaProfesionalAsync(org, o.ProfesionalId, TipoNotificacion.OfertaRetirada, "Oferta cerrada",
+                    $"La vacante del turno {turno} ya está cubierta.", o.Id, ct);
+            }
+        }
+        await notificaciones.CrearParaProfesionalAsync(org, profesional.Id, TipoNotificacion.SustitucionAprobada, "Turno asignado",
+            $"Se le ha asignado el turno {turno}.", asignacion.Id, ct);
     }
 
     /// <summary>Decide si se puede asignar con las infracciones bloqueantes dadas: sin excepción, con excepción o nunca.</summary>
