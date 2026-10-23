@@ -75,12 +75,45 @@ TurnoDto _$TurnoDtoFromJson(Map<String, dynamic> json) => TurnoDto(
   plazasCubiertas: (json['plazasCubiertas'] as num).toInt(),
 );
 
+ViolacionDto _$ViolacionDtoFromJson(Map<String, dynamic> json) => ViolacionDto(
+  codigo: json['codigo'] as String,
+  reglaId: json['reglaId'] as String?,
+  regla: json['regla'] as String,
+  severidad: json['severidad'] as String,
+  mensaje: json['mensaje'] as String,
+  permiteExcepcion: json['permiteExcepcion'] as bool,
+  requiereAdministrador: json['requiereAdministrador'] as bool,
+);
+
+ResultadoAsignacionDto _$ResultadoAsignacionDtoFromJson(
+  Map<String, dynamic> json,
+) => ResultadoAsignacionDto(
+  id: json['id'] as String,
+  advertencias:
+      (json['advertencias'] as List<dynamic>?)
+          ?.map((e) => ViolacionDto.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  excepciones:
+      (json['excepciones'] as List<dynamic>?)
+          ?.map((e) => ViolacionDto.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+);
+
 CandidatoDto _$CandidatoDtoFromJson(Map<String, dynamic> json) => CandidatoDto(
   profesionalId: json['profesionalId'] as String,
   nombreCompleto: json['nombreCompleto'] as String,
   elegible: json['elegible'] as bool,
   libre: json['libre'] as bool,
   motivos: (json['motivos'] as List<dynamic>).map((e) => e as String).toList(),
+  violaciones:
+      (json['violaciones'] as List<dynamic>?)
+          ?.map((e) => ViolacionDto.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  requiereExcepcion: json['requiereExcepcion'] as bool? ?? false,
+  puedeAutorizar: json['puedeAutorizar'] as bool? ?? false,
 );
 
 IncidenciaDto _$IncidenciaDtoFromJson(Map<String, dynamic> json) =>
@@ -88,6 +121,11 @@ IncidenciaDto _$IncidenciaDtoFromJson(Map<String, dynamic> json) =>
       severidad: json['severidad'] as String,
       codigo: json['codigo'] as String,
       mensaje: json['mensaje'] as String,
+      excepcionada: json['excepcionada'] as bool? ?? false,
+      justificacion: json['justificacion'] as String?,
+      autorizadaPor: json['autorizadaPor'] as String?,
+      asignacionId: json['asignacionId'] as String?,
+      permiteExcepcion: json['permiteExcepcion'] as bool? ?? false,
     );
 
 ValidacionDto _$ValidacionDtoFromJson(Map<String, dynamic> json) =>

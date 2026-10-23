@@ -71,9 +71,9 @@ public sealed partial class CuadrantesServicio
             {
                 var texto = $"{p.NombreCompleto} en {ligero.Etiqueta}: {v.Mensaje}";
                 if (v.Bloquea && excepciones.TryGetValue((a.Id, v.Clave), out var ex))
-                    incidencias.Add(new(Severidad.Bloqueante, v.Codigo, texto, turno.Id, p.Id, true, ex.Justificacion, autores.GetValueOrDefault(ex.AutorizadaPorUsuarioId)));
+                    incidencias.Add(new(Severidad.Bloqueante, v.Codigo, texto, turno.Id, p.Id, true, ex.Justificacion, autores.GetValueOrDefault(ex.AutorizadaPorUsuarioId), a.Id, v.PermiteExcepcion));
                 else
-                    incidencias.Add(new(v.Severidad.ToString(), v.Codigo, texto, turno.Id, p.Id));
+                    incidencias.Add(new(v.Severidad.ToString(), v.Codigo, texto, turno.Id, p.Id, false, null, null, a.Id, v.Bloquea && v.PermiteExcepcion));
             }
         }
 

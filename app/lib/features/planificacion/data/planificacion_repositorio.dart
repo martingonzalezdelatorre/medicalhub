@@ -146,8 +146,54 @@ class TurnoDto {
 }
 
 @JsonSerializable(createToJson: false)
+class ViolacionDto {
+  const ViolacionDto({
+    required this.codigo,
+    this.reglaId,
+    required this.regla,
+    required this.severidad,
+    required this.mensaje,
+    required this.permiteExcepcion,
+    required this.requiereAdministrador,
+  });
+
+  factory ViolacionDto.fromJson(Map<String, dynamic> json) => _$ViolacionDtoFromJson(json);
+
+  final String codigo;
+  final String? reglaId;
+  final String regla;
+  final String severidad;
+  final String mensaje;
+  final bool permiteExcepcion;
+  final bool requiereAdministrador;
+
+  bool get bloquea => severidad == 'Bloqueante';
+}
+
+/// Resultado de asignar: las advertencias no bloquean, pero conviene revisarlas.
+@JsonSerializable(createToJson: false)
+class ResultadoAsignacionDto {
+  const ResultadoAsignacionDto({required this.id, this.advertencias = const [], this.excepciones = const []});
+
+  factory ResultadoAsignacionDto.fromJson(Map<String, dynamic> json) => _$ResultadoAsignacionDtoFromJson(json);
+
+  final String id;
+  final List<ViolacionDto> advertencias;
+  final List<ViolacionDto> excepciones;
+}
+
+@JsonSerializable(createToJson: false)
 class CandidatoDto {
-  const CandidatoDto({required this.profesionalId, required this.nombreCompleto, required this.elegible, required this.libre, required this.motivos});
+  const CandidatoDto({
+    required this.profesionalId,
+    required this.nombreCompleto,
+    required this.elegible,
+    required this.libre,
+    required this.motivos,
+    this.violaciones = const [],
+    this.requiereExcepcion = false,
+    this.puedeAutorizar = false,
+  });
 
   factory CandidatoDto.fromJson(Map<String, dynamic> json) => _$CandidatoDtoFromJson(json);
 
@@ -156,17 +202,41 @@ class CandidatoDto {
   final bool elegible;
   final bool libre;
   final List<String> motivos;
+  final List<ViolacionDto> violaciones;
+
+  /// Tiene infracciones bloqueantes, pero todas admiten una excepción justificada.
+  final bool requiereExcepcion;
+
+  /// El usuario actual tiene autoridad para autorizar esa excepción.
+  final bool puedeAutorizar;
+
+  List<ViolacionDto> get advertencias => violaciones.where((v) => v.severidad != 'Bloqueante').toList();
 }
 
 @JsonSerializable(createToJson: false)
 class IncidenciaDto {
-  const IncidenciaDto({required this.severidad, required this.codigo, required this.mensaje});
+  const IncidenciaDto({
+    required this.severidad,
+    required this.codigo,
+    required this.mensaje,
+    this.excepcionada = false,
+    this.justificacion,
+    this.autorizadaPor,
+    this.asignacionId,
+    this.permiteExcepcion = false,
+  });
 
   factory IncidenciaDto.fromJson(Map<String, dynamic> json) => _$IncidenciaDtoFromJson(json);
 
   final String severidad;
   final String codigo;
   final String mensaje;
+
+  final bool excepcionada;
+  final String? justificacion;
+  final String? autorizadaPor;
+  final String? asignacionId;
+  final bool permiteExcepcion;
 
   bool get bloqueante => severidad == 'Bloqueante';
 }
@@ -336,8 +406,19 @@ class PlanificacionRepositorio {
         return [for (final j in r.data!) CandidatoDto.fromJson(j as Map<String, dynamic>)];
       });
 
-  Future<void> asignar(String necesidadId, String profesionalId) =>
-      protegerApi(() => _dio.post<void>('/api/necesidades/$necesidadId/asignaciones', data: {'profesionalId': profesionalId}));
+  /// Asigna un profesional. Si incumple reglas bloqueantes que admiten excepción hay que enviar la justificación.
+  Future<ResultadoAsignacionDto> asignar(String necesidadId, String profesionalId, {String? justificacion}) => protegerApi(() async {
+        final r = await _dio.post<Map<String, dynamic>>('/api/necesidades/$necesidadId/asignaciones', data: {
+          'profesionalId': profesionalId,
+          if (justificacion != null) 'excepcion': {'justificacion': justificacion},
+        });
+        return ResultadoAsignacionDto.fromJson(r.data!);
+      });
+
+  /// Autoriza a posteriori las infracciones bloqueantes de una asignación ya hecha.
+  Future<void> autorizarExcepcion(String asignacionId, String justificacion) => protegerApi(
+      () => _dio.post<void>('/api/asignaciones/$asignacionId/excepciones', data: {'justificacion': justificacion}));
+
 
   Future<void> quitarAsignacion(String id) => protegerApi(() => _dio.delete<void>('/api/asignaciones/$id'));
 

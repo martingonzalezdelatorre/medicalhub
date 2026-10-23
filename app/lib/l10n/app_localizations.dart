@@ -1233,6 +1233,222 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'… y {n} avisos más'**
   String yMasAvisos(int n);
+
+  /// No description provided for @menuReglas.
+  ///
+  /// In es, this message translates to:
+  /// **'Reglas'**
+  String get menuReglas;
+
+  /// No description provided for @reglasTabReglas.
+  ///
+  /// In es, this message translates to:
+  /// **'Reglas'**
+  String get reglasTabReglas;
+
+  /// No description provided for @reglasTabExcepciones.
+  ///
+  /// In es, this message translates to:
+  /// **'Excepciones'**
+  String get reglasTabExcepciones;
+
+  /// No description provided for @nuevaRegla.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva regla'**
+  String get nuevaRegla;
+
+  /// No description provided for @editarRegla.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar regla'**
+  String get editarRegla;
+
+  /// No description provided for @campoTipoRegla.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de regla'**
+  String get campoTipoRegla;
+
+  /// No description provided for @campoAmbito.
+  ///
+  /// In es, this message translates to:
+  /// **'Ámbito'**
+  String get campoAmbito;
+
+  /// No description provided for @ambitoSociedad.
+  ///
+  /// In es, this message translates to:
+  /// **'Toda la sociedad'**
+  String get ambitoSociedad;
+
+  /// No description provided for @severidadBloqueante.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloqueante'**
+  String get severidadBloqueante;
+
+  /// No description provided for @severidadAdvertencia.
+  ///
+  /// In es, this message translates to:
+  /// **'Advertencia'**
+  String get severidadAdvertencia;
+
+  /// No description provided for @campoPermiteExcepcion.
+  ///
+  /// In es, this message translates to:
+  /// **'Permitir excepción justificada'**
+  String get campoPermiteExcepcion;
+
+  /// No description provided for @campoExcepcionAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo el administrador puede autorizar la excepción'**
+  String get campoExcepcionAdmin;
+
+  /// No description provided for @campoFundamento.
+  ///
+  /// In es, this message translates to:
+  /// **'Fundamento (convenio, acuerdo o norma)'**
+  String get campoFundamento;
+
+  /// No description provided for @fundamentoAyuda.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo completa la sociedad: el sistema no incluye límites legales por defecto'**
+  String get fundamentoAyuda;
+
+  /// No description provided for @pendienteRevision.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente de revisión'**
+  String get pendienteRevision;
+
+  /// No description provided for @revisadaPor.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisada por {nombre} el {fecha}'**
+  String revisadaPor(String nombre, String fecha);
+
+  /// No description provided for @marcarRevisada.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar como revisada'**
+  String get marcarRevisada;
+
+  /// No description provided for @reglasAviso.
+  ///
+  /// In es, this message translates to:
+  /// **'Las reglas las define y revisa su sociedad. Los límites (descansos, horas, guardias…) no existen hasta que los configure según su convenio o acuerdo; consulte la normativa aplicable a cada colectivo.'**
+  String get reglasAviso;
+
+  /// No description provided for @reglasVacio.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no ha configurado ninguna regla.'**
+  String get reglasVacio;
+
+  /// No description provided for @excepcionSoloAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'excepción solo del administrador'**
+  String get excepcionSoloAdmin;
+
+  /// No description provided for @excepcionPosible.
+  ///
+  /// In es, this message translates to:
+  /// **'admite excepción'**
+  String get excepcionPosible;
+
+  /// No description provided for @comportamientoPorDefecto.
+  ///
+  /// In es, this message translates to:
+  /// **'Comportamiento cuando no hay regla configurada'**
+  String get comportamientoPorDefecto;
+
+  /// No description provided for @sinExcepciones.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay excepciones registradas.'**
+  String get sinExcepciones;
+
+  /// No description provided for @excepcionAnulada.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignación anulada'**
+  String get excepcionAnulada;
+
+  /// No description provided for @validaRango.
+  ///
+  /// In es, this message translates to:
+  /// **'Número entre {min} y {max}'**
+  String validaRango(int min, int max);
+
+  /// No description provided for @conExcepcion.
+  ///
+  /// In es, this message translates to:
+  /// **'Con excepción'**
+  String get conExcepcion;
+
+  /// No description provided for @conExcepcionTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar a {nombre} con excepción'**
+  String conExcepcionTitulo(String nombre);
+
+  /// No description provided for @soloAdministrador.
+  ///
+  /// In es, this message translates to:
+  /// **'Requiere al administrador'**
+  String get soloAdministrador;
+
+  /// No description provided for @asignadoConAdvertencias.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{Asignado con 1 advertencia} other{Asignado con {n} advertencias}}'**
+  String asignadoConAdvertencias(int n);
+
+  /// No description provided for @asignadoConExcepcion.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignado con excepción registrada'**
+  String get asignadoConExcepcion;
+
+  /// No description provided for @excepcionAviso.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta asignación incumple las siguientes reglas. Puede autorizarla como excepción: quedará registrada con su justificación y su nombre.'**
+  String get excepcionAviso;
+
+  /// No description provided for @justificacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Justificación'**
+  String get justificacion;
+
+  /// No description provided for @justificacionMinimo.
+  ///
+  /// In es, this message translates to:
+  /// **'Explique el motivo (mínimo {n} caracteres)'**
+  String justificacionMinimo(int n);
+
+  /// No description provided for @autorizarExcepcion.
+  ///
+  /// In es, this message translates to:
+  /// **'Autorizar excepción'**
+  String get autorizarExcepcion;
+
+  /// No description provided for @excepcionesAutorizadas.
+  ///
+  /// In es, this message translates to:
+  /// **'Excepciones autorizadas'**
+  String get excepcionesAutorizadas;
+
+  /// No description provided for @autorizadaPor.
+  ///
+  /// In es, this message translates to:
+  /// **'Autorizada por {nombre}'**
+  String autorizadaPor(String nombre);
 }
 
 class _AppLocalizationsDelegate

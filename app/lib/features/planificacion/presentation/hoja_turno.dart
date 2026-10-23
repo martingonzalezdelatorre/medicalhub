@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errores/fallo_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
+import '../../../shared/widgets/justificacion.dart';
 import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
 import '../data/planificacion_repositorio.dart';
@@ -140,15 +141,18 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
   String? _error;
   String? _asignando;
 
-  Future<void> _asignar(CandidatoDto c) async {
+  Future<void> _asignar(CandidatoDto c, {String? justificacion}) async {
     final t = AppLocalizations.of(context);
     setState(() {
       _asignando = c.profesionalId;
       _error = null;
     });
     try {
-      await ref.read(planificacionRepositorioProvider).asignar(widget.necesidad.id, c.profesionalId);
-      if (mounted) Navigator.pop(context, true);
+      final r = await ref.read(planificacionRepositorioProvider).asignar(widget.necesidad.id, c.profesionalId, justificacion: justificacion);
+      if (!mounted) return;
+      if (r.advertencias.isNotEmpty) mostrarMensaje(context, t.asignadoConAdvertencias(r.advertencias.length));
+      if (r.excepciones.isNotEmpty) mostrarMensaje(context, t.asignadoConExcepcion);
+      Navigator.pop(context, true);
     } on FalloApi catch (f) {
       if (mounted) {
         setState(() => _error = mensajeDeFallo(t, f));
@@ -159,15 +163,26 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
     }
   }
 
+  Future<void> _conExcepcion(CandidatoDto c) async {
+    final t = AppLocalizations.of(context);
+    final justificacion = await pedirJustificacion(
+      context,
+      titulo: t.conExcepcionTitulo(c.nombreCompleto),
+      infracciones: [for (final v in c.violaciones.where((v) => v.bloquea)) v.mensaje],
+    );
+    if (justificacion != null) await _asignar(c, justificacion: justificacion);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final candidatos = ref.watch(_candidatosProvider(widget.necesidad.id));
+    final aviso = Colors.orange.shade800;
     return AlertDialog(
       title: Text(t.candidatosTitulo),
       content: SizedBox(
-        width: 480,
-        height: 420,
+        width: 520,
+        height: 440,
         child: Column(children: [
           if (_error != null)
             Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
@@ -180,17 +195,36 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
                 separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (_, i) {
                   final c = lista[i];
+                  final ocupado = _asignando != null;
+                  final bloqueos = c.violaciones.where((v) => v.bloquea).map((v) => v.mensaje).toList();
+                  final avisos = c.advertencias.map((v) => v.mensaje).toList();
+                  // Sin detalle estructurado (API antigua) se muestran los motivos tal cual
+                  final motivosSueltos = c.violaciones.isEmpty ? c.motivos : const <String>[];
+                  final estado = c.elegible ? 0 : (c.requiereExcepcion ? 1 : 2);
+
                   return ListTile(
                     dense: true,
-                    enabled: c.elegible,
-                    leading: Icon(c.elegible ? Icons.check_circle_outline : Icons.block, color: c.elegible ? Colors.green : null),
+                    enabled: estado != 2,
+                    leading: Icon(
+                      switch (estado) { 0 => Icons.check_circle_outline, 1 => Icons.rule_folder_outlined, _ => Icons.block },
+                      color: switch (estado) { 0 => Colors.green, 1 => aviso, _ => null },
+                    ),
                     title: Text(c.nombreCompleto),
-                    subtitle: c.motivos.isEmpty ? null : Text(c.motivos.join(' ')),
-                    trailing: c.elegible
-                        ? (_asignando == c.profesionalId
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : FilledButton.tonal(onPressed: _asignando == null ? () => _asignar(c) : null, child: Text(t.asignar)))
-                        : null,
+                    subtitle: (bloqueos.isEmpty && avisos.isEmpty && motivosSueltos.isEmpty)
+                        ? null
+                        : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            for (final m in [...bloqueos, ...motivosSueltos]) Text(m),
+                            for (final m in avisos) Text(m, style: TextStyle(color: aviso)),
+                          ]),
+                    trailing: _asignando == c.profesionalId
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : switch (estado) {
+                            0 => FilledButton.tonal(onPressed: ocupado ? null : () => _asignar(c), child: Text(t.asignar)),
+                            1 => c.puedeAutorizar
+                                ? OutlinedButton(onPressed: ocupado ? null : () => _conExcepcion(c), child: Text(t.conExcepcion))
+                                : Text(t.soloAdministrador, style: Theme.of(context).textTheme.bodySmall),
+                            _ => null,
+                          },
                   );
                 },
               ),

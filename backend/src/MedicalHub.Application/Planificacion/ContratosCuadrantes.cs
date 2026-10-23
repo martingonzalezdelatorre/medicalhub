@@ -19,7 +19,7 @@ public static class Severidad
 }
 
 public sealed record IncidenciaDto(string Severidad, string Codigo, string Mensaje, Guid? TurnoId, Guid? ProfesionalId,
-    bool Excepcionada = false, string? Justificacion = null, string? AutorizadaPor = null);
+    bool Excepcionada = false, string? Justificacion = null, string? AutorizadaPor = null, Guid? AsignacionId = null, bool PermiteExcepcion = false);
 public sealed record ValidacionDto(bool PuedePublicarse, IReadOnlyList<IncidenciaDto> Incidencias);
 
 public sealed record VersionResumenDto(int Numero, DateTimeOffset Fecha, string? Usuario, int Turnos, int PlazasTotales, int PlazasCubiertas);

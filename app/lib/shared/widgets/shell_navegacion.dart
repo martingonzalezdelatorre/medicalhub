@@ -26,6 +26,7 @@ class ShellNavegacion extends ConsumerWidget {
   static List<_Destino> _destinos(AppLocalizations t, PerfilUsuario perfil) {
     final admin = perfil.tieneRol(Rol.administradorSociedad);
     final lectura = admin || perfil.tieneRol(Rol.coordinadorMedico) || perfil.tieneRol(Rol.responsableCentro);
+    final gestion = admin || perfil.tieneRol(Rol.coordinadorMedico);
     return [
       _Destino('/', Icons.home_outlined, t.menuInicio),
       if (lectura) _Destino('/planificacion', Icons.calendar_month_outlined, t.menuPlanificacion),
@@ -33,6 +34,7 @@ class ShellNavegacion extends ConsumerWidget {
       if (lectura) _Destino('/cuadrantes', Icons.view_timeline_outlined, t.menuCuadrantes),
       if (lectura) _Destino('/profesionales', Icons.badge_outlined, t.menuProfesionales),
       if (lectura) _Destino('/centros', Icons.local_hospital_outlined, t.menuCentros),
+      if (gestion) _Destino('/reglas', Icons.rule_folder_outlined, t.menuReglas),
       if (admin) _Destino('/catalogos', Icons.category_outlined, t.menuCatalogos),
       if (admin) _Destino('/usuarios', Icons.group_outlined, t.menuUsuarios),
       if (perfil.tieneRol(Rol.administradorPlataforma)) _Destino('/organizaciones', Icons.business_outlined, t.menuOrganizaciones),

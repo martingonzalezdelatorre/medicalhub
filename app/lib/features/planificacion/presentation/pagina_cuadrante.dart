@@ -11,6 +11,7 @@ import '../../../core/errores/fallo_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/descarga/descargar_archivo.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
+import '../../../shared/widgets/justificacion.dart';
 import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
 import '../../estructura/data/estructura_repositorio.dart';
@@ -218,7 +219,8 @@ Future<String?> _pedirNombre(BuildContext context, String titulo) async {
   return r;
 }
 
-/// Muestra las comprobaciones previas: las bloqueantes impiden publicar; las advertencias son revisables.
+/// Muestra las comprobaciones previas: las bloqueantes impiden publicar (salvo excepción autorizada);
+/// las advertencias son revisables y no bloquean.
 class _DialogoPublicar extends ConsumerStatefulWidget {
   const _DialogoPublicar({required this.cuadranteId});
   final String cuadranteId;
@@ -228,9 +230,11 @@ class _DialogoPublicar extends ConsumerStatefulWidget {
 }
 
 class _EstadoDialogoPublicar extends ConsumerState<_DialogoPublicar> {
-  late final Future<ValidacionDto> _validacion = ref.read(planificacionRepositorioProvider).validar(widget.cuadranteId);
+  late Future<ValidacionDto> _validacion = ref.read(planificacionRepositorioProvider).validar(widget.cuadranteId);
   bool _publicando = false;
   String? _error;
+
+  void _recargar() => setState(() => _validacion = ref.read(planificacionRepositorioProvider).validar(widget.cuadranteId));
 
   Future<void> _publicar() async {
     final t = AppLocalizations.of(context);
@@ -248,34 +252,69 @@ class _EstadoDialogoPublicar extends ConsumerState<_DialogoPublicar> {
     }
   }
 
+  Future<void> _autorizar(IncidenciaDto i) async {
+    final t = AppLocalizations.of(context);
+    final justificacion = await pedirJustificacion(context, titulo: t.autorizarExcepcion, infracciones: [i.mensaje]);
+    if (justificacion == null) return;
+    try {
+      await ref.read(planificacionRepositorioProvider).autorizarExcepcion(i.asignacionId!, justificacion);
+      _recargar();
+    } catch (e) {
+      if (mounted) setState(() => _error = mensajeDeFallo(t, e));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final esquema = Theme.of(context).colorScheme;
     return AlertDialog(
       title: Text(t.validarYPublicar),
       content: SizedBox(
-        width: 520,
+        width: 560,
         child: FutureBuilder<ValidacionDto>(
           future: _validacion,
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) return const SizedBox(height: 80, child: Center(child: CircularProgressIndicator()));
             if (snap.hasError) return Text(mensajeDeFallo(t, snap.error!));
             final v = snap.data!;
-            final bloqueantes = v.incidencias.where((i) => i.bloqueante).toList();
+            final bloqueantes = v.incidencias.where((i) => i.bloqueante && !i.excepcionada).toList();
+            final excepciones = v.incidencias.where((i) => i.excepcionada).toList();
             final avisos = v.incidencias.where((i) => !i.bloqueante).toList();
             return SingleChildScrollView(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                 if (v.incidencias.isEmpty) Text(t.sinIncidencias),
                 if (bloqueantes.isNotEmpty) ...[
-                  Text(t.errores, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.error)),
-                  for (final i in bloqueantes) ListTile(dense: true, leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error), title: Text(i.mensaje)),
+                  Text(t.errores, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: esquema.error)),
+                  for (final i in bloqueantes)
+                    ListTile(
+                      dense: true,
+                      leading: Icon(Icons.error_outline, color: esquema.error),
+                      title: Text(i.mensaje),
+                      trailing: i.permiteExcepcion && i.asignacionId != null
+                          ? OutlinedButton(onPressed: () => _autorizar(i), child: Text(t.autorizarExcepcion))
+                          : null,
+                    ),
+                ],
+                if (excepciones.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(t.excepcionesAutorizadas, style: Theme.of(context).textTheme.titleSmall),
+                  for (final i in excepciones)
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.verified_outlined),
+                      title: Text(i.mensaje),
+                      subtitle: Text('${t.justificacion}: ${i.justificacion ?? ''}\n${t.autorizadaPor(i.autorizadaPor ?? '—')}'),
+                      isThreeLine: true,
+                    ),
                 ],
                 if (avisos.isNotEmpty) ...[
+                  const SizedBox(height: 8),
                   Text(t.advertencias, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.orange.shade800)),
                   for (final i in avisos.take(30)) ListTile(dense: true, leading: Icon(Icons.warning_amber_outlined, color: Colors.orange.shade800), title: Text(i.mensaje)),
                   if (avisos.length > 30) Text(t.yMasAvisos(avisos.length - 30)),
                 ],
-                if (_error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                if (_error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_error!, style: TextStyle(color: esquema.error))),
               ]),
             );
           },

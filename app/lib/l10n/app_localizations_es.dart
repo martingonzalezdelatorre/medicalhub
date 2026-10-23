@@ -645,4 +645,135 @@ class AppLocalizationsEs extends AppLocalizations {
   String yMasAvisos(int n) {
     return '… y $n avisos más';
   }
+
+  @override
+  String get menuReglas => 'Reglas';
+
+  @override
+  String get reglasTabReglas => 'Reglas';
+
+  @override
+  String get reglasTabExcepciones => 'Excepciones';
+
+  @override
+  String get nuevaRegla => 'Nueva regla';
+
+  @override
+  String get editarRegla => 'Editar regla';
+
+  @override
+  String get campoTipoRegla => 'Tipo de regla';
+
+  @override
+  String get campoAmbito => 'Ámbito';
+
+  @override
+  String get ambitoSociedad => 'Toda la sociedad';
+
+  @override
+  String get severidadBloqueante => 'Bloqueante';
+
+  @override
+  String get severidadAdvertencia => 'Advertencia';
+
+  @override
+  String get campoPermiteExcepcion => 'Permitir excepción justificada';
+
+  @override
+  String get campoExcepcionAdmin =>
+      'Solo el administrador puede autorizar la excepción';
+
+  @override
+  String get campoFundamento => 'Fundamento (convenio, acuerdo o norma)';
+
+  @override
+  String get fundamentoAyuda =>
+      'Lo completa la sociedad: el sistema no incluye límites legales por defecto';
+
+  @override
+  String get pendienteRevision => 'Pendiente de revisión';
+
+  @override
+  String revisadaPor(String nombre, String fecha) {
+    return 'Revisada por $nombre el $fecha';
+  }
+
+  @override
+  String get marcarRevisada => 'Marcar como revisada';
+
+  @override
+  String get reglasAviso =>
+      'Las reglas las define y revisa su sociedad. Los límites (descansos, horas, guardias…) no existen hasta que los configure según su convenio o acuerdo; consulte la normativa aplicable a cada colectivo.';
+
+  @override
+  String get reglasVacio => 'Todavía no ha configurado ninguna regla.';
+
+  @override
+  String get excepcionSoloAdmin => 'excepción solo del administrador';
+
+  @override
+  String get excepcionPosible => 'admite excepción';
+
+  @override
+  String get comportamientoPorDefecto =>
+      'Comportamiento cuando no hay regla configurada';
+
+  @override
+  String get sinExcepciones => 'No hay excepciones registradas.';
+
+  @override
+  String get excepcionAnulada => 'Asignación anulada';
+
+  @override
+  String validaRango(int min, int max) {
+    return 'Número entre $min y $max';
+  }
+
+  @override
+  String get conExcepcion => 'Con excepción';
+
+  @override
+  String conExcepcionTitulo(String nombre) {
+    return 'Asignar a $nombre con excepción';
+  }
+
+  @override
+  String get soloAdministrador => 'Requiere al administrador';
+
+  @override
+  String asignadoConAdvertencias(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Asignado con $n advertencias',
+      one: 'Asignado con 1 advertencia',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get asignadoConExcepcion => 'Asignado con excepción registrada';
+
+  @override
+  String get excepcionAviso =>
+      'Esta asignación incumple las siguientes reglas. Puede autorizarla como excepción: quedará registrada con su justificación y su nombre.';
+
+  @override
+  String get justificacion => 'Justificación';
+
+  @override
+  String justificacionMinimo(int n) {
+    return 'Explique el motivo (mínimo $n caracteres)';
+  }
+
+  @override
+  String get autorizarExcepcion => 'Autorizar excepción';
+
+  @override
+  String get excepcionesAutorizadas => 'Excepciones autorizadas';
+
+  @override
+  String autorizadaPor(String nombre) {
+    return 'Autorizada por $nombre';
+  }
 }

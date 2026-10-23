@@ -4,7 +4,7 @@ enum TipoFallo { conexion, noAutorizado, prohibido, noEncontrado, validacion, co
 
 /// Error uniforme de la capa de datos; la UI solo conoce este tipo.
 class FalloApi implements Exception {
-  FalloApi(this.tipo, {this.detalle, this.codigo, this.errores = const {}});
+  FalloApi(this.tipo, {this.detalle, this.codigo, this.errores = const {}, this.violaciones = const []});
 
   final TipoFallo tipo;
   final String? detalle;
@@ -12,6 +12,9 @@ class FalloApi implements Exception {
   /// Código de negocio opcional enviado por la API (p. ej. `mfa_requerido`).
   final String? codigo;
   final Map<String, List<String>> errores;
+
+  /// Infracciones de reglas de planificación devueltas por la API (mensajes, severidad, si admiten excepción…).
+  final List<Map<String, dynamic>> violaciones;
 
   factory FalloApi.desde(Object error) {
     if (error is FalloApi) return error;
@@ -26,7 +29,10 @@ class FalloApi implements Exception {
           errores['$k'] = [for (final e in (v as List)) '$e'];
         });
       }
-      FalloApi f(TipoFallo t) => FalloApi(t, detalle: detalle, codigo: codigo, errores: errores);
+      final violaciones = datos is Map && datos['violaciones'] is List
+          ? [for (final v in datos['violaciones'] as List) Map<String, dynamic>.from(v as Map)]
+          : <Map<String, dynamic>>[];
+      FalloApi f(TipoFallo t) => FalloApi(t, detalle: detalle, codigo: codigo, errores: errores, violaciones: violaciones);
       return switch (estado) {
         null => FalloApi(TipoFallo.conexion),
         400 || 422 => f(TipoFallo.validacion),
