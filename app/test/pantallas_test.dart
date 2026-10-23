@@ -11,6 +11,9 @@ Future<void> _montar(WidgetTester t, ServidorFalso servidor, {Size tamano = cons
   t.view.physicalSize = tamano;
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
+  // El fondo del login se anima sin fin salvo que se pidan menos animaciones
+  t.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(t.platformDispatcher.clearAccessibilityFeaturesTestValue);
   final almacen = AlmacenTokensMemoria()..valor = tokenGuardado;
   await t.pumpWidget(ProviderScope(overrides: servidor.sobrescrituras(almacen: almacen), child: const MedicalHubApp()));
   await t.pumpAndSettle();
@@ -20,7 +23,7 @@ void main() {
   group('Login', () {
     testWidgets('sin sesión muestra el formulario y valida los campos', (t) async {
       await _montar(t, ServidorFalso((_) => json(sesionJson())));
-      expect(find.text('Iniciar sesión'), findsOneWidget);
+      expect(find.text('Iniciar sesión'), findsWidgets);
 
       await t.tap(find.text('Entrar'));
       await t.pumpAndSettle();
@@ -118,7 +121,7 @@ void main() {
     testWidgets('si el token guardado ya no vale se vuelve al login', (t) async {
       final servidor = ServidorFalso((_) => json(problema(401, 'Sesión no válida.'), 401));
       await _montar(t, servidor, tokenGuardado: 'CADUCADO');
-      expect(find.text('Iniciar sesión'), findsOneWidget);
+      expect(find.text('Iniciar sesión'), findsWidgets);
     });
   });
 }

@@ -19,6 +19,7 @@ class MedicalHubApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       onGenerateTitle: (c) => AppLocalizations.of(c).tituloApp,
       theme: TemaApp.claro(),
       darkTheme: TemaApp.oscuro(),

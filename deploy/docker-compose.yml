@@ -1,0 +1,50 @@
+# Instalación de referencia: SQL Server + API + web. Ejecutar desde la carpeta deploy/ con un fichero .env REAL
+# (copie .env.example, rellene los valores y NO lo suba al repositorio):
+#   docker compose --env-file .env up -d --build
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SQL_SA_PASSWORD:?defina SQL_SA_PASSWORD}
+      MSSQL_PID: ${MSSQL_PID:-Express}
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: ../backend
+    depends_on:
+      sql:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Conn: ${API_CONNECTION_STRING:?defina API_CONNECTION_STRING}
+      Seguridad__ClaveJwt: ${JWT_KEY:?defina JWT_KEY (32 bytes o más)}
+      Cors__OrigenesPermitidos__0: ${PUBLIC_URL:?defina PUBLIC_URL}
+      DataProtection__RutaClaves: /keys
+      Base__MigrarAlIniciar: "false"
+      Bootstrap__AdministradorPlataforma__Email: ${BOOTSTRAP_EMAIL:-}
+      Bootstrap__AdministradorPlataforma__Nombre: ${BOOTSTRAP_NOMBRE:-}
+      Bootstrap__AdministradorPlataforma__Contrasena: ${BOOTSTRAP_PASSWORD:-}
+    volumes:
+      - dpkeys:/keys
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web/Dockerfile
+    depends_on: [api]
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    restart: unless-stopped
+
+volumes:
+  sqldata:
+  dpkeys:

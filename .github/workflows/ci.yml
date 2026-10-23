@@ -1,0 +1,51 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      sql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "Ci-Pruebas-2026!x"
+        ports: ["1433:1433"]
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P Ci-Pruebas-2026!x -Q 'SELECT 1'"
+          --health-interval 10s --health-timeout 5s --health-retries 12
+    env:
+      # La fábrica de pruebas crea y elimina su propia base efímera en este servidor (solo de CI).
+      MEDICALHUB_TEST_DB: "Server=localhost,1433;User Id=sa;Password=Ci-Pruebas-2026!x;TrustServerCertificate=True"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore backend/MedicalHub.sln
+      - run: dotnet build backend/MedicalHub.sln --no-restore -c Release
+      - run: dotnet test backend/MedicalHub.sln --no-build -c Release
+      - name: Paquetes con vulnerabilidades conocidas
+        run: |
+          dotnet list backend/MedicalHub.sln package --vulnerable --include-transitive | tee vulnerables.txt
+          ! grep -q "has the following vulnerable packages" vulnerables.txt
+
+  app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: flutter analyze
+      - run: flutter test --timeout 30s
+      - run: flutter build web --release --dart-define=API_BASE_URL=/

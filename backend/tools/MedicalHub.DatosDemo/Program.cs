@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 // Datos de demostración IDENTIFICABLES: una sociedad «[DEMO] …» con usuarios @demo.medicalhub.local.
 //
-//   ConnectionStrings__MedicalHub  cadena de conexión (obligatoria)
+//   ConnectionStrings__Conn  cadena de conexión (obligatoria)
 //   DEMO_CONTRASENA                contraseña de TODOS los usuarios demo (obligatoria, ≥ 12 caracteres)
 //   --confirmar                    necesario para ejecutar
 //   --eliminar                     borra la sociedad demo y todos sus datos
