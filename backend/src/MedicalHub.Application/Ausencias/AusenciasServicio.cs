@@ -1,7 +1,9 @@
 using MedicalHub.Application.Comun;
+using MedicalHub.Application.Notificaciones;
 using MedicalHub.Application.Reglas;
 using MedicalHub.Domain.Ausencias;
 using MedicalHub.Domain.Comun;
+using MedicalHub.Domain.Notificaciones;
 using MedicalHub.Domain.Planificacion;
 using MedicalHub.Domain.Profesionales;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +15,7 @@ namespace MedicalHub.Application.Ausencias;
 /// cancelan y cada plaza liberada pasa a ser una <see cref="Vacante"/> abierta, de forma transaccional.
 /// No se piden ni guardan diagnósticos: solo el tipo y un comentario opcional.
 /// </summary>
-public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto, TimeProvider reloj, EvaluacionServicio evaluacion)
+public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto, TimeProvider reloj, EvaluacionServicio evaluacion, NotificacionesServicio notificaciones)
 {
     public const string MotivoVacante = "Ausencia aprobada";
 
@@ -32,7 +34,7 @@ public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto
         var hoy = Hoy();
         if (s.Desde < hoy.AddDays(-1))
             throw new ExcepcionValidacion(new Dictionary<string, string[]> { [nameof(s.Desde)] = ["No se pueden solicitar ausencias que ya han empezado. Contacte con su coordinador."] });
-        return await CrearAsync(p.Id, s.Tipo, s.Desde, s.Hasta, s.Comentario, aprobar: false, ct);
+        return await CrearAsync(p.Id, s.Tipo, s.Desde, s.Hasta, s.Comentario, aprobar: false, notificarCoordinacion: true, ct);
     }
 
     public async Task<AusenciaDto> CancelarPropiaAsync(Guid id, CancellationToken ct)
@@ -69,7 +71,7 @@ public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto
     {
         contexto.ExigirOrganizacion();
         if (!await db.Profesionales.AnyAsync(p => p.Id == s.ProfesionalId, ct)) throw new ExcepcionNoEncontrado("Profesional no encontrado.");
-        var ausencia = await CrearAsync(s.ProfesionalId, s.Tipo, s.Desde, s.Hasta, s.Comentario, s.Aprobar, ct);
+        var ausencia = await CrearAsync(s.ProfesionalId, s.Tipo, s.Desde, s.Hasta, s.Comentario, s.Aprobar, notificarCoordinacion: false, ct);
         return s.Aprobar
             ? await DecidirAsync(ausencia.Id, aprobar: true, motivo: "Registrada y aprobada por el coordinador", yaCreada: true, ct)
             : new ResultadoAusenciaDto(ausencia, []);
@@ -140,6 +142,12 @@ public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto
             else ausencia.Rechazar();
 
             db.DecisionesAusencia.Add(new DecisionAusencia(org, ausencia.Id, aprobar ? EstadoAusencia.Aprobada : EstadoAusencia.Rechazada, uid, ahora, motivo));
+            var detalle = $"{Etiqueta(ausencia.Tipo)} {Periodo(ausencia.Desde, ausencia.Hasta)}";
+            await notificaciones.CrearParaProfesionalAsync(org, ausencia.ProfesionalId, aprobar ? TipoNotificacion.AusenciaAprobada : TipoNotificacion.AusenciaRechazada,
+                aprobar ? "Ausencia aprobada" : "Ausencia rechazada", $"Su solicitud de {detalle} ha sido {(aprobar ? "aprobada" : "rechazada")}.", ausencia.Id, token, excepto: uid);
+            if (resultado.Count > 0)
+                await notificaciones.CrearParaCoordinacionAsync(org, TipoNotificacion.VacanteAbierta, "Vacantes por cubrir",
+                    $"La ausencia de {detalle} deja {resultado.Count} turno(s) sin cubrir.", ausencia.Id, token);
             await db.SaveChangesAsync(token);
             return resultado;
         }, ct);
@@ -148,7 +156,7 @@ public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto
         return new ResultadoAusenciaDto(dto, vacantes);
     }
 
-    private async Task<AusenciaDto> CrearAsync(Guid profesionalId, TipoAusencia tipo, DateOnly desde, DateOnly hasta, string? comentario, bool aprobar, CancellationToken ct)
+    private async Task<AusenciaDto> CrearAsync(Guid profesionalId, TipoAusencia tipo, DateOnly desde, DateOnly hasta, string? comentario, bool aprobar, bool notificarCoordinacion, CancellationToken ct)
     {
         var org = contexto.ExigirOrganizacion();
         var uid = UsuarioActual();
@@ -159,6 +167,12 @@ public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto
         var ausencia = new Ausencia(org, profesionalId, tipo, desde, hasta, comentario, uid, reloj.GetUtcNow());
         db.Ausencias.Add(ausencia);
         db.DecisionesAusencia.Add(new DecisionAusencia(org, ausencia.Id, EstadoAusencia.Solicitada, uid, reloj.GetUtcNow(), null));
+        if (notificarCoordinacion)
+        {
+            var nombre = await db.Profesionales.Where(p => p.Id == profesionalId).Select(p => p.Nombre + " " + p.Apellidos).FirstAsync(ct);
+            await notificaciones.CrearParaCoordinacionAsync(org, TipoNotificacion.AusenciaSolicitada, "Nueva solicitud de ausencia",
+                $"{nombre} solicita {Etiqueta(tipo)} {Periodo(desde, hasta)}.", ausencia.Id, ct, excepto: uid);
+        }
         await db.SaveChangesAsync(ct);
         return (await ComponerAsync([ausencia], ct)).Single();
     }
@@ -202,6 +216,14 @@ public sealed class AusenciasServicio(IAppDbContext db, IContextoActual contexto
         return await db.Profesionales.FirstOrDefaultAsync(p => p.UsuarioId == uid, ct)
             ?? throw new ExcepcionNoEncontrado("Su usuario no está vinculado a ninguna ficha profesional.");
     }
+
+    private static string Etiqueta(TipoAusencia t) => t switch
+    {
+        TipoAusencia.Vacaciones => "vacaciones", TipoAusencia.AsuntosPropios => "asuntos propios", TipoAusencia.Permiso => "un permiso",
+        TipoAusencia.Formacion => "formación", TipoAusencia.BajaTemporal => "una baja temporal", _ => "una ausencia"
+    };
+
+    private static string Periodo(DateOnly d, DateOnly h) => d == h ? $"el {d:dd/MM/yyyy}" : $"del {d:dd/MM/yyyy} al {h:dd/MM/yyyy}";
 
     private Guid UsuarioActual() => contexto.UsuarioId ?? throw new ExcepcionNoAutenticado("No autenticado.");
     private DateOnly Hoy() => DateOnly.FromDateTime(reloj.GetUtcNow().UtcDateTime);
