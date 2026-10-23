@@ -34,6 +34,7 @@ public static class DependenciasAplicacion
         servicios.AddScoped<HorasServicio>();
         servicios.AddScoped<InformesServicio>();
         servicios.AddScoped<DashboardServicio>();
+        servicios.AddScoped<Retencion.RetencionServicio>();
         servicios.AddScoped<NotificacionesServicio>();
         return servicios;
     }

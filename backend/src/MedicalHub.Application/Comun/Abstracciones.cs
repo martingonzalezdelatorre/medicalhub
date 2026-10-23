@@ -111,6 +111,10 @@ public sealed class OpcionesSeguridad
     public int DiasTokenRefresco { get; set; } = 7;
     public int LongitudMinimaContrasena { get; set; } = 12;
     public int LimiteLoginPorMinuto { get; set; } = 10;
+    /// <summary>Peticiones por minuto y usuario (o IP si no hay sesión) para toda la API. Protege frente a abuso y bucles de cliente.</summary>
+    public int LimiteGlobalPorMinuto { get; set; } = 600;
+    /// <summary>Tamaño máximo del cuerpo de una petición, en bytes (la API solo recibe JSON pequeño).</summary>
+    public int TamanoMaximoPeticionBytes { get; set; } = 1_048_576;
     public string Emisor { get; set; } = "MedicalHub";
     public string Audiencia { get; set; } = "MedicalHub.Clientes";
     /// <summary>Clave HMAC (≥ 32 bytes) en variable de entorno Seguridad__ClaveJwt. En Desarrollo, si falta, se genera una efímera.</summary>

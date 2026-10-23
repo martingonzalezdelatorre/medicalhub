@@ -18,6 +18,13 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Sin cabecera Server y con un tamaño máximo de petición: la API solo recibe JSON pequeño.
+builder.WebHost.ConfigureKestrel(k =>
+{
+    k.AddServerHeader = false;
+    k.Limits.MaxRequestBodySize = builder.Configuration.GetValue("Seguridad:TamanoMaximoPeticionBytes", 1_048_576);
+});
+
 builder.Host.UseSerilog((ctx, servicios, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
     .ReadFrom.Services(servicios)
@@ -26,6 +33,8 @@ builder.Host.UseSerilog((ctx, servicios, cfg) => cfg
 builder.Services.AddAplicacion();
 builder.Services.AddInfraestructura(builder.Configuration, builder.Environment.IsDevelopment());
 
+builder.Services.Configure<MedicalHub.Application.Retencion.OpcionesRetencion>(builder.Configuration.GetSection(MedicalHub.Application.Retencion.OpcionesRetencion.Seccion));
+builder.Services.AddHostedService<ServicioRetencion>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IContextoActual, ContextoActual>();
 
@@ -77,6 +86,14 @@ builder.Services.AddAuthorization(o =>
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    // Límite general por usuario autenticado (o por IP); los chequeos de salud quedan fuera.
+    o.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+    {
+        if (ctx.Request.Path.StartsWithSegments("/health")) return RateLimitPartition.GetNoLimiter("salud");
+        var limite = ctx.RequestServices.GetRequiredService<OpcionesSeguridad>().LimiteGlobalPorMinuto;
+        var clave = ctx.User.FindFirst("sub")?.Value ?? ctx.Connection.RemoteIpAddress?.ToString() ?? "desconocida";
+        return RateLimitPartition.GetFixedWindowLimiter(clave, _ => new FixedWindowRateLimiterOptions { PermitLimit = limite, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 });
+    });
     o.AddPolicy(Politicas.LimiteLogin, ctx =>
     {
         var limite = ctx.RequestServices.GetRequiredService<OpcionesSeguridad>().LimiteLoginPorMinuto;

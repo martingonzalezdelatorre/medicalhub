@@ -9,6 +9,10 @@ public sealed class CabecerasSeguridadMiddleware(RequestDelegate siguiente)
         h["X-Frame-Options"] = "DENY";
         h["Referrer-Policy"] = "no-referrer";
         h["Cache-Control"] = "no-store";
+        // La API solo devuelve JSON/CSV: no debe poder cargar ni ejecutar nada ni incrustarse en otra página.
+        h["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
+        h["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()";
+        h["Cross-Origin-Resource-Policy"] = "same-site";
         return siguiente(contexto);
     }
 }

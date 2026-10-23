@@ -9,7 +9,7 @@ namespace MedicalHub.Infrastructure;
 
 public static class DependenciasInfraestructura
 {
-    public const string NombreCadenaConexion = "MedicalHub";
+    public const string NombreCadenaConexion = "Conn";
 
     public static IServiceCollection AddInfraestructura(
         this IServiceCollection servicios, IConfiguration configuracion, bool esDesarrollo)

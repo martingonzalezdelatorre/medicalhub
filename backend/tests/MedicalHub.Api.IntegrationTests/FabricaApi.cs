@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using MedicalHub.Infrastructure.Persistencia;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -31,12 +32,24 @@ public sealed class FabricaApi : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
-        builder.UseSetting("ConnectionStrings:MedicalHub", _cadenaConexion);
+        // Máxima precedencia: nada de user-secrets ni variables de entorno del desarrollador (podrían apuntar a un servidor real) debe filtrarse a las pruebas.
+        builder.ConfigureAppConfiguration((_, c) => c.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Conn"] = _cadenaConexion,
+            ["Base:MigrarAlIniciar"] = "true",
+            ["Bootstrap:AdministradorPlataforma:Email"] = EmailPlataforma,
+            ["Bootstrap:AdministradorPlataforma:Contrasena"] = ContrasenaPlataforma,
+            ["Seguridad:LimiteLoginPorMinuto"] = "10000",
+            ["Seguridad:LimiteGlobalPorMinuto"] = "1000000",
+            ["Retencion:Habilitada"] = "false"
+        }));
+        builder.UseSetting("ConnectionStrings:Conn", _cadenaConexion);
         builder.UseSetting("Base:MigrarAlIniciar", "true");
         builder.UseSetting("Bootstrap:AdministradorPlataforma:Email", EmailPlataforma);
         builder.UseSetting("Bootstrap:AdministradorPlataforma:Contrasena", ContrasenaPlataforma);
         // Las pruebas hacen muchos inicios de sesión desde la misma IP.
         builder.UseSetting("Seguridad:LimiteLoginPorMinuto", "10000");
+        builder.UseSetting("Seguridad:LimiteGlobalPorMinuto", "1000000");
     }
 
     /// <summary>Sesión completa (con MFA activado) del administrador de plataforma, creada una sola vez.</summary>
