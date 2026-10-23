@@ -39,7 +39,7 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261022134939_Inicial', N'10.0.8');
+    VALUES (N'20261022134939_Inicial', N'10.0.13');
 END;
 
 COMMIT;
@@ -225,7 +225,7 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261022140426_IdentidadYMultiempresa', N'10.0.8');
+    VALUES (N'20261022140426_IdentidadYMultiempresa', N'10.0.13');
 END;
 
 COMMIT;
@@ -628,7 +628,7 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261022142935_CatalogosEstructuraProfesionales', N'10.0.8');
+    VALUES (N'20261022142935_CatalogosEstructuraProfesionales', N'10.0.13');
 END;
 
 COMMIT;
@@ -908,7 +908,7 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261022145422_CuadrantesTurnosAsignaciones', N'10.0.8');
+    VALUES (N'20261022145422_CuadrantesTurnosAsignaciones', N'10.0.13');
 END;
 
 COMMIT;
@@ -1022,7 +1022,7 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261022153317_ReglasYExcepciones', N'10.0.8');
+    VALUES (N'20261022153317_ReglasYExcepciones', N'10.0.13');
 END;
 
 COMMIT;
@@ -1236,7 +1236,7 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261023070301_AusenciasDisponibilidadVacantes', N'10.0.8');
+    VALUES (N'20261023070301_AusenciasDisponibilidadVacantes', N'10.0.13');
 END;
 
 COMMIT;
@@ -1337,7 +1337,92 @@ IF NOT EXISTS (
 )
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'20261023074056_OfertasYNotificaciones', N'10.0.8');
+    VALUES (N'20261023074056_OfertasYNotificaciones', N'10.0.13');
+END;
+
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    CREATE TABLE [RegistrosHoras] (
+        [Id] uniqueidentifier NOT NULL,
+        [AsignacionId] uniqueidentifier NOT NULL,
+        [ProfesionalId] uniqueidentifier NOT NULL,
+        [InicioRealUtc] datetimeoffset NOT NULL,
+        [FinRealUtc] datetimeoffset NOT NULL,
+        [RegistradoPorUsuarioId] uniqueidentifier NOT NULL,
+        [FechaRegistro] datetimeoffset NOT NULL,
+        [VersionFila] rowversion NOT NULL,
+        [OrganizacionId] uniqueidentifier NULL,
+        CONSTRAINT [PK_RegistrosHoras] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_RegistrosHoras_Asignaciones_AsignacionId] FOREIGN KEY ([AsignacionId]) REFERENCES [Asignaciones] ([Id]) ON DELETE NO ACTION,
+        CONSTRAINT [FK_RegistrosHoras_Profesionales_ProfesionalId] FOREIGN KEY ([ProfesionalId]) REFERENCES [Profesionales] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    CREATE TABLE [AjustesHoras] (
+        [Id] uniqueidentifier NOT NULL,
+        [RegistroHorasId] uniqueidentifier NOT NULL,
+        [Minutos] int NOT NULL,
+        [Motivo] nvarchar(300) NOT NULL,
+        [UsuarioId] uniqueidentifier NOT NULL,
+        [Fecha] datetimeoffset NOT NULL,
+        [VersionFila] rowversion NOT NULL,
+        [OrganizacionId] uniqueidentifier NULL,
+        CONSTRAINT [PK_AjustesHoras] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_AjustesHoras_RegistrosHoras_RegistroHorasId] FOREIGN KEY ([RegistroHorasId]) REFERENCES [RegistrosHoras] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    CREATE INDEX [IX_AjustesHoras_RegistroHorasId] ON [AjustesHoras] ([RegistroHorasId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_RegistrosHoras_AsignacionId] ON [RegistrosHoras] ([AsignacionId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    CREATE INDEX [IX_RegistrosHoras_OrganizacionId_ProfesionalId] ON [RegistrosHoras] ([OrganizacionId], [ProfesionalId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    CREATE INDEX [IX_RegistrosHoras_ProfesionalId] ON [RegistrosHoras] ([ProfesionalId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023080824_HorasEInformes'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261023080824_HorasEInformes', N'10.0.13');
 END;
 
 COMMIT;
