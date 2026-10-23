@@ -587,5 +587,63 @@
         "type": "int"
       }
     }
+  },
+  "menuFichaje": "Fichaje",
+  "fichajeSinTurno": "No tiene ningún turno asignado en este momento sobre el que fichar.",
+  "fichajeTurnoActual": "Turno: {turno}",
+  "fichajeCentro": "Centro: {centro}",
+  "fichajeEstadoEnCurso": "Jornada en curso",
+  "fichajeEstadoEnPausa": "En pausa",
+  "fichajeEstadoCerrado": "Jornada cerrada",
+  "fichajeDesde": "Desde las {hora}",
+  "fichajeTrabajado": "Trabajado: {tiempo}",
+  "fichajePausas": "Pausas: {tiempo}",
+  "fichajeEntrada": "Fichar entrada",
+  "fichajePausa": "Pausa",
+  "fichajeReanudar": "Reanudar",
+  "fichajeSalida": "Fichar salida",
+  "fichajeRegistrado": "Fichaje registrado",
+  "fichajeFueraDeZona": "Se ha registrado fuera de la zona del centro. La coordinación podrá revisarlo.",
+  "fichajeSinUbicacion": "Registrado sin ubicación.",
+  "fichajeUbicacionNoDisponible": "No se ha podido obtener su ubicación (permiso denegado, GPS desactivado o sin señal). ¿Desea fichar sin ubicación?",
+  "fichajeFicharSinUbicacion": "Fichar sin ubicación",
+  "fichajeUbicacionAviso": "Al fichar se registra su ubicación solo en la entrada y la salida, para comprobar que está en el centro.",
+  "fichajeHistorial": "Mis fichajes recientes",
+  "fichajeSinHistorial": "Aún no hay fichajes en los últimos 7 días.",
+  "fichajeFueraDeZonaEtiqueta": "Fuera de zona",
+  "@fichajeTurnoActual": {
+    "placeholders": {
+      "turno": {
+        "type": "String"
+      }
+    }
+  },
+  "@fichajeCentro": {
+    "placeholders": {
+      "centro": {
+        "type": "String"
+      }
+    }
+  },
+  "@fichajeDesde": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "@fichajeTrabajado": {
+    "placeholders": {
+      "tiempo": {
+        "type": "String"
+      }
+    }
+  },
+  "@fichajePausas": {
+    "placeholders": {
+      "tiempo": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -24,11 +24,13 @@ public sealed class OpcionesRetencion
     public int TokensRefrescoDias { get; set; } = 30;
     /// <summary>Registros de auditoría de cambios.</summary>
     public int AuditoriaDias { get; set; } = 1825;
+    /// <summary>Coordenadas de los fichajes: pasado el plazo se anonimizan (el fichaje y sus horas se conservan).</summary>
+    public int UbicacionesFichajeDias { get; set; } = 90;
 }
 
-public sealed record ResultadoDepuracion(int Notificaciones, int EventosSeguridad, int TokensRefresco, int Auditoria)
+public sealed record ResultadoDepuracion(int Notificaciones, int EventosSeguridad, int TokensRefresco, int Auditoria, int UbicacionesFichaje = 0)
 {
-    public int Total => Notificaciones + EventosSeguridad + TokensRefresco + Auditoria;
+    public int Total => Notificaciones + EventosSeguridad + TokensRefresco + Auditoria + UbicacionesFichaje;
 }
 
 /// <summary>Borra de forma definitiva los datos que han superado su plazo de conservación, para todas las sociedades.</summary>
@@ -37,7 +39,7 @@ public sealed class RetencionServicio(IAppDbContext db, TimeProvider reloj)
     public async Task<ResultadoDepuracion> DepurarAsync(OpcionesRetencion o, CancellationToken ct)
     {
         var ahora = reloj.GetUtcNow();
-        int notif = 0, eventos = 0, tokens = 0, auditoria = 0;
+        int notif = 0, eventos = 0, tokens = 0, auditoria = 0, ubicaciones = 0;
 
         // Proceso de mantenimiento del sistema: no hay sociedad actual, así que se ignora el filtro de organización.
         if (o.NotificacionesLeidasDias > 0)
@@ -65,6 +67,15 @@ public sealed class RetencionServicio(IAppDbContext db, TimeProvider reloj)
             var corte = ahora.AddDays(-o.AuditoriaDias);
             auditoria = await db.RegistrosAuditoria.IgnoreQueryFilters().Where(a => a.Fecha < corte).ExecuteDeleteAsync(ct);
         }
-        return new ResultadoDepuracion(notif, eventos, tokens, auditoria);
+        if (o.UbicacionesFichajeDias > 0)
+        {
+            var corte = ahora.AddDays(-o.UbicacionesFichajeDias);
+            ubicaciones = await db.Fichajes.IgnoreQueryFilters()
+                .Where(f => f.InicioUtc < corte && (f.EntradaLatitud != null || f.SalidaLatitud != null))
+                .ExecuteUpdateAsync(u => u
+                    .SetProperty(f => f.EntradaLatitud, (double?)null).SetProperty(f => f.EntradaLongitud, (double?)null).SetProperty(f => f.EntradaPrecisionMetros, (double?)null)
+                    .SetProperty(f => f.SalidaLatitud, (double?)null).SetProperty(f => f.SalidaLongitud, (double?)null).SetProperty(f => f.SalidaPrecisionMetros, (double?)null), ct);
+        }
+        return new ResultadoDepuracion(notif, eventos, tokens, auditoria, ubicaciones);
     }
 }

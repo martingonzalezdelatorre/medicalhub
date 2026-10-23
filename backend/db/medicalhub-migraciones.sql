@@ -1428,3 +1428,115 @@ END;
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    ALTER TABLE [Centros] ADD [Latitud] float NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    ALTER TABLE [Centros] ADD [Longitud] float NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    ALTER TABLE [Centros] ADD [RadioMetros] int NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    CREATE TABLE [Fichajes] (
+        [Id] uniqueidentifier NOT NULL,
+        [AsignacionId] uniqueidentifier NOT NULL,
+        [ProfesionalId] uniqueidentifier NOT NULL,
+        [Estado] nvarchar(20) NOT NULL,
+        [InicioUtc] datetimeoffset NOT NULL,
+        [FinUtc] datetimeoffset NULL,
+        [EntradaLatitud] float NULL,
+        [EntradaLongitud] float NULL,
+        [EntradaPrecisionMetros] float NULL,
+        [EntradaFueraDeZona] bit NULL,
+        [SalidaLatitud] float NULL,
+        [SalidaLongitud] float NULL,
+        [SalidaPrecisionMetros] float NULL,
+        [SalidaFueraDeZona] bit NULL,
+        [VersionFila] rowversion NOT NULL,
+        [OrganizacionId] uniqueidentifier NULL,
+        CONSTRAINT [PK_Fichajes] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_Fichajes_Asignaciones_AsignacionId] FOREIGN KEY ([AsignacionId]) REFERENCES [Asignaciones] ([Id]) ON DELETE NO ACTION,
+        CONSTRAINT [FK_Fichajes_Profesionales_ProfesionalId] FOREIGN KEY ([ProfesionalId]) REFERENCES [Profesionales] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    CREATE TABLE [PausasFichaje] (
+        [Id] int NOT NULL IDENTITY,
+        [InicioUtc] datetimeoffset NOT NULL,
+        [FinUtc] datetimeoffset NULL,
+        [FichajeId] uniqueidentifier NOT NULL,
+        CONSTRAINT [PK_PausasFichaje] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_PausasFichaje_Fichajes_FichajeId] FOREIGN KEY ([FichajeId]) REFERENCES [Fichajes] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    CREATE INDEX [IX_Fichajes_AsignacionId] ON [Fichajes] ([AsignacionId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    CREATE INDEX [IX_Fichajes_OrganizacionId_ProfesionalId_InicioUtc] ON [Fichajes] ([OrganizacionId], [ProfesionalId], [InicioUtc]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [IX_Fichajes_ProfesionalId] ON [Fichajes] ([ProfesionalId]) WHERE [Estado] IN (''EnCurso'', ''EnPausa'')');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    CREATE INDEX [IX_PausasFichaje_FichajeId] ON [PausasFichaje] ([FichajeId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261023130735_Fichajes'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261023130735_Fichajes', N'10.0.13');
+END;
+
+COMMIT;
+GO
+

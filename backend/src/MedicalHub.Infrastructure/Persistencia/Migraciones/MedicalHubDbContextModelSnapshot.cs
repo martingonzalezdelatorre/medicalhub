@@ -17,7 +17,7 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -312,6 +312,12 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.Property<DateTimeOffset>("FechaCreacion")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<double?>("Latitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitud")
+                        .HasColumnType("float");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -319,6 +325,9 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
 
                     b.Property<Guid?>("OrganizacionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("RadioMetros")
+                        .HasColumnType("int");
 
                     b.Property<string>("Tipo")
                         .IsRequired()
@@ -509,6 +518,74 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.HasIndex("RegistroHorasId");
 
                     b.ToTable("AjustesHoras", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Horas.Fichaje", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AsignacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("EntradaFueraDeZona")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("EntradaLatitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("EntradaLongitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("EntradaPrecisionMetros")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("FinUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("InicioUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("SalidaFueraDeZona")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("SalidaLatitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("SalidaLongitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("SalidaPrecisionMetros")
+                        .HasColumnType("float");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AsignacionId");
+
+                    b.HasIndex("ProfesionalId")
+                        .IsUnique()
+                        .HasFilter("[Estado] IN ('EnCurso', 'EnPausa')");
+
+                    b.HasIndex("OrganizacionId", "ProfesionalId", "InicioUtc");
+
+                    b.ToTable("Fichajes", (string)null);
                 });
 
             modelBuilder.Entity("MedicalHub.Domain.Horas.RegistroHoras", b =>
@@ -1604,6 +1681,50 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                         .HasForeignKey("RegistroHorasId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Horas.Fichaje", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.Asignacion", null)
+                        .WithMany()
+                        .HasForeignKey("AsignacionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("MedicalHub.Domain.Horas.PausaFichaje", "Pausas", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("FichajeId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTimeOffset?>("FinUtc")
+                                .HasColumnType("datetimeoffset");
+
+                            b1.Property<DateTimeOffset>("InicioUtc")
+                                .HasColumnType("datetimeoffset");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("FichajeId");
+
+                            b1.ToTable("PausasFichaje", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("FichajeId");
+                        });
+
+                    b.Navigation("Pausas");
                 });
 
             modelBuilder.Entity("MedicalHub.Domain.Horas.RegistroHoras", b =>

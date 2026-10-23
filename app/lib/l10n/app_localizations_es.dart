@@ -1187,4 +1187,88 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get misHoras => 'Mis horas (últimos 30 días)';
+
+  @override
+  String get menuFichaje => 'Fichaje';
+
+  @override
+  String get fichajeSinTurno =>
+      'No tiene ningún turno asignado en este momento sobre el que fichar.';
+
+  @override
+  String fichajeTurnoActual(String turno) {
+    return 'Turno: $turno';
+  }
+
+  @override
+  String fichajeCentro(String centro) {
+    return 'Centro: $centro';
+  }
+
+  @override
+  String get fichajeEstadoEnCurso => 'Jornada en curso';
+
+  @override
+  String get fichajeEstadoEnPausa => 'En pausa';
+
+  @override
+  String get fichajeEstadoCerrado => 'Jornada cerrada';
+
+  @override
+  String fichajeDesde(String hora) {
+    return 'Desde las $hora';
+  }
+
+  @override
+  String fichajeTrabajado(String tiempo) {
+    return 'Trabajado: $tiempo';
+  }
+
+  @override
+  String fichajePausas(String tiempo) {
+    return 'Pausas: $tiempo';
+  }
+
+  @override
+  String get fichajeEntrada => 'Fichar entrada';
+
+  @override
+  String get fichajePausa => 'Pausa';
+
+  @override
+  String get fichajeReanudar => 'Reanudar';
+
+  @override
+  String get fichajeSalida => 'Fichar salida';
+
+  @override
+  String get fichajeRegistrado => 'Fichaje registrado';
+
+  @override
+  String get fichajeFueraDeZona =>
+      'Se ha registrado fuera de la zona del centro. La coordinación podrá revisarlo.';
+
+  @override
+  String get fichajeSinUbicacion => 'Registrado sin ubicación.';
+
+  @override
+  String get fichajeUbicacionNoDisponible =>
+      'No se ha podido obtener su ubicación (permiso denegado, GPS desactivado o sin señal). ¿Desea fichar sin ubicación?';
+
+  @override
+  String get fichajeFicharSinUbicacion => 'Fichar sin ubicación';
+
+  @override
+  String get fichajeUbicacionAviso =>
+      'Al fichar se registra su ubicación solo en la entrada y la salida, para comprobar que está en el centro.';
+
+  @override
+  String get fichajeHistorial => 'Mis fichajes recientes';
+
+  @override
+  String get fichajeSinHistorial =>
+      'Aún no hay fichajes en los últimos 7 días.';
+
+  @override
+  String get fichajeFueraDeZonaEtiqueta => 'Fuera de zona';
 }

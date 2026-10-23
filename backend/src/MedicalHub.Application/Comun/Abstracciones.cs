@@ -44,6 +44,7 @@ public interface IAppDbContext
     DbSet<OfertaSustitucion> Ofertas { get; }
     DbSet<RegistroHoras> RegistrosHoras { get; }
     DbSet<AjusteHoras> AjustesHoras { get; }
+    DbSet<Fichaje> Fichajes { get; }
     DbSet<Notificacion> Notificaciones { get; }
     DbSet<T> Set<T>() where T : class;
 

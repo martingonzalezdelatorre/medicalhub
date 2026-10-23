@@ -76,6 +76,21 @@ public sealed class CentrosServicio(IAppDbContext db, IContextoActual contexto, 
         return ADto(centro);
     }
 
+    /// <summary>Define (o, con todo a null, quita) la geovalla con la que se valida la ubicación de los fichajes.</summary>
+    public async Task<Horas.GeovallaDto> EstablecerGeovallaAsync(Guid id, Horas.SolicitudGeovalla s, CancellationToken ct)
+    {
+        var centro = await BuscarAsync(id, ct);
+        if (s.Latitud is null && s.Longitud is null && s.RadioMetros is null) centro.QuitarGeovalla();
+        else
+        {
+            new Validador().Cuando(s.Latitud is null, nameof(s.Latitud), "Es obligatoria.").Cuando(s.Longitud is null, nameof(s.Longitud), "Es obligatoria.")
+                .Cuando(s.RadioMetros is null, nameof(s.RadioMetros), "Es obligatorio.").LanzarSiHayErrores();
+            centro.EstablecerGeovalla(s.Latitud!.Value, s.Longitud!.Value, s.RadioMetros!.Value);
+        }
+        await db.SaveChangesAsync(ct);
+        return new Horas.GeovallaDto(centro.Id, centro.Latitud, centro.Longitud, centro.RadioMetros);
+    }
+
     private async Task<Centro> BuscarAsync(Guid id, CancellationToken ct)
     {
         contexto.ExigirOrganizacion();

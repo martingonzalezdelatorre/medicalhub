@@ -44,6 +44,43 @@ public sealed class HorasController(HorasServicio servicio) : ControllerBase
 }
 
 [ApiController]
+public sealed class FichajesController(FichajesServicio servicio) : ControllerBase
+{
+    [HttpGet("api/fichajes/estado")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<EstadoFichajeDto>> Estado(CancellationToken ct) => await servicio.EstadoAsync(ct);
+
+    [HttpPost("api/fichajes/entrada")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<FichajeDto>> Entrada(SolicitudFichaje solicitud, CancellationToken ct)
+        => await servicio.EntradaAsync(solicitud, ct);
+
+    [HttpPost("api/fichajes/pausa")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<FichajeDto>> Pausa(CancellationToken ct) => await servicio.PausaAsync(ct);
+
+    [HttpPost("api/fichajes/reanudar")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<FichajeDto>> Reanudar(CancellationToken ct) => await servicio.ReanudarAsync(ct);
+
+    [HttpPost("api/fichajes/salida")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<FichajeDto>> Salida(SolicitudFichaje solicitud, CancellationToken ct)
+        => await servicio.SalidaAsync(solicitud, ct);
+
+    [HttpGet("api/mis-fichajes")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<IReadOnlyList<FichajeDto>>> Mios([FromQuery] DateOnly desde, [FromQuery] DateOnly hasta, CancellationToken ct)
+        => Ok(await servicio.MisFichajesAsync(desde, hasta, ct));
+
+    /// <summary>Fichajes con entrada o salida fuera de la geovalla del centro, para su revisión.</summary>
+    [HttpGet("api/fichajes/fuera-de-zona")]
+    [Authorize(Politicas.LecturaSociedad)]
+    public async Task<ActionResult<IReadOnlyList<FichajeFueraDeZonaDto>>> FueraDeZona([FromQuery] DateOnly desde, [FromQuery] DateOnly hasta, CancellationToken ct)
+        => Ok(await servicio.FueraDeZonaAsync(desde, hasta, ct));
+}
+
+[ApiController]
 [Route("api/informes")]
 public sealed class InformesController(InformesServicio servicio) : ControllerBase
 {

@@ -51,6 +51,7 @@ public sealed class MedicalHubDbContext(
     public DbSet<OfertaSustitucion> Ofertas => Set<OfertaSustitucion>();
     public DbSet<RegistroHoras> RegistrosHoras => Set<RegistroHoras>();
     public DbSet<AjusteHoras> AjustesHoras => Set<AjusteHoras>();
+    public DbSet<Fichaje> Fichajes => Set<Fichaje>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
 
     /// <summary>
@@ -124,8 +125,12 @@ public sealed class MedicalHubDbContext(
     // Se auditan por eventos de seguridad, no aquí: contadores de acceso y paso TOTP.
     private static readonly HashSet<string> Excluidas =
         [nameof(Entidad.Id), nameof(Entidad.VersionFila), nameof(Usuario.IntentosFallidos), nameof(Usuario.BloqueadoHasta), nameof(Usuario.MfaUltimoPaso)];
+    // Las coordenadas del fichaje no se copian a la auditoría: tienen su propio plazo de retención (más corto).
     private static readonly HashSet<string> Sensibles =
-        [nameof(Usuario.HashContrasena), nameof(Usuario.MfaSecretoProtegido)];
+    [
+        nameof(Usuario.HashContrasena), nameof(Usuario.MfaSecretoProtegido),
+        nameof(Fichaje.EntradaLatitud), nameof(Fichaje.EntradaLongitud), nameof(Fichaje.SalidaLatitud), nameof(Fichaje.SalidaLongitud)
+    ];
 
     private static readonly JsonSerializerOptions OpcionesJson = new() { Converters = { new JsonStringEnumConverter() } };
 

@@ -19,7 +19,7 @@
 |---|---|
 | Finalidad | Planificar turnos y guardias, gestionar ausencias y sustituciones, controlar el cumplimiento horario, informar a los interesados y obtener informes de gestión. |
 | Interesados | Profesionales sanitarios de la sociedad; usuarios de gestión (administradores, coordinadores, responsables de centro). |
-| Categorías de datos | **Identificación y contacto:** nombre, apellidos, correo, teléfono, número de colegiado (opcionales salvo nombre). **Profesionales:** categoría, competencias y su vigencia, servicios autorizados. **Laborales:** turnos asignados, horas planificadas y trabajadas, ajustes con motivo, disponibilidad y preferencias, ausencias (tipo y fechas), ofertas de sustitución. **Cuenta:** correo, hash de contraseña, roles, estado de MFA (secreto cifrado). **Trazas:** registros de auditoría y eventos de seguridad (incluye IP y correo intentado). |
+| Categorías de datos | **Identificación y contacto:** nombre, apellidos, correo, teléfono, número de colegiado (opcionales salvo nombre). **Profesionales:** categoría, competencias y su vigencia, servicios autorizados. **Laborales:** turnos asignados, horas planificadas y trabajadas, fichajes (entrada, pausas, salida y, en entrada y salida, coordenadas del dispositivo con su precisión y si cayeron fuera de la geovalla del centro), ajustes con motivo, disponibilidad y preferencias, ausencias (tipo y fechas), ofertas de sustitución. **Cuenta:** correo, hash de contraseña, roles, estado de MFA (secreto cifrado). **Trazas:** registros de auditoría y eventos de seguridad (incluye IP y correo intentado). |
 | Categorías especiales (art. 9) | No se tratan de forma intencionada. Riesgo residual: texto libre de comentarios (ver §6). |
 | Base jurídica (propuesta) | Ejecución del contrato de trabajo o relación estatutaria y cumplimiento de obligaciones legales (control horario) —art. 6.1.b y 6.1.c—; interés legítimo de la organización para la seguridad del sistema —art. 6.1.f—. El DPO debe confirmarlo. |
 | Destinatarios | Personal autorizado de la propia sociedad según su rol. El proveedor como encargado. No hay cesiones a terceros ni transferencias internacionales por defecto (depende del hosting elegido). |
@@ -46,6 +46,7 @@ Depuración automática diaria (`Retencion__*`, 0 = desactivada). Valores por de
 | Eventos de seguridad | 365 días |
 | Tokens de refresco caducados | 30 días tras caducar |
 | Registros de auditoría | 5 años |
+| Coordenadas de fichajes | 90 días (después se anonimizan; el fichaje y sus horas se conservan) |
 
 **Pendiente de definir por cada sociedad:** plazo de conservación de turnos, horas y ausencias (p. ej. el que exija la normativa laboral de control horario). El sistema **no los borra automáticamente**; las bajas de profesionales se hacen por desactivación y la supresión definitiva debe tramitarse como solicitud al proveedor (ver §7).
 
@@ -58,8 +59,9 @@ Depuración automática diaria (`Retencion__*`, 0 = desactivada). Valores por de
 | Fuga por exportación o copia de seguridad | Media / Medio | Exportaciones restringidas y auditadas; copias cifradas y con acceso restringido. |
 | Pérdida de datos | Baja / Alto | Copias verificadas y ensayos de restauración. |
 | Exceso de conservación | Media / Medio | Depuración automática; plazos a fijar por la sociedad. |
+| Geolocalización en el fichaje | Media / Medio | Solo se lee la ubicación al fichar entrada y salida (nunca seguimiento continuo); se informa al profesional en la app; las coordenadas se anonimizan a los 90 días y no se copian a la auditoría; no bloquea el fichaje, solo lo marca para revisión; acceso limitado a coordinación. |
 
-Conclusión orientativa: el tratamiento no incluye datos clínicos ni seguimiento sistemático de personas; el DPO debe decidir si procede una EIPD formal (el control horario y el tamaño del colectivo pueden influir).
+Conclusión orientativa: el tratamiento no incluye datos clínicos ni seguimiento continuo de personas (la ubicación se toma solo en cada fichaje, y su uso para el control horario debe comunicarse a los profesionales y, en su caso, a la representación legal de los trabajadores); el DPO debe decidir si procede una EIPD formal (el control horario y el tamaño del colectivo pueden influir).
 
 ## 7. Derechos de los interesados
 | Derecho | Cómo se atiende hoy |

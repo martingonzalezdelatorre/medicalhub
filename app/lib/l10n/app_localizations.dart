@@ -2235,6 +2235,144 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Mis horas (últimos 30 días)'**
   String get misHoras;
+
+  /// No description provided for @menuFichaje.
+  ///
+  /// In es, this message translates to:
+  /// **'Fichaje'**
+  String get menuFichaje;
+
+  /// No description provided for @fichajeSinTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'No tiene ningún turno asignado en este momento sobre el que fichar.'**
+  String get fichajeSinTurno;
+
+  /// No description provided for @fichajeTurnoActual.
+  ///
+  /// In es, this message translates to:
+  /// **'Turno: {turno}'**
+  String fichajeTurnoActual(String turno);
+
+  /// No description provided for @fichajeCentro.
+  ///
+  /// In es, this message translates to:
+  /// **'Centro: {centro}'**
+  String fichajeCentro(String centro);
+
+  /// No description provided for @fichajeEstadoEnCurso.
+  ///
+  /// In es, this message translates to:
+  /// **'Jornada en curso'**
+  String get fichajeEstadoEnCurso;
+
+  /// No description provided for @fichajeEstadoEnPausa.
+  ///
+  /// In es, this message translates to:
+  /// **'En pausa'**
+  String get fichajeEstadoEnPausa;
+
+  /// No description provided for @fichajeEstadoCerrado.
+  ///
+  /// In es, this message translates to:
+  /// **'Jornada cerrada'**
+  String get fichajeEstadoCerrado;
+
+  /// No description provided for @fichajeDesde.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde las {hora}'**
+  String fichajeDesde(String hora);
+
+  /// No description provided for @fichajeTrabajado.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajado: {tiempo}'**
+  String fichajeTrabajado(String tiempo);
+
+  /// No description provided for @fichajePausas.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausas: {tiempo}'**
+  String fichajePausas(String tiempo);
+
+  /// No description provided for @fichajeEntrada.
+  ///
+  /// In es, this message translates to:
+  /// **'Fichar entrada'**
+  String get fichajeEntrada;
+
+  /// No description provided for @fichajePausa.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausa'**
+  String get fichajePausa;
+
+  /// No description provided for @fichajeReanudar.
+  ///
+  /// In es, this message translates to:
+  /// **'Reanudar'**
+  String get fichajeReanudar;
+
+  /// No description provided for @fichajeSalida.
+  ///
+  /// In es, this message translates to:
+  /// **'Fichar salida'**
+  String get fichajeSalida;
+
+  /// No description provided for @fichajeRegistrado.
+  ///
+  /// In es, this message translates to:
+  /// **'Fichaje registrado'**
+  String get fichajeRegistrado;
+
+  /// No description provided for @fichajeFueraDeZona.
+  ///
+  /// In es, this message translates to:
+  /// **'Se ha registrado fuera de la zona del centro. La coordinación podrá revisarlo.'**
+  String get fichajeFueraDeZona;
+
+  /// No description provided for @fichajeSinUbicacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrado sin ubicación.'**
+  String get fichajeSinUbicacion;
+
+  /// No description provided for @fichajeUbicacionNoDisponible.
+  ///
+  /// In es, this message translates to:
+  /// **'No se ha podido obtener su ubicación (permiso denegado, GPS desactivado o sin señal). ¿Desea fichar sin ubicación?'**
+  String get fichajeUbicacionNoDisponible;
+
+  /// No description provided for @fichajeFicharSinUbicacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Fichar sin ubicación'**
+  String get fichajeFicharSinUbicacion;
+
+  /// No description provided for @fichajeUbicacionAviso.
+  ///
+  /// In es, this message translates to:
+  /// **'Al fichar se registra su ubicación solo en la entrada y la salida, para comprobar que está en el centro.'**
+  String get fichajeUbicacionAviso;
+
+  /// No description provided for @fichajeHistorial.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis fichajes recientes'**
+  String get fichajeHistorial;
+
+  /// No description provided for @fichajeSinHistorial.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay fichajes en los últimos 7 días.'**
+  String get fichajeSinHistorial;
+
+  /// No description provided for @fichajeFueraDeZonaEtiqueta.
+  ///
+  /// In es, this message translates to:
+  /// **'Fuera de zona'**
+  String get fichajeFueraDeZonaEtiqueta;
 }
 
 class _AppLocalizationsDelegate

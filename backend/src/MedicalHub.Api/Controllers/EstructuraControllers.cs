@@ -36,6 +36,12 @@ public sealed class CentrosController(CentrosServicio servicio) : ControllerBase
     public async Task<ActionResult<CentroDto>> EstablecerResponsables(Guid id, SolicitudResponsables solicitud, CancellationToken ct)
         => await servicio.EstablecerResponsablesAsync(id, solicitud, ct);
 
+    /// <summary>Geovalla del centro para validar la ubicación de los fichajes. Con todos los campos a null se quita.</summary>
+    [HttpPut("{id:guid}/geovalla")]
+    [Authorize(Politicas.AdministradorSociedad)]
+    public async Task<ActionResult<MedicalHub.Application.Horas.GeovallaDto>> EstablecerGeovalla(Guid id, MedicalHub.Application.Horas.SolicitudGeovalla solicitud, CancellationToken ct)
+        => await servicio.EstablecerGeovallaAsync(id, solicitud, ct);
+
     [HttpPost("{id:guid}/activar")]
     [Authorize(Politicas.AdministradorSociedad)]
     public async Task<IActionResult> Activar(Guid id, CancellationToken ct)

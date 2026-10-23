@@ -32,6 +32,7 @@ class ShellNavegacion extends ConsumerWidget {
     return [
       _Destino('/', Icons.home_outlined, t.menuInicio),
       if (lectura) _Destino('/planificacion', Icons.calendar_month_outlined, t.menuPlanificacion),
+      if (perfil.tieneRol(Rol.profesionalSanitario)) _Destino('/fichaje', Icons.fingerprint, t.menuFichaje),
       if (perfil.tieneRol(Rol.profesionalSanitario)) _Destino('/mi-planificacion', Icons.event_available_outlined, t.menuMiPlanificacion),
       if (perfil.tieneRol(Rol.profesionalSanitario)) _Destino('/mi-disponibilidad', Icons.beach_access_outlined, t.menuMiDisponibilidad),
       if (lectura) _Destino('/cuadrantes', Icons.view_timeline_outlined, t.menuCuadrantes),
