@@ -7,9 +7,23 @@ using MedicalHub.Domain.Reglas;
 namespace MedicalHub.Application.Reglas;
 
 /// <summary>Turno reducido a lo que necesita el motor de reglas.</summary>
-public sealed record TurnoLigero(Guid TurnoId, Guid ServicioId, DateOnly Fecha, DateTimeOffset InicioUtc, DateTimeOffset FinUtc, bool EsGuardia, string Etiqueta)
+public sealed record TurnoLigero(Guid TurnoId, Guid ServicioId, DateOnly Fecha, DateTimeOffset InicioUtc, DateTimeOffset FinUtc, bool EsGuardia, string Etiqueta,
+    DateOnly? FechaFinLocal = null, Guid? TipoTurnoId = null)
 {
     public double Horas => (FinUtc - InicioUtc).TotalHours;
+
+    /// <summary>Último día local que ocupa el turno (una noche que termina a las 08:00 ocupa también el día siguiente).</summary>
+    public DateOnly FechaFin => FechaFinLocal ?? Fecha;
+}
+
+/// <summary>Ausencia aprobada reducida a lo que necesita el motor.</summary>
+public sealed record AusenciaLigera(MedicalHub.Domain.Ausencias.TipoAusencia Tipo, DateOnly Desde, DateOnly Hasta);
+
+/// <summary>Disponibilidad aprobada (disponible, bloqueo o preferencia).</summary>
+public sealed record DisponibilidadLigera(MedicalHub.Domain.Ausencias.TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta, int Dias, Guid? TipoTurnoId, string? Comentario)
+{
+    public bool Afecta(TurnoLigero t) => Desde <= t.FechaFin && t.Fecha <= Hasta
+        && (Dias & MedicalHub.Domain.Ausencias.DiasSemana.Bit(t.Fecha.DayOfWeek)) != 0 && (TipoTurnoId is null || TipoTurnoId == t.TipoTurnoId);
 }
 
 public sealed record AsignacionLigera(Guid AsignacionId, EstadoAsignacion Estado, TurnoLigero Turno, DateTimeOffset FechaAsignacion);
@@ -36,6 +50,10 @@ public sealed class ContextoEvaluacion
     public required IReadOnlyList<AsignacionLigera> Otras { get; init; }
     public required IReadOnlyDictionary<Guid, string> Competencias { get; init; }
     public required IReadOnlyDictionary<Guid, string> Servicios { get; init; }
+    /// <summary>Ausencias APROBADAS del profesional en el entorno del turno.</summary>
+    public IReadOnlyList<AusenciaLigera> Ausencias { get; init; } = [];
+    /// <summary>Disponibilidades APROBADAS del profesional en el entorno del turno.</summary>
+    public IReadOnlyList<DisponibilidadLigera> Disponibilidades { get; init; } = [];
 }
 
 public sealed record ParametroRegla(string Clave, string Etiqueta, string Tipo, int? Minimo, int? Maximo);
@@ -80,6 +98,12 @@ public static class ParametrosRegla
         new(TipoRegla.IncompatibilidadServicios, "Incompatibilidad entre servicios", "El profesional no puede tener turnos en dos servicios con menos de un margen de horas entre ellos.", "Asignación",
             "No se aplica hasta que la sociedad la configure",
             [new("servicioAId", "Servicio A", "servicio", null, null), new("servicioBId", "Servicio B", "servicio", null, null), new("margenHoras", "Margen mínimo (horas)", "entero", 0, 72)]),
+        new(TipoRegla.AusenciaAprobada, "Ausencia aprobada", "El profesional tiene una ausencia aprobada que coincide con el turno.", "Asignación",
+            "Bloqueante, con excepción posible", []),
+        new(TipoRegla.DisponibilidadBloqueada, "Periodo bloqueado por el profesional", "El profesional ha bloqueado (y el coordinador ha aprobado) ese periodo.", "Asignación",
+            "Bloqueante, con excepción posible", []),
+        new(TipoRegla.PreferenciaEvitar, "Preferencia por evitar el turno", "El profesional ha indicado que prefiere evitar ese turno. Una preferencia no es una prohibición salvo que la sociedad la configure como bloqueante.", "Asignación",
+            "Advertencia", []),
         new(TipoRegla.CoberturaMinima, "Cobertura mínima", "Porcentaje mínimo de plazas cubiertas en cada necesidad al validar un cuadrante.", "Cuadrante",
             "Advertencia si hay plazas sin cubrir (100 %)", [new("porcentajeMinimo", "Porcentaje mínimo", "entero", 1, 100)]),
         new(TipoRegla.AsignacionPendiente, "Asignaciones pendientes de aprobación", "Avisa de las asignaciones que aún no están confirmadas al validar un cuadrante.", "Cuadrante",
@@ -91,5 +115,6 @@ public static class ParametrosRegla
     /// <summary>Tipos que tienen un comportamiento por defecto cuando la sociedad no configura ninguna regla.</summary>
     public static bool TieneComportamientoPorDefecto(TipoRegla t)
         => t is TipoRegla.AutorizacionServicio or TipoRegla.CategoriaAdmitida or TipoRegla.CompetenciasRequeridas
-            or TipoRegla.CategoriaNecesidad or TipoRegla.CoberturaMinima or TipoRegla.AsignacionPendiente;
+            or TipoRegla.CategoriaNecesidad or TipoRegla.CoberturaMinima or TipoRegla.AsignacionPendiente
+            or TipoRegla.AusenciaAprobada or TipoRegla.DisponibilidadBloqueada or TipoRegla.PreferenciaEvitar;
 }

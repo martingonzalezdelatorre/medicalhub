@@ -131,6 +131,8 @@ public sealed class Asignacion : EntidadDeOrganizacion, IAuditable
     public DateTimeOffset FechaAsignacion { get; private set; }
     public Guid? AsignadoPorUsuarioId { get; private set; }
     public DateTimeOffset? FechaCancelacion { get; private set; }
+    /// <summary>Por qué se canceló (p. ej. «Ausencia aprobada»).</summary>
+    public string? MotivoCancelacion { get; private set; }
 
     public bool EstaActiva => Estado != EstadoAsignacion.Cancelada;
 
@@ -148,11 +150,12 @@ public sealed class Asignacion : EntidadDeOrganizacion, IAuditable
         FechaAsignacion = ahora;
     }
 
-    public void Cancelar(DateTimeOffset ahora)
+    public void Cancelar(DateTimeOffset ahora, string? motivo = null)
     {
         if (Estado == EstadoAsignacion.Cancelada) return;
         Estado = EstadoAsignacion.Cancelada;
         FechaCancelacion = ahora;
+        MotivoCancelacion = motivo;
     }
 }
 
@@ -227,5 +230,55 @@ public sealed class PlantillaCuadrante : EntidadDeOrganizacion, IAuditable
         FechaCreacion = ahora;
         _lineas.AddRange(lineas);
         if (_lineas.Count == 0) throw new ExcepcionDominio("La plantilla no tiene turnos.");
+    }
+}
+
+public enum EstadoVacante { Abierta = 1, Cubierta = 2, Cancelada = 3 }
+
+/// <summary>
+/// Plaza que ha quedado sin cubrir porque se canceló una asignación (p. ej. por una ausencia aprobada).
+/// Conserva el vínculo con la asignación original y con su motivo para poder cubrirla y auditarla.
+/// </summary>
+public sealed class Vacante : EntidadDeOrganizacion, IAuditable
+{
+    public Guid NecesidadId { get; private set; }
+    public Guid TurnoId { get; private set; }
+    public Guid AsignacionOriginalId { get; private set; }
+    public Guid ProfesionalAusenteId { get; private set; }
+    /// <summary>Ausencia que originó la vacante (null si procede de otro motivo).</summary>
+    public Guid? AusenciaId { get; private set; }
+    public string Motivo { get; private set; } = "";
+    public EstadoVacante Estado { get; private set; } = EstadoVacante.Abierta;
+    public DateTimeOffset FechaCreacion { get; private set; }
+    public DateTimeOffset? FechaCierre { get; private set; }
+    public Guid? AsignacionCubiertaId { get; private set; }
+
+    private Vacante() { }
+
+    public Vacante(Guid organizacionId, Guid necesidadId, Guid turnoId, Guid asignacionOriginalId, Guid profesionalAusenteId, Guid? ausenciaId,
+        string motivo, DateTimeOffset ahora) : base(organizacionId)
+    {
+        NecesidadId = necesidadId;
+        TurnoId = turnoId;
+        AsignacionOriginalId = asignacionOriginalId;
+        ProfesionalAusenteId = profesionalAusenteId;
+        AusenciaId = ausenciaId;
+        Motivo = Texto(motivo, "El motivo", 200);
+        FechaCreacion = ahora;
+    }
+
+    public void Cubrir(Guid asignacionId, DateTimeOffset ahora)
+    {
+        if (Estado != EstadoVacante.Abierta) throw new ExcepcionDominio("La vacante ya está cerrada.");
+        Estado = EstadoVacante.Cubierta;
+        AsignacionCubiertaId = asignacionId;
+        FechaCierre = ahora;
+    }
+
+    public void Cancelar(DateTimeOffset ahora)
+    {
+        if (Estado != EstadoVacante.Abierta) throw new ExcepcionDominio("La vacante ya está cerrada.");
+        Estado = EstadoVacante.Cancelada;
+        FechaCierre = ahora;
     }
 }

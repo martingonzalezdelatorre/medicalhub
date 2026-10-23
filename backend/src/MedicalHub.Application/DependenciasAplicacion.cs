@@ -1,3 +1,4 @@
+using MedicalHub.Application.Ausencias;
 using MedicalHub.Application.Identidad;
 using MedicalHub.Application.Planificacion;
 using MedicalHub.Application.Reglas;
@@ -24,6 +25,9 @@ public static class DependenciasAplicacion
         servicios.AddScoped<EvaluacionServicio>();
         servicios.AddScoped<ReglasServicio>();
         servicios.AddScoped<ExcepcionesServicio>();
+        servicios.AddScoped<AusenciasServicio>();
+        servicios.AddScoped<DisponibilidadServicio>();
+        servicios.AddScoped<VacantesServicio>();
         return servicios;
     }
 }

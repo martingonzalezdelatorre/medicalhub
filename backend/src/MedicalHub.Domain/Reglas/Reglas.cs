@@ -24,7 +24,12 @@ public enum TipoRegla
 
     // Evaluadas al validar un cuadrante
     CoberturaMinima = 20,
-    AsignacionPendiente = 21
+    AsignacionPendiente = 21,
+
+    // Datos del propio profesional (E5)
+    AusenciaAprobada = 30,
+    DisponibilidadBloqueada = 31,
+    PreferenciaEvitar = 32
 }
 
 public enum SeveridadRegla { Advertencia = 1, Bloqueante = 2 }

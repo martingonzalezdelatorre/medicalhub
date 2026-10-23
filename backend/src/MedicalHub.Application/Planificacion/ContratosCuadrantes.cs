@@ -58,7 +58,8 @@ public sealed record FiltroCalendario(DateOnly Desde, DateOnly Hasta, Guid? Cent
     Guid? CategoriaId, Guid? CuadranteId, bool SoloSinCubrir);
 
 public sealed record CandidatoDto(Guid ProfesionalId, string NombreCompleto, bool Elegible, bool Libre, IReadOnlyList<string> Motivos,
-    IReadOnlyList<MedicalHub.Application.Reglas.ViolacionDto> Violaciones, bool RequiereExcepcion, bool PuedeAutorizar);
+    IReadOnlyList<MedicalHub.Application.Reglas.ViolacionDto> Violaciones, bool RequiereExcepcion, bool PuedeAutorizar,
+    IReadOnlyList<string> Notas);
 
 public sealed record ArchivoExportado(string NombreArchivo, string TipoContenido, byte[] Contenido);
 

@@ -42,6 +42,7 @@ public static class MotorReglas
     {
         TipoRegla.CoberturaMinima => new(null, tipo, "Cobertura mínima (por defecto)", SeveridadRegla.Advertencia, false, false, """{"porcentajeMinimo":100}"""),
         TipoRegla.AsignacionPendiente => new(null, tipo, "Asignaciones pendientes (por defecto)", SeveridadRegla.Advertencia, false, false, null),
+        TipoRegla.PreferenciaEvitar => new(null, tipo, "Preferencia por evitar el turno (por defecto)", SeveridadRegla.Advertencia, false, false, null),
         _ => new(null, tipo, ParametrosRegla.Definicion(tipo).Nombre + " (por defecto)", SeveridadRegla.Bloqueante, true, false, null)
     };
 
@@ -112,6 +113,21 @@ public static class MotorReglas
             case TipoRegla.CategoriaNecesidad:
                 if (c.Necesidad?.CategoriaProfesionalId is { } cat && c.Profesional.CategoriaId != cat)
                     yield return "Su categoría no es la que exige esta necesidad de cobertura.";
+                break;
+
+            case TipoRegla.AusenciaAprobada:
+                if (c.Ausencias.FirstOrDefault(a => a.Desde <= c.Turno.FechaFin && c.Turno.Fecha <= a.Hasta) is { } au)
+                    yield return $"Tiene una ausencia aprobada ({EtiquetaAusencia(au.Tipo)}) del {au.Desde:dd/MM/yyyy} al {au.Hasta:dd/MM/yyyy}.";
+                break;
+
+            case TipoRegla.DisponibilidadBloqueada:
+                if (c.Disponibilidades.FirstOrDefault(d => d.Tipo == MedicalHub.Domain.Ausencias.TipoDisponibilidad.Bloqueo && d.Afecta(c.Turno)) is { } bl)
+                    yield return $"Ha bloqueado ese periodo ({bl.Desde:dd/MM/yyyy} – {bl.Hasta:dd/MM/yyyy}).";
+                break;
+
+            case TipoRegla.PreferenciaEvitar:
+                if (c.Disponibilidades.Any(d => d.Tipo == MedicalHub.Domain.Ausencias.TipoDisponibilidad.Evita && d.Afecta(c.Turno)))
+                    yield return "Ha indicado que prefiere evitar este turno.";
                 break;
 
             case TipoRegla.DescansoMinimo:
@@ -220,5 +236,27 @@ public static class MotorReglas
         return mejor;
     }
 
+    private static string EtiquetaAusencia(MedicalHub.Domain.Ausencias.TipoAusencia tipo) => tipo switch
+    {
+        MedicalHub.Domain.Ausencias.TipoAusencia.Vacaciones => "vacaciones",
+        MedicalHub.Domain.Ausencias.TipoAusencia.AsuntosPropios => "asuntos propios",
+        MedicalHub.Domain.Ausencias.TipoAusencia.Permiso => "permiso",
+        MedicalHub.Domain.Ausencias.TipoAusencia.Formacion => "formación",
+        MedicalHub.Domain.Ausencias.TipoAusencia.BajaTemporal => "baja temporal",
+        _ => "otra ausencia"
+    };
+
     private static string N(double valor) => valor.ToString("0.#", CultureInfo.GetCultureInfo("es-ES"));
+}
+
+public static class NotasEvaluacion
+{
+    /// <summary>Información positiva (no son infracciones): el profesional ha declarado disponibilidad o prefiere el turno.</summary>
+    public static IReadOnlyList<string> Positivas(ContextoEvaluacion c)
+    {
+        var notas = new List<string>();
+        if (c.Disponibilidades.Any(d => d.Tipo == MedicalHub.Domain.Ausencias.TipoDisponibilidad.Prefiere && d.Afecta(c.Turno))) notas.Add("Prefiere este turno.");
+        if (c.Disponibilidades.Any(d => d.Tipo == MedicalHub.Domain.Ausencias.TipoDisponibilidad.Disponible && d.Afecta(c.Turno))) notas.Add("Ha declarado disponibilidad para estas fechas.");
+        return notas;
+    }
 }

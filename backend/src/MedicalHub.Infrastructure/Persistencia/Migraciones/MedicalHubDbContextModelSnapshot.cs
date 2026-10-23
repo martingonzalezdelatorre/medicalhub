@@ -22,6 +22,167 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MedicalHub.Domain.Ausencias.Ausencia", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comentario")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateOnly>("Desde")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("FechaSolicitud")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("Hasta")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SolicitadaPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizacionId", "Estado");
+
+                    b.HasIndex("ProfesionalId", "Desde", "Hasta");
+
+                    b.ToTable("Ausencias", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Ausencias.DecisionAusencia", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AusenciaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("Fecha")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Motivo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AusenciaId");
+
+                    b.ToTable("DecisionesAusencia", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Ausencias.Disponibilidad", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comentario")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<Guid?>("DecididaPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DeclaradaPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("Desde")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Dias")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("FechaDecision")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("FechaDeclaracion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("Hasta")
+                        .HasColumnType("date");
+
+                    b.Property<string>("MotivoDecision")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("TipoTurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoTurnoId");
+
+                    b.HasIndex("OrganizacionId", "Estado");
+
+                    b.HasIndex("ProfesionalId", "Desde", "Hasta");
+
+                    b.ToTable("Disponibilidades", (string)null);
+                });
+
             modelBuilder.Entity("MedicalHub.Domain.Catalogos.CategoriaProfesional", b =>
                 {
                     b.Property<Guid>("Id")
@@ -479,6 +640,10 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.Property<DateTimeOffset>("InicioUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("MotivoCancelacion")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<Guid>("NecesidadId")
                         .HasColumnType("uniqueidentifier");
 
@@ -676,6 +841,72 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                         .IsUnique();
 
                     b.ToTable("Turnos", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Vacante", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AsignacionCubiertaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AsignacionOriginalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AusenciaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("FechaCierre")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("FechaCreacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("NecesidadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalAusenteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AsignacionOriginalId")
+                        .IsUnique();
+
+                    b.HasIndex("AusenciaId");
+
+                    b.HasIndex("NecesidadId");
+
+                    b.HasIndex("ProfesionalAusenteId");
+
+                    b.HasIndex("TurnoId");
+
+                    b.HasIndex("OrganizacionId", "Estado");
+
+                    b.ToTable("Vacantes", (string)null);
                 });
 
             modelBuilder.Entity("MedicalHub.Domain.Planificacion.VersionCuadrante", b =>
@@ -1024,6 +1255,38 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.ToTable("RegistrosAuditoria", (string)null);
                 });
 
+            modelBuilder.Entity("MedicalHub.Domain.Ausencias.Ausencia", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Ausencias.DecisionAusencia", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Ausencias.Ausencia", null)
+                        .WithMany()
+                        .HasForeignKey("AusenciaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Ausencias.Disponibilidad", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Estructura.TipoTurno", null)
+                        .WithMany()
+                        .HasForeignKey("TipoTurnoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("MedicalHub.Domain.Estructura.Centro", b =>
                 {
                     b.OwnsMany("MedicalHub.Domain.Estructura.CentroResponsable", "Responsables", b1 =>
@@ -1279,6 +1542,38 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.HasOne("MedicalHub.Domain.Estructura.TipoTurno", null)
                         .WithMany()
                         .HasForeignKey("TipoTurnoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Planificacion.Vacante", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.Asignacion", null)
+                        .WithMany()
+                        .HasForeignKey("AsignacionOriginalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Ausencias.Ausencia", null)
+                        .WithMany()
+                        .HasForeignKey("AusenciaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MedicalHub.Domain.Planificacion.NecesidadCobertura", null)
+                        .WithMany()
+                        .HasForeignKey("NecesidadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalAusenteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Planificacion.Turno", null)
+                        .WithMany()
+                        .HasForeignKey("TurnoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

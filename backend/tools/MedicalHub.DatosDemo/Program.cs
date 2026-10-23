@@ -1,9 +1,11 @@
 ﻿using MedicalHub.Application;
+using MedicalHub.Application.Ausencias;
 using MedicalHub.Application.Comun;
 using MedicalHub.Application.Identidad;
 using MedicalHub.Application.Planificacion;
 using MedicalHub.Application.Reglas;
 using MedicalHub.Domain.Reglas;
+using MedicalHub.Domain.Ausencias;
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
@@ -177,6 +179,17 @@ for (var d = 0; d < 7; d++)
         await asignaciones.AsignarAsync(await Necesidad(dia, reanimacion, rNoche), pNuria, null, ct);
     }
 }
+// 6b. Ausencias y disponibilidad de ejemplo
+var ausenciasServicio = sp.GetRequiredService<AusenciasServicio>();
+var disponibilidadServicio = sp.GetRequiredService<DisponibilidadServicio>();
+// Elena: baja aprobada el jueves → su plaza de Quirófano queda como vacante abierta
+await ausenciasServicio.RegistrarAsync(new SolicitudAusenciaDeProfesional(pElena, TipoAusencia.BajaTemporal, lunes.AddDays(3), lunes.AddDays(3), null, true), ct);
+// Carmen: vacaciones solicitadas para la semana siguiente (pendientes de decisión)
+await ausenciasServicio.RegistrarAsync(new SolicitudAusenciaDeProfesional(pCarmen, TipoAusencia.Vacaciones, lunes.AddDays(7), lunes.AddDays(11), null, false), ct);
+// Pablo declara un bloqueo (pendiente de aprobación); Javier prefiere evitar el viernes (aprobado)
+await disponibilidadServicio.RegistrarAsync(new SolicitudDisponibilidadDeProfesional(pPablo, TipoDisponibilidad.Bloqueo, lunes.AddDays(7), lunes.AddDays(8), null, null, "Curso externo", false), ct);
+await disponibilidadServicio.RegistrarAsync(new SolicitudDisponibilidadDeProfesional(pJavier, TipoDisponibilidad.Evita, lunes.AddDays(4), lunes.AddDays(4), null, null, null, true), ct);
+
 // 7. Reglas de EJEMPLO (los valores son ilustrativos: la sociedad debe sustituirlos por los de su convenio y revisarlos)
 var reglasServicio = sp.GetRequiredService<ReglasServicio>();
 const string aviso = "Ejemplo de la demostración. No es una referencia legal: sustituir por lo que establezca el convenio o acuerdo aplicable.";
@@ -213,6 +226,10 @@ static async Task EliminarAsync(MedicalHubDbContext db, Guid orgId)
     // Orden inverso a las dependencias. Solo afecta a la organización indicada.
     string[] borrados =
     [
+        "DELETE FROM Vacantes WHERE OrganizacionId=@o",
+        "DELETE FROM DecisionesAusencia WHERE OrganizacionId=@o",
+        "DELETE FROM Ausencias WHERE OrganizacionId=@o",
+        "DELETE FROM Disponibilidades WHERE OrganizacionId=@o",
         "DELETE FROM ExcepcionesRegla WHERE OrganizacionId=@o",
         "DELETE FROM ReglasPlanificacion WHERE OrganizacionId=@o",
         "DELETE FROM Asignaciones WHERE OrganizacionId=@o",

@@ -1,3 +1,4 @@
+using MedicalHub.Domain.Ausencias;
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
@@ -34,6 +35,10 @@ public interface IAppDbContext
     DbSet<PlantillaCuadrante> Plantillas { get; }
     DbSet<ReglaPlanificacion> Reglas { get; }
     DbSet<ExcepcionRegla> Excepciones { get; }
+    DbSet<Ausencia> Ausencias { get; }
+    DbSet<DecisionAusencia> DecisionesAusencia { get; }
+    DbSet<Disponibilidad> Disponibilidades { get; }
+    DbSet<Vacante> Vacantes { get; }
     DbSet<T> Set<T>() where T : class;
 
     /// <summary>

@@ -44,7 +44,7 @@ public class ReglasTests(FabricaApi fabrica)
     {
         var e = await Escenario.CrearAsync(fabrica);
         var tipos = await e.C.GetFromJsonAsync<List<JsonElement>>("/api/reglas-planificacion/tipos", AyudaSesion.Json);
-        Assert.Equal(11, tipos!.Count);
+        Assert.Equal(14, tipos!.Count);
         var maxHoras = tipos.Single(t => t.GetProperty("tipo").GetString() == "MaxHorasPeriodo");
         Assert.Equal(["ventanaDias", "maxHoras"], maxHoras.GetProperty("parametros").EnumerateArray().Select(p => p.GetProperty("clave").GetString()));
         Assert.Contains("No se aplica", tipos.Single(t => t.GetProperty("tipo").GetString() == "DescansoMinimo").GetProperty("comportamientoPorDefecto").GetString());

@@ -62,6 +62,7 @@ internal sealed class AsignacionConfiguracion : IEntityTypeConfiguration<Asignac
         b.Property(x => x.Id).ValueGeneratedNever();
         b.Property(x => x.Estado).HasConversion<string>().HasMaxLength(25);
         b.Ignore(x => x.EstaActiva);
+        b.Property(x => x.MotivoCancelacion).HasMaxLength(200);
         b.HasOne<NecesidadCobertura>().WithMany().HasForeignKey(x => x.NecesidadId).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<Turno>().WithMany().HasForeignKey(x => x.TurnoId).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<Profesional>().WithMany().HasForeignKey(x => x.ProfesionalId).OnDelete(DeleteBehavior.Restrict);

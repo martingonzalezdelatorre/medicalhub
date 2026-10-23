@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MedicalHub.Application.Comun;
+using MedicalHub.Domain.Ausencias;
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Comun;
 using MedicalHub.Domain.Estructura;
@@ -41,6 +42,10 @@ public sealed class MedicalHubDbContext(
     public DbSet<PlantillaCuadrante> Plantillas => Set<PlantillaCuadrante>();
     public DbSet<ReglaPlanificacion> Reglas => Set<ReglaPlanificacion>();
     public DbSet<ExcepcionRegla> Excepciones => Set<ExcepcionRegla>();
+    public DbSet<Ausencia> Ausencias => Set<Ausencia>();
+    public DbSet<DecisionAusencia> DecisionesAusencia => Set<DecisionAusencia>();
+    public DbSet<Disponibilidad> Disponibilidades => Set<Disponibilidad>();
+    public DbSet<Vacante> Vacantes => Set<Vacante>();
 
     /// <summary>
     /// Organización de la petición. Es null para usuarios de plataforma y para contextos sin sesión;

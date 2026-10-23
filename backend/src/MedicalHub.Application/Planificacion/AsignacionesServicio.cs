@@ -15,7 +15,8 @@ namespace MedicalHub.Application.Planificacion;
 /// </summary>
 public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual contexto, TimeProvider reloj, EvaluacionServicio evaluacion)
 {
-    public async Task<ResultadoAsignacionDto> AsignarAsync(Guid necesidadId, Guid profesionalId, SolicitudExcepcion? excepcion, CancellationToken ct)
+    /// <param name="vacanteId">Si se indica, la asignación cubre esa vacante (se permite en cuadrantes publicados) y la cierra en la misma transacción.</param>
+    public async Task<ResultadoAsignacionDto> AsignarAsync(Guid necesidadId, Guid profesionalId, SolicitudExcepcion? excepcion, CancellationToken ct, Guid? vacanteId = null)
     {
         var org = contexto.ExigirOrganizacion();
         var uid = contexto.UsuarioId ?? throw new ExcepcionNoAutenticado("No autenticado.");
@@ -32,7 +33,15 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
             var turno = await db.Turnos.FirstOrDefaultAsync(t => t.Id == necesidad.TurnoId && visibles.Contains(t.ServicioId), token)
                 ?? throw new ExcepcionNoEncontrado("Necesidad de cobertura no encontrada.");
             var cuadrante = await db.Cuadrantes.FirstAsync(c => c.Id == turno.CuadranteId, token);
-            if (!cuadrante.EsEditable) throw TurnosServicio.CuadrantePublicado();
+            Vacante? vacante = null;
+            if (vacanteId is { } vid)
+            {
+                vacante = await db.Vacantes.FirstOrDefaultAsync(v => v.Id == vid && v.NecesidadId == necesidadId, token)
+                    ?? throw new ExcepcionNoEncontrado("Vacante no encontrada.");
+                if (vacante.Estado != EstadoVacante.Abierta) throw new ExcepcionConflicto("La vacante ya está cubierta o cancelada.");
+            }
+            if (cuadrante.Estado == EstadoCuadrante.Archivado) throw new ExcepcionConflicto("El cuadrante está archivado.");
+            if (!cuadrante.EsEditable && vacante is null) throw TurnosServicio.CuadrantePublicado();
 
             var profesional = await db.Profesionales.FirstOrDefaultAsync(p => p.Id == profesionalId, token)
                 ?? throw new ExcepcionNoEncontrado("Profesional no encontrado.");
@@ -50,10 +59,13 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
             var ligero = await evaluacion.LigeroAsync(turno, datos, token);
             var otras = (await evaluacion.AsignacionesAsync([profesionalId], turno.InicioUtc - datos.Horizonte, turno.FinUtc + datos.Horizonte, datos, token))
                 .GetValueOrDefault(profesionalId) ?? [];
+            var persona = (await evaluacion.PersonasAsync([profesionalId], turno.InicioUtc - datos.Horizonte, turno.FinUtc + datos.Horizonte, token))
+                .GetValueOrDefault(profesionalId) ?? DatosPersona.Vacio;
             var violaciones = MotorReglas.EvaluarAsignacion(new ContextoEvaluacion
             {
                 Profesional = profesional, Servicio = servicio, Necesidad = necesidad, Turno = ligero, Otras = otras,
-                Competencias = datos.Competencias, Servicios = datos.Servicios
+                Competencias = datos.Competencias, Servicios = datos.Servicios,
+                Ausencias = persona.Ausencias, Disponibilidades = persona.Disponibilidades
             }, MotorReglas.Efectivas(datos.Reglas, turno.ServicioId));
 
             var bloqueantes = violaciones.Where(v => v.Bloquea).ToList();
@@ -62,6 +74,7 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
 
             var asignacion = new Asignacion(org, necesidadId, turno, profesionalId, uid, reloj.GetUtcNow());
             db.Asignaciones.Add(asignacion);
+            vacante?.Cubrir(asignacion.Id, reloj.GetUtcNow());
             foreach (var v in bloqueantes)
                 db.Excepciones.Add(new ExcepcionRegla(org, asignacion.Id, turno.Id, profesionalId, v.Clave, v.Codigo, v.ReglaId, v.Mensaje,
                     excepcion!.Justificacion, uid, reloj.GetUtcNow()));
@@ -117,12 +130,15 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
             var entorno = (await evaluacion.AsignacionesAsync([profesional.Id], turno.InicioUtc - datos.Horizonte, turno.FinUtc + datos.Horizonte, datos, token))
                 .GetValueOrDefault(profesional.Id) ?? [];
 
+            var persona = (await evaluacion.PersonasAsync([profesional.Id], turno.InicioUtc - datos.Horizonte, turno.FinUtc + datos.Horizonte, token))
+                .GetValueOrDefault(profesional.Id) ?? DatosPersona.Vacio;
             var existentes = (await db.Excepciones.Where(e => e.AsignacionId == asignacionId).Select(e => e.ClaveRegla).ToListAsync(token)).ToHashSet();
             var pendientes = MotorReglas.EvaluarAsignacion(new ContextoEvaluacion
             {
                 Profesional = profesional, Servicio = servicio, Necesidad = necesidad, Turno = ligero,
                 Otras = entorno.Where(o => CuadrantesServicio.EsAnterior(o, asignacion)).ToList(),
-                Competencias = datos.Competencias, Servicios = datos.Servicios
+                Competencias = datos.Competencias, Servicios = datos.Servicios,
+                Ausencias = persona.Ausencias, Disponibilidades = persona.Disponibilidades
             }, MotorReglas.Efectivas(datos.Reglas, turno.ServicioId)).Where(v => v.Bloquea && !existentes.Contains(v.Clave)).ToList();
 
             if (pendientes.Count == 0) throw new ExcepcionConflicto("La asignación no tiene infracciones bloqueantes pendientes de excepción.");
@@ -173,27 +189,32 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
         var reglas = MotorReglas.Efectivas(datos.Reglas, turno.ServicioId);
         var profesionales = await db.Profesionales.Where(p => p.Activo).OrderBy(p => p.Apellidos).ThenBy(p => p.Nombre).Take(500).ToListAsync(ct);
         var asignaciones = await evaluacion.AsignacionesAsync(profesionales.Select(p => p.Id), turno.InicioUtc - datos.Horizonte, turno.FinUtc + datos.Horizonte, datos, ct);
+        var personas = await evaluacion.PersonasAsync(profesionales.Select(p => p.Id), turno.InicioUtc - datos.Horizonte, turno.FinUtc + datos.Horizonte, ct);
         var yaEnNecesidad = (await db.Asignaciones.Where(a => a.NecesidadId == necesidadId && a.Estado != EstadoAsignacion.Cancelada)
             .Select(a => a.ProfesionalId).ToListAsync(ct)).ToHashSet();
         var esAdmin = contexto.TieneRol(Rol.AdministradorSociedad);
 
         var lista = profesionales.Select(p =>
         {
-            var v = MotorReglas.EvaluarAsignacion(new ContextoEvaluacion
+            var persona = personas.GetValueOrDefault(p.Id) ?? DatosPersona.Vacio;
+            var ctx = new ContextoEvaluacion
             {
                 Profesional = p, Servicio = servicio, Necesidad = necesidad, Turno = ligero,
-                Otras = asignaciones.GetValueOrDefault(p.Id) ?? [], Competencias = datos.Competencias, Servicios = datos.Servicios
-            }, reglas);
+                Otras = asignaciones.GetValueOrDefault(p.Id) ?? [], Competencias = datos.Competencias, Servicios = datos.Servicios,
+                Ausencias = persona.Ausencias, Disponibilidades = persona.Disponibilidades
+            };
+            var v = MotorReglas.EvaluarAsignacion(ctx, reglas);
+            var notas = NotasEvaluacion.Positivas(ctx);
             var bloqueantes = v.Where(x => x.Bloquea).ToList();
             var motivos = v.Select(x => x.Mensaje).ToList();
             if (yaEnNecesidad.Contains(p.Id)) motivos.Insert(0, "Ya está asignado a esta necesidad.");
             var requiereExcepcion = bloqueantes.Count > 0 && bloqueantes.All(b => b.PermiteExcepcion);
             return new CandidatoDto(p.Id, p.NombreCompleto, bloqueantes.Count == 0 && !yaEnNecesidad.Contains(p.Id),
                 v.All(x => x.Codigo != "Solape"), motivos, v.Select(ViolacionDto.De).ToList(), requiereExcepcion && !yaEnNecesidad.Contains(p.Id),
-                requiereExcepcion && bloqueantes.All(b => !b.RequiereAdministrador || esAdmin));
+                requiereExcepcion && bloqueantes.All(b => !b.RequiereAdministrador || esAdmin), notas);
         }).ToList();
 
         return lista.OrderByDescending(c => c.Elegible).ThenByDescending(c => c.RequiereExcepcion && c.PuedeAutorizar)
-            .ThenByDescending(c => c.Libre).ThenBy(c => c.NombreCompleto).ToList();
+            .ThenByDescending(c => c.Libre).ThenByDescending(c => c.Notas.Count).ThenBy(c => c.NombreCompleto).ToList();
     }
 }

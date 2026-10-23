@@ -34,8 +34,9 @@ public sealed partial class CuadrantesServicio
         var autores = await db.Usuarios.Where(u => excepciones.Values.Select(e => e.AutorizadaPorUsuarioId).Contains(u.Id))
             .ToDictionaryAsync(u => u.Id, u => u.NombreCompleto, ct);
 
+        var zona = await evaluacion.ZonaDeServicioAsync(cuadrante.ServicioId, ct);
         TurnoLigero Ligero(Turno t) => new(t.Id, t.ServicioId, t.Fecha, t.InicioUtc, t.FinUtc, tipos[t.TipoTurnoId].EsGuardia,
-            EvaluacionServicio.Etiqueta(tipos[t.TipoTurnoId].Nombre, t.Fecha, servicio.Nombre));
+            EvaluacionServicio.Etiqueta(tipos[t.TipoTurnoId].Nombre, t.Fecha, servicio.Nombre), EvaluacionServicio.FechaFinLocal(zona, t.Fecha, t.FinUtc), t.TipoTurnoId);
 
         // 1. Cobertura y turnos sin necesidades
         foreach (var t in turnos)
@@ -51,6 +52,7 @@ public sealed partial class CuadrantesServicio
 
         // 2. Reglas de cada asignación frente al resto de turnos del profesional (incluidos otros cuadrantes)
         var entorno = await evaluacion.AsignacionesAsync(profIds, turnos.Min(t => t.InicioUtc) - datos.Horizonte, turnos.Max(t => t.FinUtc) + datos.Horizonte, datos, ct);
+        var personas = await evaluacion.PersonasAsync(profIds, turnos.Min(t => t.InicioUtc) - datos.Horizonte, turnos.Max(t => t.FinUtc) + datos.Horizonte, ct);
         foreach (var a in asignaciones)
         {
             if (!profesionales.TryGetValue(a.ProfesionalId, out var p)) continue;
@@ -64,7 +66,8 @@ public sealed partial class CuadrantesServicio
             {
                 Profesional = p, Servicio = servicio, Necesidad = necesidades.FirstOrDefault(n => n.Id == a.NecesidadId), Turno = ligero,
                 Otras = (entorno.GetValueOrDefault(p.Id) ?? []).Where(o => EsAnterior(o, a)).ToList(),
-                Competencias = datos.Competencias, Servicios = datos.Servicios
+                Competencias = datos.Competencias, Servicios = datos.Servicios,
+                Ausencias = (personas.GetValueOrDefault(p.Id) ?? DatosPersona.Vacio).Ausencias, Disponibilidades = (personas.GetValueOrDefault(p.Id) ?? DatosPersona.Vacio).Disponibilidades
             }, reglas);
 
             foreach (var v in violaciones)
