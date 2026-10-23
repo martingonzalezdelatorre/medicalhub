@@ -1959,6 +1959,282 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Marcar todas como leídas'**
   String get marcarTodasLeidas;
+
+  /// No description provided for @menuInformes.
+  ///
+  /// In es, this message translates to:
+  /// **'Informes'**
+  String get menuInformes;
+
+  /// No description provided for @informesTabHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'Horas'**
+  String get informesTabHoras;
+
+  /// No description provided for @informesTabRegistro.
+  ///
+  /// In es, this message translates to:
+  /// **'Registro de horas'**
+  String get informesTabRegistro;
+
+  /// No description provided for @informesTabCobertura.
+  ///
+  /// In es, this message translates to:
+  /// **'Cobertura'**
+  String get informesTabCobertura;
+
+  /// No description provided for @colPlanificadas.
+  ///
+  /// In es, this message translates to:
+  /// **'Planificadas'**
+  String get colPlanificadas;
+
+  /// No description provided for @colNocturnas.
+  ///
+  /// In es, this message translates to:
+  /// **'Nocturnas'**
+  String get colNocturnas;
+
+  /// No description provided for @colRegistradas.
+  ///
+  /// In es, this message translates to:
+  /// **'Registradas'**
+  String get colRegistradas;
+
+  /// No description provided for @colAjustes.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes'**
+  String get colAjustes;
+
+  /// No description provided for @colEfectivas.
+  ///
+  /// In es, this message translates to:
+  /// **'Efectivas'**
+  String get colEfectivas;
+
+  /// No description provided for @colTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Turnos'**
+  String get colTurnos;
+
+  /// No description provided for @colGuardias.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardias'**
+  String get colGuardias;
+
+  /// No description provided for @colTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Total'**
+  String get colTotal;
+
+  /// No description provided for @colPlazas.
+  ///
+  /// In es, this message translates to:
+  /// **'Plazas'**
+  String get colPlazas;
+
+  /// No description provided for @colCubiertas.
+  ///
+  /// In es, this message translates to:
+  /// **'Cubiertas'**
+  String get colCubiertas;
+
+  /// No description provided for @colLibres.
+  ///
+  /// In es, this message translates to:
+  /// **'Libres'**
+  String get colLibres;
+
+  /// No description provided for @colPorcentaje.
+  ///
+  /// In es, this message translates to:
+  /// **'% cobertura'**
+  String get colPorcentaje;
+
+  /// No description provided for @colVacantes.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacantes'**
+  String get colVacantes;
+
+  /// No description provided for @colExcepciones.
+  ///
+  /// In es, this message translates to:
+  /// **'Excepciones'**
+  String get colExcepciones;
+
+  /// No description provided for @registrarHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar horas'**
+  String get registrarHoras;
+
+  /// No description provided for @ajustarHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustar'**
+  String get ajustarHoras;
+
+  /// No description provided for @horaInicioReal.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio real'**
+  String get horaInicioReal;
+
+  /// No description provided for @horaFinReal.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin real'**
+  String get horaFinReal;
+
+  /// No description provided for @ajusteMinutos.
+  ///
+  /// In es, this message translates to:
+  /// **'Minutos (+/−)'**
+  String get ajusteMinutos;
+
+  /// No description provided for @ajusteMotivo.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo (mínimo 10 caracteres)'**
+  String get ajusteMotivo;
+
+  /// No description provided for @sinRegistroHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin registrar'**
+  String get sinRegistroHoras;
+
+  /// No description provided for @horasGuardadas.
+  ///
+  /// In es, this message translates to:
+  /// **'Horas guardadas'**
+  String get horasGuardadas;
+
+  /// No description provided for @ajusteGuardado.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajuste guardado'**
+  String get ajusteGuardado;
+
+  /// No description provided for @ajusteInvalido.
+  ///
+  /// In es, this message translates to:
+  /// **'Indique minutos distintos de cero y un motivo de al menos 10 caracteres.'**
+  String get ajusteInvalido;
+
+  /// No description provided for @filtroTodos.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get filtroTodos;
+
+  /// No description provided for @sinDatosPeriodo.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay datos en este periodo.'**
+  String get sinDatosPeriodo;
+
+  /// No description provided for @dashCoberturaTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Cobertura de los próximos 14 días'**
+  String get dashCoberturaTitulo;
+
+  /// No description provided for @dashPlazasCubiertas.
+  ///
+  /// In es, this message translates to:
+  /// **'{c} de {t} plazas cubiertas'**
+  String dashPlazasCubiertas(int c, int t);
+
+  /// No description provided for @dashPendientes.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendientes'**
+  String get dashPendientes;
+
+  /// No description provided for @dashVacantes.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacantes abiertas'**
+  String get dashVacantes;
+
+  /// No description provided for @dashAusencias.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencias por decidir'**
+  String get dashAusencias;
+
+  /// No description provided for @dashOfertas.
+  ///
+  /// In es, this message translates to:
+  /// **'Sustituciones por aprobar'**
+  String get dashOfertas;
+
+  /// No description provided for @dashDisponibilidades.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidades por aprobar'**
+  String get dashDisponibilidades;
+
+  /// No description provided for @dashExcepciones.
+  ///
+  /// In es, this message translates to:
+  /// **'Excepciones (30 días)'**
+  String get dashExcepciones;
+
+  /// No description provided for @dashBorradores.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrantes en borrador'**
+  String get dashBorradores;
+
+  /// No description provided for @dashSinCubrir.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximos turnos sin cubrir'**
+  String get dashSinCubrir;
+
+  /// No description provided for @dashLibres.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} libre(s)'**
+  String dashLibres(int n);
+
+  /// No description provided for @dashProximosTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis próximos turnos'**
+  String get dashProximosTurnos;
+
+  /// No description provided for @dashHorasMes.
+  ///
+  /// In es, this message translates to:
+  /// **'Horas planificadas este mes'**
+  String get dashHorasMes;
+
+  /// No description provided for @dashSinProximos.
+  ///
+  /// In es, this message translates to:
+  /// **'No tiene turnos próximos.'**
+  String get dashSinProximos;
+
+  /// No description provided for @dashOfertasPendientes.
+  ///
+  /// In es, this message translates to:
+  /// **'Ofertas de sustitución pendientes'**
+  String get dashOfertasPendientes;
+
+  /// No description provided for @misHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis horas (últimos 30 días)'**
+  String get misHoras;
 }
 
 class _AppLocalizationsDelegate

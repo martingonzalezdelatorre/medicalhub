@@ -40,7 +40,7 @@ Herramienta `backend/tools/MedicalHub.DatosDemo` (identificable: sociedad «[DEM
 
 ```bash
 cd backend
-export ConnectionStrings__MedicalHub='<cadena>'
+export ConnectionStrings__Conn='<cadena>'
 export DEMO_CONTRASENA='<≥ 12 caracteres, la eliges tú>'
 dotnet run --project tools/MedicalHub.DatosDemo -- --confirmar            # crea la sociedad demo
 dotnet run --project tools/MedicalHub.DatosDemo -- --confirmar --eliminar # la elimina por completo

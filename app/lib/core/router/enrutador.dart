@@ -14,6 +14,7 @@ import '../../features/profesionales/presentation/pagina_profesional.dart';
 import '../../features/planificacion/data/planificacion_repositorio.dart' show fechaDeApi;
 import '../../features/reglas/presentation/pagina_reglas.dart';
 import '../../features/ausencias/presentation/pagina_ausencias.dart';
+import '../../features/informes/presentation/pagina_informes.dart';
 import '../../features/ausencias/presentation/pagina_mi_disponibilidad.dart';
 import '../../features/ausencias/presentation/pagina_notificaciones.dart';
 import '../../features/planificacion/presentation/pagina_cuadrante.dart';
@@ -39,7 +40,7 @@ String? redireccionar(EstadoAuth auth, String ubicacion) {
   if (en('/usuarios') && !admin) return '/';
   if (en('/catalogos') && !admin) return '/';
   if (ubicacion == '/profesionales/nuevo' && !admin) return '/';
-  if ((en('/profesionales') || en('/centros') || en('/servicios') || en('/cuadrantes') || en('/planificacion')) && !lectura) return '/';
+  if ((en('/profesionales') || en('/centros') || en('/servicios') || en('/cuadrantes') || en('/planificacion') || en('/informes')) && !lectura) return '/';
   if (en('/reglas') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
   if (en('/ausencias') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
   if (en('/mi-disponibilidad') && !perfil.tieneRol(Rol.profesionalSanitario)) return '/';
@@ -79,6 +80,7 @@ final enrutadorProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/reglas', builder: (_, _) => const PaginaReglas()),
           GoRoute(path: '/mi-disponibilidad', builder: (_, _) => const PaginaMiDisponibilidad()),
           GoRoute(path: '/notificaciones', builder: (_, _) => const PaginaNotificaciones()),
+          GoRoute(path: '/informes', builder: (_, _) => const PaginaInformes()),
           GoRoute(path: '/ausencias', builder: (_, _) => const PaginaAusencias()),
           GoRoute(path: '/cuadrantes', builder: (_, _) => const PaginaCuadrantes()),
           GoRoute(path: '/cuadrantes/:id', builder: (_, e) => PaginaCuadrante(id: e.pathParameters['id']!)),

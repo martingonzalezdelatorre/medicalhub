@@ -5,6 +5,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
 import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
+import '../../informes/data/informes_repositorio.dart';
 import '../data/ausencias_repositorio.dart';
 import 'dialogo_ausencia.dart';
 import 'etiquetas_ausencias.dart';
@@ -19,6 +20,7 @@ class PaginaMiDisponibilidad extends ConsumerWidget {
     final ausencias = ref.watch(misAusenciasProvider);
     final declaraciones = ref.watch(miDisponibilidadProvider);
     final ofertas = ref.watch(misOfertasProvider);
+    final horas = ref.watch(misHorasProvider);
     final repo = ref.read(ausenciasRepositorioProvider);
 
     Future<void> ejecutar(Future<void> Function() accion) async {
@@ -120,6 +122,24 @@ class PaginaMiDisponibilidad extends ConsumerWidget {
                           ),
                           IconButton(tooltip: t.accionRetirar, icon: const Icon(Icons.delete_outline), onPressed: () => ejecutar(() => repo.retirarDeclaracion(d.id))),
                         ]),
+                      ),
+                    ),
+                ]),
+        ),
+        const SizedBox(height: 16),
+        Text(t.misHoras, style: Theme.of(context).textTheme.titleMedium),
+        EstadoAsincrono(
+          valor: horas,
+          alReintentar: () => ref.invalidate(misHorasProvider),
+          constructor: (lista) => lista.isEmpty
+              ? Padding(padding: const EdgeInsets.all(16), child: Text(t.sinDatosPeriodo))
+              : Column(children: [
+                  for (final l in lista.reversed)
+                    Card(
+                      child: ListTile(
+                        title: Text('${formatearFecha(l.fecha)} · ${l.turno}'),
+                        subtitle: Text('${t.colPlanificadas}: ${formatearMinutos(l.planificadasMin)}'
+                            '${l.registrada ? ' · ${t.colEfectivas}: ${formatearMinutos(l.efectivasMin!)}' : ''}'),
                       ),
                     ),
                 ]),

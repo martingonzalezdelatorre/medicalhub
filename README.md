@@ -3,7 +3,7 @@
 SaaS B2B para la gestión de turnos, guardias, disponibilidad y cobertura de profesionales sanitarios.
 Backend ASP.NET Core (.NET 10) + SQL Server; frontend Flutter (web, móvil y escritorio).
 
-Estado: **E0** (cimientos), **E1** (identidad y multiempresa), **E2** (catálogos, centros, servicios y profesionales) y **E3** (cuadrantes, turnos y asignaciones) , **E4** (motor de reglas y excepciones) , **E5** (ausencias, disponibilidad y vacantes) y **E6** (sustituciones y notificaciones) completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas), [E1](docs/e1-identidad-y-multiempresa.md), [E2](docs/e2-catalogos-estructura-profesionales.md) (incluye la herramienta de datos de demostración), [E3](docs/e3-planificacion.md) , [E4](docs/e4-reglas-y-excepciones.md) , [E5](docs/e5-ausencias-y-disponibilidad.md) y [E6](docs/e6-sustituciones-y-notificaciones.md).
+Estado: **E0** (cimientos), **E1** (identidad y multiempresa), **E2** (catálogos, centros, servicios y profesionales) y **E3** (cuadrantes, turnos y asignaciones) , **E4** (motor de reglas y excepciones) , **E5** (ausencias, disponibilidad y vacantes) , **E6** (sustituciones y notificaciones) y **E7** (panel, horas e informes) completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas), [E1](docs/e1-identidad-y-multiempresa.md), [E2](docs/e2-catalogos-estructura-profesionales.md) (incluye la herramienta de datos de demostración), [E3](docs/e3-planificacion.md) , [E4](docs/e4-reglas-y-excepciones.md) , [E5](docs/e5-ausencias-y-disponibilidad.md) , [E6](docs/e6-sustituciones-y-notificaciones.md) y [E7](docs/e7-panel-horas-e-informes.md).
 
 ## Arranque rápido (desarrollo)
 ```bash
@@ -32,7 +32,7 @@ dotnet test MedicalHub.sln
 ```
 - OpenAPI (solo Desarrollo): `/openapi/v1.json`
 - Health checks: `/health/live`, `/health/ready` (comprueba la base de datos)
-- Cadena de conexión: `ConnectionStrings__MedicalHub` (variable de entorno). En Desarrollo se usa LocalDB (`appsettings.Development.json`, sin secretos).
+- Cadena de conexión: `ConnectionStrings__Conn` (variable de entorno). En Desarrollo se usa LocalDB (`appsettings.Development.json`, sin secretos).
 - Pruebas de integración: usan `MedicalHub_Test` en LocalDB; para otro servidor, defina `MEDICALHUB_TEST_DB`.
 - Nueva migración: `dotnet ef migrations add <Nombre> -p src/MedicalHub.Infrastructure -s src/MedicalHub.Api -o Persistencia/Migraciones`
 

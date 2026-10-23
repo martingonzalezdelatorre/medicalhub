@@ -36,6 +36,7 @@ class ShellNavegacion extends ConsumerWidget {
       if (lectura) _Destino('/cuadrantes', Icons.view_timeline_outlined, t.menuCuadrantes),
       if (lectura) _Destino('/profesionales', Icons.badge_outlined, t.menuProfesionales),
       if (lectura) _Destino('/centros', Icons.local_hospital_outlined, t.menuCentros),
+      if (lectura) _Destino('/informes', Icons.insights_outlined, t.menuInformes),
       if (gestion) _Destino('/ausencias', Icons.event_busy_outlined, t.menuAusencias),
       if (gestion) _Destino('/reglas', Icons.rule_folder_outlined, t.menuReglas),
       if (admin) _Destino('/catalogos', Icons.category_outlined, t.menuCatalogos),

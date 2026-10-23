@@ -1044,4 +1044,147 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get marcarTodasLeidas => 'Marcar todas como leídas';
+
+  @override
+  String get menuInformes => 'Informes';
+
+  @override
+  String get informesTabHoras => 'Horas';
+
+  @override
+  String get informesTabRegistro => 'Registro de horas';
+
+  @override
+  String get informesTabCobertura => 'Cobertura';
+
+  @override
+  String get colPlanificadas => 'Planificadas';
+
+  @override
+  String get colNocturnas => 'Nocturnas';
+
+  @override
+  String get colRegistradas => 'Registradas';
+
+  @override
+  String get colAjustes => 'Ajustes';
+
+  @override
+  String get colEfectivas => 'Efectivas';
+
+  @override
+  String get colTurnos => 'Turnos';
+
+  @override
+  String get colGuardias => 'Guardias';
+
+  @override
+  String get colTotal => 'Total';
+
+  @override
+  String get colPlazas => 'Plazas';
+
+  @override
+  String get colCubiertas => 'Cubiertas';
+
+  @override
+  String get colLibres => 'Libres';
+
+  @override
+  String get colPorcentaje => '% cobertura';
+
+  @override
+  String get colVacantes => 'Vacantes';
+
+  @override
+  String get colExcepciones => 'Excepciones';
+
+  @override
+  String get registrarHoras => 'Registrar horas';
+
+  @override
+  String get ajustarHoras => 'Ajustar';
+
+  @override
+  String get horaInicioReal => 'Inicio real';
+
+  @override
+  String get horaFinReal => 'Fin real';
+
+  @override
+  String get ajusteMinutos => 'Minutos (+/−)';
+
+  @override
+  String get ajusteMotivo => 'Motivo (mínimo 10 caracteres)';
+
+  @override
+  String get sinRegistroHoras => 'Sin registrar';
+
+  @override
+  String get horasGuardadas => 'Horas guardadas';
+
+  @override
+  String get ajusteGuardado => 'Ajuste guardado';
+
+  @override
+  String get ajusteInvalido =>
+      'Indique minutos distintos de cero y un motivo de al menos 10 caracteres.';
+
+  @override
+  String get filtroTodos => 'Todos';
+
+  @override
+  String get sinDatosPeriodo => 'No hay datos en este periodo.';
+
+  @override
+  String get dashCoberturaTitulo => 'Cobertura de los próximos 14 días';
+
+  @override
+  String dashPlazasCubiertas(int c, int t) {
+    return '$c de $t plazas cubiertas';
+  }
+
+  @override
+  String get dashPendientes => 'Pendientes';
+
+  @override
+  String get dashVacantes => 'Vacantes abiertas';
+
+  @override
+  String get dashAusencias => 'Ausencias por decidir';
+
+  @override
+  String get dashOfertas => 'Sustituciones por aprobar';
+
+  @override
+  String get dashDisponibilidades => 'Disponibilidades por aprobar';
+
+  @override
+  String get dashExcepciones => 'Excepciones (30 días)';
+
+  @override
+  String get dashBorradores => 'Cuadrantes en borrador';
+
+  @override
+  String get dashSinCubrir => 'Próximos turnos sin cubrir';
+
+  @override
+  String dashLibres(int n) {
+    return '$n libre(s)';
+  }
+
+  @override
+  String get dashProximosTurnos => 'Mis próximos turnos';
+
+  @override
+  String get dashHorasMes => 'Horas planificadas este mes';
+
+  @override
+  String get dashSinProximos => 'No tiene turnos próximos.';
+
+  @override
+  String get dashOfertasPendientes => 'Ofertas de sustitución pendientes';
+
+  @override
+  String get misHoras => 'Mis horas (últimos 30 días)';
 }

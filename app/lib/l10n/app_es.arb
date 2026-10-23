@@ -524,5 +524,68 @@
         "type": "String"
       }
     }
+  },
+  "menuInformes": "Informes",
+  "informesTabHoras": "Horas",
+  "informesTabRegistro": "Registro de horas",
+  "informesTabCobertura": "Cobertura",
+  "colPlanificadas": "Planificadas",
+  "colNocturnas": "Nocturnas",
+  "colRegistradas": "Registradas",
+  "colAjustes": "Ajustes",
+  "colEfectivas": "Efectivas",
+  "colTurnos": "Turnos",
+  "colGuardias": "Guardias",
+  "colTotal": "Total",
+  "colPlazas": "Plazas",
+  "colCubiertas": "Cubiertas",
+  "colLibres": "Libres",
+  "colPorcentaje": "% cobertura",
+  "colVacantes": "Vacantes",
+  "colExcepciones": "Excepciones",
+  "registrarHoras": "Registrar horas",
+  "ajustarHoras": "Ajustar",
+  "horaInicioReal": "Inicio real",
+  "horaFinReal": "Fin real",
+  "ajusteMinutos": "Minutos (+/−)",
+  "ajusteMotivo": "Motivo (mínimo 10 caracteres)",
+  "sinRegistroHoras": "Sin registrar",
+  "horasGuardadas": "Horas guardadas",
+  "ajusteGuardado": "Ajuste guardado",
+  "ajusteInvalido": "Indique minutos distintos de cero y un motivo de al menos 10 caracteres.",
+  "filtroTodos": "Todos",
+  "sinDatosPeriodo": "No hay datos en este periodo.",
+  "dashCoberturaTitulo": "Cobertura de los próximos 14 días",
+  "dashPlazasCubiertas": "{c} de {t} plazas cubiertas",
+  "dashPendientes": "Pendientes",
+  "dashVacantes": "Vacantes abiertas",
+  "dashAusencias": "Ausencias por decidir",
+  "dashOfertas": "Sustituciones por aprobar",
+  "dashDisponibilidades": "Disponibilidades por aprobar",
+  "dashExcepciones": "Excepciones (30 días)",
+  "dashBorradores": "Cuadrantes en borrador",
+  "dashSinCubrir": "Próximos turnos sin cubrir",
+  "dashLibres": "{n} libre(s)",
+  "dashProximosTurnos": "Mis próximos turnos",
+  "dashHorasMes": "Horas planificadas este mes",
+  "dashSinProximos": "No tiene turnos próximos.",
+  "dashOfertasPendientes": "Ofertas de sustitución pendientes",
+  "misHoras": "Mis horas (últimos 30 días)",
+  "@dashPlazasCubiertas": {
+    "placeholders": {
+      "c": {
+        "type": "int"
+      },
+      "t": {
+        "type": "int"
+      }
+    }
+  },
+  "@dashLibres": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   }
 }
