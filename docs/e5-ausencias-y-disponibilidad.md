@@ -24,6 +24,6 @@ Gestión: administrador de sociedad y coordinador médico. Aislamiento por organ
 Backend: dominio 77, aplicación 35, integración 145 (ausencias, disponibilidad, concurrencia de aprobaciones, aislamiento, permisos, privacidad). Flutter: 63 tests.
 
 ## Limitaciones conocidas
-- Las notificaciones al coordinador/profesional llegan en **E6**; el flujo de oferta → aceptación → aprobación de sustitutos también.
+- Las notificaciones y el flujo de oferta → aceptación → aprobación de sustitutos se añadieron en [E6](e6-sustituciones-y-notificaciones.md).
 - La descarga CSV solo funciona en web; no se han verificado compilaciones móviles/escritorio nativas.
 - Las pantallas de E5 están probadas con tests de widgets y API falsa; no se ha repetido la verificación manual en navegador con datos de demostración.

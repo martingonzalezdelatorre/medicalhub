@@ -3,7 +3,7 @@
 SaaS B2B para la gestión de turnos, guardias, disponibilidad y cobertura de profesionales sanitarios.
 Backend ASP.NET Core (.NET 10) + SQL Server; frontend Flutter (web, móvil y escritorio).
 
-Estado: **E0** (cimientos), **E1** (identidad y multiempresa), **E2** (catálogos, centros, servicios y profesionales) y **E3** (cuadrantes, turnos y asignaciones) , **E4** (motor de reglas y excepciones) y **E5** (ausencias, disponibilidad y vacantes) completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas), [E1](docs/e1-identidad-y-multiempresa.md), [E2](docs/e2-catalogos-estructura-profesionales.md) (incluye la herramienta de datos de demostración), [E3](docs/e3-planificacion.md) , [E4](docs/e4-reglas-y-excepciones.md) y [E5](docs/e5-ausencias-y-disponibilidad.md).
+Estado: **E0** (cimientos), **E1** (identidad y multiempresa), **E2** (catálogos, centros, servicios y profesionales) y **E3** (cuadrantes, turnos y asignaciones) , **E4** (motor de reglas y excepciones) , **E5** (ausencias, disponibilidad y vacantes) y **E6** (sustituciones y notificaciones) completadas. Ver [docs/fase-1-analisis.md](docs/fase-1-analisis.md) (análisis y plan de entregas), [E1](docs/e1-identidad-y-multiempresa.md), [E2](docs/e2-catalogos-estructura-profesionales.md) (incluye la herramienta de datos de demostración), [E3](docs/e3-planificacion.md) , [E4](docs/e4-reglas-y-excepciones.md) , [E5](docs/e5-ausencias-y-disponibilidad.md) y [E6](docs/e6-sustituciones-y-notificaciones.md).
 
 ## Arranque rápido (desarrollo)
 ```bash

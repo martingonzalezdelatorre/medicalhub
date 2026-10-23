@@ -65,3 +65,28 @@ class ChipEstadoAusencia extends StatelessWidget {
 
 Future<DateTime?> elegirFecha(BuildContext context, DateTime inicial) =>
     showDatePicker(context: context, initialDate: inicial, firstDate: DateTime(2020), lastDate: DateTime(2100));
+
+String etiquetaEstadoOferta(AppLocalizations t, EstadoOferta e) => switch (e) {
+      EstadoOferta.pendiente => t.ofertaEstadoPendiente,
+      EstadoOferta.aceptada => t.ofertaEstadoAceptada,
+      EstadoOferta.rechazada => t.ofertaEstadoRechazada,
+      EstadoOferta.aprobada => t.ofertaEstadoAprobada,
+      EstadoOferta.denegada => t.ofertaEstadoDenegada,
+      EstadoOferta.retirada => t.ofertaEstadoRetirada,
+      EstadoOferta.caducada => t.ofertaEstadoCaducada,
+      EstadoOferta.cerrada => t.ofertaEstadoCerrada,
+    };
+
+Color colorEstadoOferta(BuildContext context, EstadoOferta e) => switch (e) {
+      EstadoOferta.pendiente => Colors.orange.shade800,
+      EstadoOferta.aceptada => Colors.blue.shade700,
+      EstadoOferta.aprobada => Colors.green.shade700,
+      EstadoOferta.rechazada || EstadoOferta.denegada => Theme.of(context).colorScheme.error,
+      EstadoOferta.retirada || EstadoOferta.caducada || EstadoOferta.cerrada => Theme.of(context).colorScheme.outline,
+    };
+
+String fechaHoraLocal(DateTime d) {
+  final l = d.toLocal();
+  String dos(int n) => n.toString().padLeft(2, '0');
+  return '${dos(l.day)}/${dos(l.month)}/${l.year} ${dos(l.hour)}:${dos(l.minute)}';
+}

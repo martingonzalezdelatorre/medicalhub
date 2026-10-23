@@ -15,6 +15,7 @@ import '../../features/planificacion/data/planificacion_repositorio.dart' show f
 import '../../features/reglas/presentation/pagina_reglas.dart';
 import '../../features/ausencias/presentation/pagina_ausencias.dart';
 import '../../features/ausencias/presentation/pagina_mi_disponibilidad.dart';
+import '../../features/ausencias/presentation/pagina_notificaciones.dart';
 import '../../features/planificacion/presentation/pagina_cuadrante.dart';
 import '../../features/planificacion/presentation/pagina_cuadrantes.dart';
 import '../../features/planificacion/presentation/pagina_planificacion.dart';
@@ -77,6 +78,7 @@ final enrutadorProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/mi-planificacion', builder: (_, _) => const PaginaPlanificacion(propia: true)),
           GoRoute(path: '/reglas', builder: (_, _) => const PaginaReglas()),
           GoRoute(path: '/mi-disponibilidad', builder: (_, _) => const PaginaMiDisponibilidad()),
+          GoRoute(path: '/notificaciones', builder: (_, _) => const PaginaNotificaciones()),
           GoRoute(path: '/ausencias', builder: (_, _) => const PaginaAusencias()),
           GoRoute(path: '/cuadrantes', builder: (_, _) => const PaginaCuadrantes()),
           GoRoute(path: '/cuadrantes/:id', builder: (_, e) => PaginaCuadrante(id: e.pathParameters['id']!)),

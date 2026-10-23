@@ -483,5 +483,46 @@
         "type": "String"
       }
     }
+  },
+  "ofertasTitulo": "Ofertas de sustitución",
+  "sinOfertas": "No hay ofertas de sustitución.",
+  "ofertaAceptar": "Aceptar",
+  "ofertaRechazar": "Rechazar",
+  "ofertaEstadoPendiente": "Pendiente de respuesta",
+  "ofertaEstadoAceptada": "Aceptada, pendiente de aprobación",
+  "ofertaEstadoRechazada": "Rechazada",
+  "ofertaEstadoAprobada": "Aprobada",
+  "ofertaEstadoDenegada": "Denegada",
+  "ofertaEstadoRetirada": "Retirada",
+  "ofertaEstadoCaducada": "Caducada",
+  "ofertaEstadoCerrada": "Cerrada",
+  "ofrecerTurno": "Ofrecer turno",
+  "ofrecerTitulo": "Ofrecer la vacante",
+  "ofrecerPlazo": "Plazo para responder, en horas (opcional)",
+  "ofrecerEnviar": "Enviar oferta",
+  "ofrecerSeleccion": "Elija a quién ofrecérsela (máximo 10).",
+  "accionDenegar": "Denegar",
+  "accionRetirarOferta": "Retirar oferta",
+  "accionAprobarSustitucion": "Aprobar sustitución",
+  "ofertasEnviadas": "Ofertas enviadas",
+  "ofertaCaduca": "Caduca el {fecha}",
+  "ofertaOfrecidaPor": "Ofrecida por {nombre}",
+  "sustitucionAprobada": "Sustitución aprobada",
+  "notificaciones": "Notificaciones",
+  "sinNotificaciones": "No tiene notificaciones.",
+  "marcarTodasLeidas": "Marcar todas como leídas",
+  "@ofertaCaduca": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "@ofertaOfrecidaPor": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
   }
 }

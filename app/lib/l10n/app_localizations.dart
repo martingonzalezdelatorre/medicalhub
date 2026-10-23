@@ -1797,6 +1797,168 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Todas'**
   String get filtroTodas;
+
+  /// No description provided for @ofertasTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Ofertas de sustitución'**
+  String get ofertasTitulo;
+
+  /// No description provided for @sinOfertas.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay ofertas de sustitución.'**
+  String get sinOfertas;
+
+  /// No description provided for @ofertaAceptar.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar'**
+  String get ofertaAceptar;
+
+  /// No description provided for @ofertaRechazar.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar'**
+  String get ofertaRechazar;
+
+  /// No description provided for @ofertaEstadoPendiente.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente de respuesta'**
+  String get ofertaEstadoPendiente;
+
+  /// No description provided for @ofertaEstadoAceptada.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptada, pendiente de aprobación'**
+  String get ofertaEstadoAceptada;
+
+  /// No description provided for @ofertaEstadoRechazada.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazada'**
+  String get ofertaEstadoRechazada;
+
+  /// No description provided for @ofertaEstadoAprobada.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobada'**
+  String get ofertaEstadoAprobada;
+
+  /// No description provided for @ofertaEstadoDenegada.
+  ///
+  /// In es, this message translates to:
+  /// **'Denegada'**
+  String get ofertaEstadoDenegada;
+
+  /// No description provided for @ofertaEstadoRetirada.
+  ///
+  /// In es, this message translates to:
+  /// **'Retirada'**
+  String get ofertaEstadoRetirada;
+
+  /// No description provided for @ofertaEstadoCaducada.
+  ///
+  /// In es, this message translates to:
+  /// **'Caducada'**
+  String get ofertaEstadoCaducada;
+
+  /// No description provided for @ofertaEstadoCerrada.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrada'**
+  String get ofertaEstadoCerrada;
+
+  /// No description provided for @ofrecerTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Ofrecer turno'**
+  String get ofrecerTurno;
+
+  /// No description provided for @ofrecerTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Ofrecer la vacante'**
+  String get ofrecerTitulo;
+
+  /// No description provided for @ofrecerPlazo.
+  ///
+  /// In es, this message translates to:
+  /// **'Plazo para responder, en horas (opcional)'**
+  String get ofrecerPlazo;
+
+  /// No description provided for @ofrecerEnviar.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar oferta'**
+  String get ofrecerEnviar;
+
+  /// No description provided for @ofrecerSeleccion.
+  ///
+  /// In es, this message translates to:
+  /// **'Elija a quién ofrecérsela (máximo 10).'**
+  String get ofrecerSeleccion;
+
+  /// No description provided for @accionDenegar.
+  ///
+  /// In es, this message translates to:
+  /// **'Denegar'**
+  String get accionDenegar;
+
+  /// No description provided for @accionRetirarOferta.
+  ///
+  /// In es, this message translates to:
+  /// **'Retirar oferta'**
+  String get accionRetirarOferta;
+
+  /// No description provided for @accionAprobarSustitucion.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobar sustitución'**
+  String get accionAprobarSustitucion;
+
+  /// No description provided for @ofertasEnviadas.
+  ///
+  /// In es, this message translates to:
+  /// **'Ofertas enviadas'**
+  String get ofertasEnviadas;
+
+  /// No description provided for @ofertaCaduca.
+  ///
+  /// In es, this message translates to:
+  /// **'Caduca el {fecha}'**
+  String ofertaCaduca(String fecha);
+
+  /// No description provided for @ofertaOfrecidaPor.
+  ///
+  /// In es, this message translates to:
+  /// **'Ofrecida por {nombre}'**
+  String ofertaOfrecidaPor(String nombre);
+
+  /// No description provided for @sustitucionAprobada.
+  ///
+  /// In es, this message translates to:
+  /// **'Sustitución aprobada'**
+  String get sustitucionAprobada;
+
+  /// No description provided for @notificaciones.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones'**
+  String get notificaciones;
+
+  /// No description provided for @sinNotificaciones.
+  ///
+  /// In es, this message translates to:
+  /// **'No tiene notificaciones.'**
+  String get sinNotificaciones;
+
+  /// No description provided for @marcarTodasLeidas.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar todas como leídas'**
+  String get marcarTodasLeidas;
 }
 
 class _AppLocalizationsDelegate

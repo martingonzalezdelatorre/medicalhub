@@ -69,6 +69,25 @@ enum EstadoVacante {
   cancelada,
 }
 
+enum EstadoOferta {
+  @JsonValue('Pendiente')
+  pendiente,
+  @JsonValue('Aceptada')
+  aceptada,
+  @JsonValue('Rechazada')
+  rechazada,
+  @JsonValue('Aprobada')
+  aprobada,
+  @JsonValue('Denegada')
+  denegada,
+  @JsonValue('Retirada')
+  retirada,
+  @JsonValue('Caducada')
+  caducada,
+  @JsonValue('Cerrada')
+  cerrada,
+}
+
 /// Máscara de días de la semana: lunes = 1 … domingo = 64.
 const diasTodos = 127;
 
@@ -241,6 +260,70 @@ class VacanteDto {
   final EstadoCuadrante cuadranteEstado;
 }
 
+@JsonSerializable(createToJson: false)
+class OfertaDto {
+  const OfertaDto({
+    required this.id,
+    required this.vacanteId,
+    required this.profesionalId,
+    required this.profesional,
+    required this.estado,
+    required this.fechaOferta,
+    this.caduca,
+    this.fechaRespuesta,
+    this.motivoRespuesta,
+    this.fechaDecision,
+    this.motivoDecision,
+    required this.ofrecidaPor,
+    required this.necesidadId,
+    required this.fecha,
+    required this.turno,
+    required this.servicio,
+    required this.centro,
+    required this.estadoVacante,
+    required this.profesionalAusente,
+  });
+
+  factory OfertaDto.fromJson(Map<String, dynamic> json) => _$OfertaDtoFromJson(json);
+
+  final String id;
+  final String vacanteId;
+  final String profesionalId;
+  final String profesional;
+  final EstadoOferta estado;
+  final DateTime fechaOferta;
+  final DateTime? caduca;
+  final DateTime? fechaRespuesta;
+  final String? motivoRespuesta;
+  final DateTime? fechaDecision;
+  final String? motivoDecision;
+  final String ofrecidaPor;
+  final String necesidadId;
+  final String fecha;
+  final String turno;
+  final String servicio;
+  final String centro;
+  final EstadoVacante estadoVacante;
+  final String profesionalAusente;
+
+  bool get abierta => estado == EstadoOferta.pendiente || estado == EstadoOferta.aceptada;
+}
+
+@JsonSerializable(createToJson: false)
+class NotificacionDto {
+  const NotificacionDto({required this.id, required this.tipo, required this.titulo, required this.mensaje, this.entidadId, required this.fecha, required this.leida});
+
+  factory NotificacionDto.fromJson(Map<String, dynamic> json) => _$NotificacionDtoFromJson(json);
+
+  final String id;
+  final String tipo;
+  final String titulo;
+  final String mensaje;
+  final String? entidadId;
+  final DateTime fecha;
+  final bool leida;
+}
+
 class AusenciasRepositorio {
   AusenciasRepositorio(this._dio);
   final Dio _dio;
@@ -334,6 +417,40 @@ class AusenciasRepositorio {
         return ResultadoAsignacionDto.fromJson(r.data!);
       });
 
+  // ── Ofertas de sustitución ──
+  Future<List<OfertaDto>> ofertas() => protegerApi(() async => _lista(await _dio.get<List<dynamic>>('/api/ofertas'), OfertaDto.fromJson));
+
+  Future<List<OfertaDto>> misOfertas() => protegerApi(() async => _lista(await _dio.get<List<dynamic>>('/api/mis-ofertas'), OfertaDto.fromJson));
+
+  Future<void> ofrecer(String vacanteId, List<String> profesionalIds, {int? caducaEnHoras}) =>
+      protegerApi(() => _dio.post<void>('/api/vacantes/$vacanteId/ofertas', data: {'profesionalIds': profesionalIds, 'caducaEnHoras': caducaEnHoras}));
+
+  Future<void> retirarOferta(String id, {String? motivo}) => protegerApi(() => _dio.post<void>('/api/ofertas/$id/retirar', data: {'motivo': motivo}));
+
+  Future<void> denegarOferta(String id, String motivo) => protegerApi(() => _dio.post<void>('/api/ofertas/$id/denegar', data: {'motivo': motivo}));
+
+  Future<ResultadoAsignacionDto> aprobarOferta(String id, {String? justificacion}) => protegerApi(() async {
+        final r = await _dio.post<Map<String, dynamic>>('/api/ofertas/$id/aprobar', data: {if (justificacion != null) 'excepcion': {'justificacion': justificacion}});
+        return ResultadoAsignacionDto.fromJson(r.data!);
+      });
+
+  Future<void> aceptarOferta(String id, {String? motivo}) => protegerApi(() => _dio.post<void>('/api/mis-ofertas/$id/aceptar', data: {'motivo': motivo}));
+
+  Future<void> rechazarOferta(String id, {String? motivo}) => protegerApi(() => _dio.post<void>('/api/mis-ofertas/$id/rechazar', data: {'motivo': motivo}));
+
+  // ── Notificaciones ──
+  Future<List<NotificacionDto>> notificaciones() =>
+      protegerApi(() async => _lista(await _dio.get<List<dynamic>>('/api/notificaciones'), NotificacionDto.fromJson));
+
+  Future<int> noLeidas() => protegerApi(() async {
+        final r = await _dio.get<Map<String, dynamic>>('/api/notificaciones/resumen');
+        return (r.data!['noLeidas'] as num).toInt();
+      });
+
+  Future<void> leer(String id) => protegerApi(() => _dio.post<void>('/api/notificaciones/$id/leer'));
+
+  Future<void> leerTodas() => protegerApi(() => _dio.post<void>('/api/notificaciones/leer-todas'));
+
   static List<T> _lista<T>(Response<List<dynamic>> r, T Function(Map<String, dynamic>) desde) => [for (final j in r.data!) desde(j as Map<String, dynamic>)];
   static String _cap(String s) => s[0].toUpperCase() + s.substring(1);
   static String? _nombreEstado(EstadoAusencia? e) => e == null ? null : _cap(e.name);
@@ -361,3 +478,9 @@ final disponibilidadesPendientesProvider = FutureProvider.autoDispose<List<Dispo
 final vacantesProvider = FutureProvider.autoDispose.family<List<VacanteDto>, EstadoVacante?>(
   (ref, estado) => ref.watch(ausenciasRepositorioProvider).vacantes(estado: estado),
 );
+
+final ofertasProvider = FutureProvider.autoDispose<List<OfertaDto>>((ref) => ref.watch(ausenciasRepositorioProvider).ofertas());
+final misOfertasProvider = FutureProvider.autoDispose<List<OfertaDto>>((ref) => ref.watch(ausenciasRepositorioProvider).misOfertas());
+final notificacionesProvider = FutureProvider.autoDispose<List<NotificacionDto>>((ref) => ref.watch(ausenciasRepositorioProvider).notificaciones());
+/// Sin reintentos automáticos: es un indicador secundario y un fallo no debe repetirse en bucle.
+final noLeidasProvider = FutureProvider.autoDispose<int>((ref) => ref.watch(ausenciasRepositorioProvider).noLeidas(), retry: (_, _) => null);

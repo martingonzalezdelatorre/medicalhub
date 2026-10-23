@@ -144,3 +144,53 @@ const _$EstadoVacanteEnumMap = {
   EstadoVacante.cubierta: 'Cubierta',
   EstadoVacante.cancelada: 'Cancelada',
 };
+
+OfertaDto _$OfertaDtoFromJson(Map<String, dynamic> json) => OfertaDto(
+  id: json['id'] as String,
+  vacanteId: json['vacanteId'] as String,
+  profesionalId: json['profesionalId'] as String,
+  profesional: json['profesional'] as String,
+  estado: $enumDecode(_$EstadoOfertaEnumMap, json['estado']),
+  fechaOferta: DateTime.parse(json['fechaOferta'] as String),
+  caduca: json['caduca'] == null
+      ? null
+      : DateTime.parse(json['caduca'] as String),
+  fechaRespuesta: json['fechaRespuesta'] == null
+      ? null
+      : DateTime.parse(json['fechaRespuesta'] as String),
+  motivoRespuesta: json['motivoRespuesta'] as String?,
+  fechaDecision: json['fechaDecision'] == null
+      ? null
+      : DateTime.parse(json['fechaDecision'] as String),
+  motivoDecision: json['motivoDecision'] as String?,
+  ofrecidaPor: json['ofrecidaPor'] as String,
+  necesidadId: json['necesidadId'] as String,
+  fecha: json['fecha'] as String,
+  turno: json['turno'] as String,
+  servicio: json['servicio'] as String,
+  centro: json['centro'] as String,
+  estadoVacante: $enumDecode(_$EstadoVacanteEnumMap, json['estadoVacante']),
+  profesionalAusente: json['profesionalAusente'] as String,
+);
+
+const _$EstadoOfertaEnumMap = {
+  EstadoOferta.pendiente: 'Pendiente',
+  EstadoOferta.aceptada: 'Aceptada',
+  EstadoOferta.rechazada: 'Rechazada',
+  EstadoOferta.aprobada: 'Aprobada',
+  EstadoOferta.denegada: 'Denegada',
+  EstadoOferta.retirada: 'Retirada',
+  EstadoOferta.caducada: 'Caducada',
+  EstadoOferta.cerrada: 'Cerrada',
+};
+
+NotificacionDto _$NotificacionDtoFromJson(Map<String, dynamic> json) =>
+    NotificacionDto(
+      id: json['id'] as String,
+      tipo: json['tipo'] as String,
+      titulo: json['titulo'] as String,
+      mensaje: json['mensaje'] as String,
+      entidadId: json['entidadId'] as String?,
+      fecha: DateTime.parse(json['fecha'] as String),
+      leida: json['leida'] as bool,
+    );

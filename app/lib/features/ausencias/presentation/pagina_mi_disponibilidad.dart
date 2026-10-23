@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
+import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
 import '../data/ausencias_repositorio.dart';
 import 'dialogo_ausencia.dart';
@@ -17,6 +18,7 @@ class PaginaMiDisponibilidad extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final ausencias = ref.watch(misAusenciasProvider);
     final declaraciones = ref.watch(miDisponibilidadProvider);
+    final ofertas = ref.watch(misOfertasProvider);
     final repo = ref.read(ausenciasRepositorioProvider);
 
     Future<void> ejecutar(Future<void> Function() accion) async {
@@ -24,6 +26,8 @@ class PaginaMiDisponibilidad extends ConsumerWidget {
         await accion();
         ref.invalidate(misAusenciasProvider);
         ref.invalidate(miDisponibilidadProvider);
+        ref.invalidate(misOfertasProvider);
+        ref.invalidate(noLeidasProvider);
       } catch (e) {
         if (context.mounted) mostrarMensaje(context, mensajeDeFallo(t, e));
       }
@@ -42,6 +46,34 @@ class PaginaMiDisponibilidad extends ConsumerWidget {
           FilledButton.icon(icon: const Icon(Icons.beach_access_outlined), label: Text(t.solicitarAusencia), onPressed: () => abrir(const DialogoAusencia())),
           OutlinedButton.icon(icon: const Icon(Icons.event_busy_outlined), label: Text(t.declararDisponibilidad), onPressed: () => abrir(const DialogoDisponibilidad())),
         ]),
+        const SizedBox(height: 16),
+        Text(t.ofertasTitulo, style: Theme.of(context).textTheme.titleMedium),
+        EstadoAsincrono(
+          valor: ofertas,
+          alReintentar: () => ref.invalidate(misOfertasProvider),
+          constructor: (lista) => lista.isEmpty
+              ? Padding(padding: const EdgeInsets.all(16), child: Text(t.sinOfertas))
+              : Column(children: [
+                  for (final o in lista)
+                    Card(
+                      child: ListTile(
+                        isThreeLine: true,
+                        title: Text('${formatearFecha(o.fecha)} · ${o.turno}'),
+                        subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('${o.centro} · ${o.servicio}'),
+                          if (o.caduca != null && o.estado == EstadoOferta.pendiente) Text(t.ofertaCaduca(fechaHoraLocal(o.caduca!))),
+                          Align(alignment: Alignment.centerLeft, child: ChipEstadoAusencia(etiqueta: etiquetaEstadoOferta(t, o.estado), color: colorEstadoOferta(context, o.estado))),
+                        ]),
+                        trailing: o.estado == EstadoOferta.pendiente
+                            ? Wrap(spacing: 4, children: [
+                                FilledButton(onPressed: () => ejecutar(() => repo.aceptarOferta(o.id)), child: Text(t.ofertaAceptar)),
+                                TextButton(onPressed: () => ejecutar(() => repo.rechazarOferta(o.id)), child: Text(t.ofertaRechazar)),
+                              ])
+                            : null,
+                      ),
+                    ),
+                ]),
+        ),
         const SizedBox(height: 16),
         Text(t.misAusencias, style: Theme.of(context).textTheme.titleMedium),
         EstadoAsincrono(

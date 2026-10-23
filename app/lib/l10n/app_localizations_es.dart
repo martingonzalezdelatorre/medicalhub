@@ -959,4 +959,89 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get filtroTodas => 'Todas';
+
+  @override
+  String get ofertasTitulo => 'Ofertas de sustitución';
+
+  @override
+  String get sinOfertas => 'No hay ofertas de sustitución.';
+
+  @override
+  String get ofertaAceptar => 'Aceptar';
+
+  @override
+  String get ofertaRechazar => 'Rechazar';
+
+  @override
+  String get ofertaEstadoPendiente => 'Pendiente de respuesta';
+
+  @override
+  String get ofertaEstadoAceptada => 'Aceptada, pendiente de aprobación';
+
+  @override
+  String get ofertaEstadoRechazada => 'Rechazada';
+
+  @override
+  String get ofertaEstadoAprobada => 'Aprobada';
+
+  @override
+  String get ofertaEstadoDenegada => 'Denegada';
+
+  @override
+  String get ofertaEstadoRetirada => 'Retirada';
+
+  @override
+  String get ofertaEstadoCaducada => 'Caducada';
+
+  @override
+  String get ofertaEstadoCerrada => 'Cerrada';
+
+  @override
+  String get ofrecerTurno => 'Ofrecer turno';
+
+  @override
+  String get ofrecerTitulo => 'Ofrecer la vacante';
+
+  @override
+  String get ofrecerPlazo => 'Plazo para responder, en horas (opcional)';
+
+  @override
+  String get ofrecerEnviar => 'Enviar oferta';
+
+  @override
+  String get ofrecerSeleccion => 'Elija a quién ofrecérsela (máximo 10).';
+
+  @override
+  String get accionDenegar => 'Denegar';
+
+  @override
+  String get accionRetirarOferta => 'Retirar oferta';
+
+  @override
+  String get accionAprobarSustitucion => 'Aprobar sustitución';
+
+  @override
+  String get ofertasEnviadas => 'Ofertas enviadas';
+
+  @override
+  String ofertaCaduca(String fecha) {
+    return 'Caduca el $fecha';
+  }
+
+  @override
+  String ofertaOfrecidaPor(String nombre) {
+    return 'Ofrecida por $nombre';
+  }
+
+  @override
+  String get sustitucionAprobada => 'Sustitución aprobada';
+
+  @override
+  String get notificaciones => 'Notificaciones';
+
+  @override
+  String get sinNotificaciones => 'No tiene notificaciones.';
+
+  @override
+  String get marcarTodasLeidas => 'Marcar todas como leídas';
 }

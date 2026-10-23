@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errores/fallo_api.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/justificacion.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
 import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
 import '../../planificacion/presentation/hoja_turno.dart' show DialogoCandidatos;
 import '../data/ausencias_repositorio.dart';
 import 'dialogo_ausencia.dart';
+import 'dialogo_ofrecer.dart';
 import 'etiquetas_ausencias.dart';
 
 /// Gestión de ausencias, vacantes y disponibilidad (coordinación).
@@ -136,7 +139,13 @@ class _ListaVacantes extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final datos = ref.watch(vacantesProvider(EstadoVacante.abierta));
+    final ofertas = ref.watch(ofertasProvider).value ?? const <OfertaDto>[];
     final repo = ref.read(ausenciasRepositorioProvider);
+
+    void refrescar() {
+      ref.invalidate(vacantesProvider);
+      ref.invalidate(ofertasProvider);
+    }
 
     Future<void> cubrir(VacanteDto v) async {
       final ok = await showDialog<bool>(
@@ -147,14 +156,53 @@ class _ListaVacantes extends ConsumerWidget {
         ),
       );
       if (ok == true) {
-        ref.invalidate(vacantesProvider);
+        refrescar();
         if (context.mounted) mostrarMensaje(context, t.vacanteCubierta);
       }
     }
 
+    Future<void> ofrecer(VacanteDto v) async {
+      if (await showDialog<bool>(context: context, builder: (_) => DialogoOfrecer(vacanteId: v.id, necesidadId: v.necesidadId)) == true) refrescar();
+    }
+
+    Future<void> ejecutar(Future<void> Function() accion) async {
+      try {
+        await accion();
+        refrescar();
+      } catch (e) {
+        if (context.mounted) mostrarMensaje(context, mensajeDeFallo(t, e));
+      }
+    }
+
+    Future<void> aprobar(OfertaDto o) async {
+      try {
+        await repo.aprobarOferta(o.id);
+      } on FalloApi catch (f) {
+        // Con infracciones que admiten excepción se pide la justificación y se reintenta
+        final infracciones = [for (final v in f.violaciones.where((v) => v['severidad'] == 'Bloqueante')) '${v['mensaje']}'];
+        final admiten = f.violaciones.isNotEmpty && f.violaciones.every((v) => v['permiteExcepcion'] == true);
+        if (admiten && context.mounted) {
+          final justificacion = await pedirJustificacion(context, titulo: t.conExcepcionTitulo(o.profesional), infracciones: infracciones);
+          if (justificacion != null) {
+            await ejecutar(() => repo.aprobarOferta(o.id, justificacion: justificacion));
+          }
+          return;
+        }
+        if (context.mounted) mostrarMensaje(context, mensajeDeFallo(t, f));
+        return;
+      }
+      refrescar();
+      if (context.mounted) mostrarMensaje(context, t.sustitucionAprobada);
+    }
+
+    Future<void> denegar(OfertaDto o) async {
+      final motivo = await _pedirMotivo(context, t.accionDenegar, obligatorio: true);
+      if (motivo != null) await ejecutar(() => repo.denegarOferta(o.id, motivo));
+    }
+
     return EstadoAsincrono(
       valor: datos,
-      alReintentar: () => ref.invalidate(vacantesProvider),
+      alReintentar: refrescar,
       constructor: (lista) => lista.isEmpty
           ? Center(child: Text(t.sinVacantes))
           : ContenidoCentrado(
@@ -162,12 +210,37 @@ class _ListaVacantes extends ConsumerWidget {
                 for (final v in lista)
                   Card(
                     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: ListTile(
-                      isThreeLine: true,
-                      leading: Icon(Icons.person_off_outlined, color: Colors.orange.shade800),
-                      title: Text('${formatearFecha(v.fecha)} · ${v.turno}'),
-                      subtitle: Text('${v.centro} · ${v.servicio}${v.categoria == null ? '' : ' · ${v.categoria}'}\n${t.vacanteAusente(v.profesionalAusente)} · ${v.motivo}'),
-                      trailing: FilledButton(onPressed: () => cubrir(v), child: Text(t.accionCubrir)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          isThreeLine: true,
+                          leading: Icon(Icons.person_off_outlined, color: Colors.orange.shade800),
+                          title: Text('${formatearFecha(v.fecha)} · ${v.turno}'),
+                          subtitle: Text('${v.centro} · ${v.servicio}${v.categoria == null ? '' : ' · ${v.categoria}'}\n${t.vacanteAusente(v.profesionalAusente)} · ${v.motivo}'),
+                        ),
+                        Wrap(spacing: 8, runSpacing: 8, children: [
+                          FilledButton.tonal(onPressed: () => ofrecer(v), child: Text(t.ofrecerTurno)),
+                          OutlinedButton(onPressed: () => cubrir(v), child: Text(t.accionCubrir)),
+                        ]),
+                        for (final o in ofertas.where((o) => o.vacanteId == v.id && (o.abierta || o.estado == EstadoOferta.rechazada || o.estado == EstadoOferta.caducada)))
+                          ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(o.profesional),
+                            subtitle: Wrap(spacing: 8, children: [
+                              ChipEstadoAusencia(etiqueta: etiquetaEstadoOferta(t, o.estado), color: colorEstadoOferta(context, o.estado)),
+                              if (o.caduca != null && o.estado == EstadoOferta.pendiente) Text(t.ofertaCaduca(fechaHoraLocal(o.caduca!))),
+                              if (o.motivoRespuesta != null) Text(o.motivoRespuesta!),
+                            ]),
+                            trailing: Wrap(spacing: 4, children: [
+                              if (o.estado == EstadoOferta.aceptada) FilledButton(onPressed: () => aprobar(o), child: Text(t.accionAprobarSustitucion)),
+                              if (o.estado == EstadoOferta.aceptada) TextButton(onPressed: () => denegar(o), child: Text(t.accionDenegar)),
+                              if (o.abierta) IconButton(tooltip: t.accionRetirarOferta, icon: const Icon(Icons.close), onPressed: () => ejecutar(() => repo.retirarOferta(o.id))),
+                            ]),
+                          ),
+                      ]),
                     ),
                   ),
               ]),

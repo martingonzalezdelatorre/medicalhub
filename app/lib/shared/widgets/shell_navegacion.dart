@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controlador.dart';
 import '../../core/auth/modelos.dart';
+import '../../features/ausencias/presentation/pagina_notificaciones.dart';
 import '../../l10n/app_localizations.dart';
 
 class _Destino {
@@ -59,7 +60,8 @@ class ShellNavegacion extends ConsumerWidget {
     final destinos = _destinos(t, perfil);
     final seccion = _seccion(ubicacion);
     final indice = destinos.indexWhere((d) => d.ruta == seccion).clamp(0, destinos.length - 1);
-    final esDetalle = ubicacion != seccion && ubicacion.length > seccion.length || ubicacion.startsWith('/servicios/');
+    final enNotificaciones = ubicacion == '/notificaciones';
+    final esDetalle = enNotificaciones || ubicacion != seccion && ubicacion.length > seccion.length || ubicacion.startsWith('/servicios/');
     final ancho = MediaQuery.sizeOf(context).width;
     final conRail = ancho >= 600 && destinos.length > 1;
     final conBarra = ancho < 600 && destinos.length > 1;
@@ -86,9 +88,10 @@ class ShellNavegacion extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: esDetalle ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go(seccion)) : null,
-        title: Text(destinos[indice].etiqueta),
+        leading: esDetalle ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go(enNotificaciones ? '/' : seccion)) : null,
+        title: Text(enNotificaciones ? t.notificaciones : destinos[indice].etiqueta),
         actions: [
+          CampanaNotificaciones(ubicacion: ubicacion),
           IconButton(
             tooltip: t.cerrarSesion,
             icon: const Icon(Icons.logout),

@@ -20,6 +20,13 @@ final _vacante = {
   'profesionalAusente': 'Elena Ruiz', 'ausenciaId': 'a1', 'cuadranteEstado': 'Publicado',
 };
 
+Map<String, dynamic> _oferta({String estado = 'Pendiente'}) => {
+      'id': 'o1', 'vacanteId': 'v1', 'profesionalId': 'p2', 'profesional': 'Luis Pérez', 'estado': estado, 'fechaOferta': '2026-10-22T10:00:00+00:00',
+      'caduca': null, 'fechaRespuesta': null, 'motivoRespuesta': null, 'fechaDecision': null, 'motivoDecision': null, 'ofrecidaPor': 'Admin Sociedad',
+      'necesidadId': 'n1', 'fecha': '2026-11-05', 'turno': 'Mañana 08:00–15:00', 'servicio': 'Quirófano', 'centro': 'Hospital Norte', 'estadoVacante': 'Abierta',
+      'profesionalAusente': 'Elena Ruiz',
+    };
+
 class _Servidor {
   _Servidor({this.roles = const ['CoordinadorMedico']});
   final List<String> roles;
@@ -49,6 +56,24 @@ class _Servidor {
             {'asignacionId': 'x', 'turnoId': 't1', 'necesidadId': 'n1', 'fecha': '2026-11-05', 'turno': 'Mañana', 'servicio': 'Quirófano', 'centro': 'Hospital Norte', 'cuadranteEstado': 'Publicado'}
           ],
         });
+      case ('GET', '/api/mis-ofertas'):
+        return json([_oferta()]);
+      case ('POST', '/api/mis-ofertas/o1/aceptar'):
+        return json(_oferta(estado: 'Aceptada'));
+      case ('GET', '/api/ofertas'):
+        return json([_oferta(estado: 'Aceptada')]);
+      case ('POST', '/api/ofertas/o1/aprobar'):
+        return json({'id': 'a9', 'profesionalId': 'p2', 'profesional': 'Luis Pérez', 'estado': 'Confirmada', 'advertencias': <dynamic>[], 'excepciones': <dynamic>[]});
+      case ('POST', '/api/vacantes/v1/ofertas'):
+        return json([_oferta()], 201);
+      case ('GET', '/api/notificaciones/resumen'):
+        return json({'noLeidas': 2});
+      case ('GET', '/api/notificaciones'):
+        return json([
+          {'id': 'n1', 'tipo': 'OfertaRecibida', 'titulo': 'Oferta de sustitución', 'mensaje': 'Se le ofrece cubrir el turno.', 'entidadId': 'o1', 'fecha': '2026-10-22T10:00:00+00:00', 'leida': false},
+        ]);
+      case ('POST', '/api/notificaciones/n1/leer'):
+        return json(<String, dynamic>{}, 204);
       case ('GET', '/api/vacantes'):
         return json([_vacante]);
       case ('GET', '/api/necesidades/n1/candidatos'):
@@ -130,7 +155,7 @@ void main() {
 
       await t.tap(find.text('Buscar sustituto'));
       await t.pumpAndSettle();
-      expect(find.text('Luis Pérez'), findsOneWidget);
+      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('Luis Pérez')), findsOneWidget);
       expect(find.text('Prefiere este turno.'), findsOneWidget);
       await t.tap(find.widgetWithText(FilledButton, 'Asignar'));
       await t.pumpAndSettle();
@@ -159,6 +184,75 @@ void main() {
       await montarApp(t, _Servidor().falso);
       expect(find.text('Mi disponibilidad'), findsNothing);
       expect(find.text('Ausencias'), findsWidgets);
+    });
+  });
+
+  group('Ofertas de sustitución y notificaciones', () {
+    testWidgets('el profesional ve su oferta pendiente y la acepta', (t) async {
+      final s = _Servidor(roles: ['ProfesionalSanitario']);
+      await montarApp(t, s.falso);
+      await t.tap(find.text('Mi disponibilidad').first);
+      await t.pumpAndSettle();
+
+      expect(find.text('Ofertas de sustitución'), findsOneWidget);
+      expect(find.textContaining('05/11/2026 · Mañana 08:00–15:00'), findsOneWidget);
+      expect(find.text('Pendiente de respuesta'), findsOneWidget);
+
+      await t.tap(find.widgetWithText(FilledButton, 'Aceptar'));
+      await t.pumpAndSettle();
+      expect(s.peticiones.any((p) => p.method == 'POST' && p.path == '/api/mis-ofertas/o1/aceptar'), isTrue);
+    });
+
+    testWidgets('el coordinador ve la oferta aceptada y aprueba la sustitución', (t) async {
+      final s = _Servidor();
+      await montarApp(t, s.falso);
+      await t.tap(find.text('Ausencias').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text('Vacantes'));
+      await t.pumpAndSettle();
+
+      expect(find.text('Luis Pérez'), findsOneWidget);
+      expect(find.text('Aceptada, pendiente de aprobación'), findsOneWidget);
+      await t.tap(find.text('Aprobar sustitución'));
+      await t.pumpAndSettle();
+      expect(s.peticiones.any((p) => p.method == 'POST' && p.path == '/api/ofertas/o1/aprobar'), isTrue);
+      expect(find.text('Sustitución aprobada'), findsOneWidget);
+    });
+
+    testWidgets('el coordinador ofrece la vacante a varios candidatos', (t) async {
+      final s = _Servidor();
+      await montarApp(t, s.falso);
+      await t.tap(find.text('Ausencias').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text('Vacantes'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('Ofrecer turno'));
+      await t.pumpAndSettle();
+
+      expect(find.widgetWithText(FilledButton, 'Enviar oferta'), findsOneWidget);
+      expect(t.widget<FilledButton>(find.widgetWithText(FilledButton, 'Enviar oferta')).onPressed, isNull); // nadie elegido
+      await t.tap(find.text('Luis Pérez').last);
+      await t.pumpAndSettle();
+      await t.tap(find.widgetWithText(FilledButton, 'Enviar oferta'));
+      await t.pumpAndSettle();
+      final cuerpo = s.peticiones.singleWhere((p) => p.method == 'POST' && p.path == '/api/vacantes/v1/ofertas').data as Map<String, dynamic>;
+      expect(cuerpo['profesionalIds'], ['p2']);
+    });
+
+    testWidgets('la campana muestra los avisos sin leer y la lista los marca como leídos', (t) async {
+      final s = _Servidor(roles: ['ProfesionalSanitario']);
+      await montarApp(t, s.falso);
+      expect(find.text('2'), findsOneWidget); // distintivo de la campana
+
+      await t.tap(find.byTooltip('Notificaciones'));
+      await t.pumpAndSettle();
+      expect(find.text('Oferta de sustitución'), findsOneWidget);
+      expect(find.text('Marcar todas como leídas'), findsOneWidget);
+
+      await t.tap(find.text('Oferta de sustitución'));
+      await t.pumpAndSettle();
+      expect(s.peticiones.any((p) => p.method == 'POST' && p.path == '/api/notificaciones/n1/leer'), isTrue);
+      expect(find.text('Ofertas de sustitución'), findsOneWidget); // navega a «Mi disponibilidad»
     });
   });
 }

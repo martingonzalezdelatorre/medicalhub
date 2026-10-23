@@ -10,7 +10,7 @@ import '../../../shared/widgets/utilidades_ui.dart';
 import '../data/planificacion_repositorio.dart';
 import 'tarjeta_turno.dart';
 
-final _candidatosProvider = FutureProvider.autoDispose.family<List<CandidatoDto>, String>(
+final candidatosProvider = FutureProvider.autoDispose.family<List<CandidatoDto>, String>(
   (ref, necesidadId) => ref.watch(planificacionRepositorioProvider).candidatos(necesidadId),
 );
 
@@ -162,7 +162,7 @@ class _EstadoDialogoCandidatos extends ConsumerState<DialogoCandidatos> {
     } on FalloApi catch (f) {
       if (mounted) {
         setState(() => _error = mensajeDeFallo(t, f));
-        ref.invalidate(_candidatosProvider(widget.necesidadId)); // otro usuario pudo cambiar la situación
+        ref.invalidate(candidatosProvider(widget.necesidadId)); // otro usuario pudo cambiar la situación
       }
     } finally {
       if (mounted) setState(() => _asignando = null);
@@ -182,7 +182,7 @@ class _EstadoDialogoCandidatos extends ConsumerState<DialogoCandidatos> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final candidatos = ref.watch(_candidatosProvider(widget.necesidadId));
+    final candidatos = ref.watch(candidatosProvider(widget.necesidadId));
     final aviso = Colors.orange.shade800;
     return AlertDialog(
       title: Text(t.candidatosTitulo),
@@ -195,7 +195,7 @@ class _EstadoDialogoCandidatos extends ConsumerState<DialogoCandidatos> {
           Expanded(
             child: EstadoAsincrono(
               valor: candidatos,
-              alReintentar: () => ref.invalidate(_candidatosProvider(widget.necesidadId)),
+              alReintentar: () => ref.invalidate(candidatosProvider(widget.necesidadId)),
               constructor: (lista) => ListView.separated(
                 itemCount: lista.length,
                 separatorBuilder: (_, _) => const Divider(height: 1),
