@@ -114,6 +114,9 @@ CandidatoDto _$CandidatoDtoFromJson(Map<String, dynamic> json) => CandidatoDto(
       const [],
   requiereExcepcion: json['requiereExcepcion'] as bool? ?? false,
   puedeAutorizar: json['puedeAutorizar'] as bool? ?? false,
+  notas:
+      (json['notas'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
 );
 
 IncidenciaDto _$IncidenciaDtoFromJson(Map<String, dynamic> json) =>

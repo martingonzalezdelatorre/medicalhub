@@ -1449,6 +1449,354 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Autorizada por {nombre}'**
   String autorizadaPor(String nombre);
+
+  /// No description provided for @ausenciaVacaciones.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacaciones'**
+  String get ausenciaVacaciones;
+
+  /// No description provided for @ausenciaAsuntosPropios.
+  ///
+  /// In es, this message translates to:
+  /// **'Asuntos propios'**
+  String get ausenciaAsuntosPropios;
+
+  /// No description provided for @ausenciaPermiso.
+  ///
+  /// In es, this message translates to:
+  /// **'Permiso'**
+  String get ausenciaPermiso;
+
+  /// No description provided for @ausenciaFormacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Formación'**
+  String get ausenciaFormacion;
+
+  /// No description provided for @ausenciaBajaTemporal.
+  ///
+  /// In es, this message translates to:
+  /// **'Baja temporal'**
+  String get ausenciaBajaTemporal;
+
+  /// No description provided for @ausenciaOtro.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get ausenciaOtro;
+
+  /// No description provided for @ausenciaSolicitada.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitada'**
+  String get ausenciaSolicitada;
+
+  /// No description provided for @ausenciaAprobada.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobada'**
+  String get ausenciaAprobada;
+
+  /// No description provided for @ausenciaRechazada.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazada'**
+  String get ausenciaRechazada;
+
+  /// No description provided for @ausenciaCancelada.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelada'**
+  String get ausenciaCancelada;
+
+  /// No description provided for @dispDisponible.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible'**
+  String get dispDisponible;
+
+  /// No description provided for @dispBloqueo.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible (bloqueo)'**
+  String get dispBloqueo;
+
+  /// No description provided for @dispPrefiere.
+  ///
+  /// In es, this message translates to:
+  /// **'Prefiere'**
+  String get dispPrefiere;
+
+  /// No description provided for @dispEvita.
+  ///
+  /// In es, this message translates to:
+  /// **'Prefiere evitar'**
+  String get dispEvita;
+
+  /// No description provided for @dispPendiente.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente de aprobación'**
+  String get dispPendiente;
+
+  /// No description provided for @todosLosDias.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los días'**
+  String get todosLosDias;
+
+  /// No description provided for @registrarAusencia.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar ausencia'**
+  String get registrarAusencia;
+
+  /// No description provided for @solicitarAusencia.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar ausencia'**
+  String get solicitarAusencia;
+
+  /// No description provided for @campoTipoAusencia.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de ausencia'**
+  String get campoTipoAusencia;
+
+  /// No description provided for @campoProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'Profesional'**
+  String get campoProfesional;
+
+  /// No description provided for @campoComentarioOpcional.
+  ///
+  /// In es, this message translates to:
+  /// **'Comentario (opcional)'**
+  String get campoComentarioOpcional;
+
+  /// No description provided for @avisoSinDatosSalud.
+  ///
+  /// In es, this message translates to:
+  /// **'No incluya datos de salud ni diagnósticos.'**
+  String get avisoSinDatosSalud;
+
+  /// No description provided for @aprobarAlRegistrar.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobar al registrar'**
+  String get aprobarAlRegistrar;
+
+  /// No description provided for @registrar.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar'**
+  String get registrar;
+
+  /// No description provided for @solicitar.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar'**
+  String get solicitar;
+
+  /// No description provided for @declararDisponibilidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Declarar disponibilidad'**
+  String get declararDisponibilidad;
+
+  /// No description provided for @campoTipoDisponibilidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo'**
+  String get campoTipoDisponibilidad;
+
+  /// No description provided for @campoDiasSemana.
+  ///
+  /// In es, this message translates to:
+  /// **'Días de la semana'**
+  String get campoDiasSemana;
+
+  /// No description provided for @campoTipoTurnoOpcional.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de turno (opcional)'**
+  String get campoTipoTurnoOpcional;
+
+  /// No description provided for @cualquierTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Cualquier turno'**
+  String get cualquierTurno;
+
+  /// No description provided for @avisoDisponibilidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Las declaraciones solo cuentan para la planificación cuando las aprueba la coordinación.'**
+  String get avisoDisponibilidad;
+
+  /// No description provided for @declarar.
+  ///
+  /// In es, this message translates to:
+  /// **'Declarar'**
+  String get declarar;
+
+  /// No description provided for @menuMiDisponibilidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi disponibilidad'**
+  String get menuMiDisponibilidad;
+
+  /// No description provided for @menuAusencias.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencias'**
+  String get menuAusencias;
+
+  /// No description provided for @misAusencias.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis ausencias'**
+  String get misAusencias;
+
+  /// No description provided for @misDeclaraciones.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis declaraciones'**
+  String get misDeclaraciones;
+
+  /// No description provided for @sinAusencias.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay ausencias.'**
+  String get sinAusencias;
+
+  /// No description provided for @sinDeclaraciones.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay declaraciones.'**
+  String get sinDeclaraciones;
+
+  /// No description provided for @sinVacantes.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay vacantes.'**
+  String get sinVacantes;
+
+  /// No description provided for @ausTabSolicitudes.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencias'**
+  String get ausTabSolicitudes;
+
+  /// No description provided for @ausTabVacantes.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacantes'**
+  String get ausTabVacantes;
+
+  /// No description provided for @ausTabDisponibilidad.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidad'**
+  String get ausTabDisponibilidad;
+
+  /// No description provided for @accionAprobar.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobar'**
+  String get accionAprobar;
+
+  /// No description provided for @accionRechazar.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar'**
+  String get accionRechazar;
+
+  /// No description provided for @accionCancelarAusencia.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get accionCancelarAusencia;
+
+  /// No description provided for @accionRetirar.
+  ///
+  /// In es, this message translates to:
+  /// **'Retirar'**
+  String get accionRetirar;
+
+  /// No description provided for @accionCubrir.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar sustituto'**
+  String get accionCubrir;
+
+  /// No description provided for @motivoObligatorio.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo (obligatorio)'**
+  String get motivoObligatorio;
+
+  /// No description provided for @motivoOpcional.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo (opcional)'**
+  String get motivoOpcional;
+
+  /// No description provided for @turnosAfectados.
+  ///
+  /// In es, this message translates to:
+  /// **'Turnos afectados: {n}'**
+  String turnosAfectados(int n);
+
+  /// No description provided for @vacantesCreadas.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencia aprobada. Vacantes creadas: {n}'**
+  String vacantesCreadas(int n);
+
+  /// No description provided for @vacanteCubierta.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacante cubierta'**
+  String get vacanteCubierta;
+
+  /// No description provided for @vacanteAusente.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausente: {nombre}'**
+  String vacanteAusente(String nombre);
+
+  /// No description provided for @estadoVacanteAbierta.
+  ///
+  /// In es, this message translates to:
+  /// **'Abierta'**
+  String get estadoVacanteAbierta;
+
+  /// No description provided for @estadoVacanteCubierta.
+  ///
+  /// In es, this message translates to:
+  /// **'Cubierta'**
+  String get estadoVacanteCubierta;
+
+  /// No description provided for @estadoVacanteCancelada.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelada'**
+  String get estadoVacanteCancelada;
+
+  /// No description provided for @diasNumero.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} días'**
+  String diasNumero(int n);
+
+  /// No description provided for @filtroTodas.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas'**
+  String get filtroTodas;
 }
 
 class _AppLocalizationsDelegate

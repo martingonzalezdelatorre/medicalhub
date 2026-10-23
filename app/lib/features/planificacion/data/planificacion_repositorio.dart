@@ -193,6 +193,7 @@ class CandidatoDto {
     this.violaciones = const [],
     this.requiereExcepcion = false,
     this.puedeAutorizar = false,
+    this.notas = const [],
   });
 
   factory CandidatoDto.fromJson(Map<String, dynamic> json) => _$CandidatoDtoFromJson(json);
@@ -209,6 +210,9 @@ class CandidatoDto {
 
   /// El usuario actual tiene autoridad para autorizar esa excepción.
   final bool puedeAutorizar;
+
+  /// Información positiva: «Prefiere este turno», «Ha declarado disponibilidad…».
+  final List<String> notas;
 
   List<ViolacionDto> get advertencias => violaciones.where((v) => v.severidad != 'Bloqueante').toList();
 }

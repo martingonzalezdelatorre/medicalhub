@@ -776,4 +776,187 @@ class AppLocalizationsEs extends AppLocalizations {
   String autorizadaPor(String nombre) {
     return 'Autorizada por $nombre';
   }
+
+  @override
+  String get ausenciaVacaciones => 'Vacaciones';
+
+  @override
+  String get ausenciaAsuntosPropios => 'Asuntos propios';
+
+  @override
+  String get ausenciaPermiso => 'Permiso';
+
+  @override
+  String get ausenciaFormacion => 'Formación';
+
+  @override
+  String get ausenciaBajaTemporal => 'Baja temporal';
+
+  @override
+  String get ausenciaOtro => 'Otro';
+
+  @override
+  String get ausenciaSolicitada => 'Solicitada';
+
+  @override
+  String get ausenciaAprobada => 'Aprobada';
+
+  @override
+  String get ausenciaRechazada => 'Rechazada';
+
+  @override
+  String get ausenciaCancelada => 'Cancelada';
+
+  @override
+  String get dispDisponible => 'Disponible';
+
+  @override
+  String get dispBloqueo => 'No disponible (bloqueo)';
+
+  @override
+  String get dispPrefiere => 'Prefiere';
+
+  @override
+  String get dispEvita => 'Prefiere evitar';
+
+  @override
+  String get dispPendiente => 'Pendiente de aprobación';
+
+  @override
+  String get todosLosDias => 'Todos los días';
+
+  @override
+  String get registrarAusencia => 'Registrar ausencia';
+
+  @override
+  String get solicitarAusencia => 'Solicitar ausencia';
+
+  @override
+  String get campoTipoAusencia => 'Tipo de ausencia';
+
+  @override
+  String get campoProfesional => 'Profesional';
+
+  @override
+  String get campoComentarioOpcional => 'Comentario (opcional)';
+
+  @override
+  String get avisoSinDatosSalud => 'No incluya datos de salud ni diagnósticos.';
+
+  @override
+  String get aprobarAlRegistrar => 'Aprobar al registrar';
+
+  @override
+  String get registrar => 'Registrar';
+
+  @override
+  String get solicitar => 'Solicitar';
+
+  @override
+  String get declararDisponibilidad => 'Declarar disponibilidad';
+
+  @override
+  String get campoTipoDisponibilidad => 'Tipo';
+
+  @override
+  String get campoDiasSemana => 'Días de la semana';
+
+  @override
+  String get campoTipoTurnoOpcional => 'Tipo de turno (opcional)';
+
+  @override
+  String get cualquierTurno => 'Cualquier turno';
+
+  @override
+  String get avisoDisponibilidad =>
+      'Las declaraciones solo cuentan para la planificación cuando las aprueba la coordinación.';
+
+  @override
+  String get declarar => 'Declarar';
+
+  @override
+  String get menuMiDisponibilidad => 'Mi disponibilidad';
+
+  @override
+  String get menuAusencias => 'Ausencias';
+
+  @override
+  String get misAusencias => 'Mis ausencias';
+
+  @override
+  String get misDeclaraciones => 'Mis declaraciones';
+
+  @override
+  String get sinAusencias => 'No hay ausencias.';
+
+  @override
+  String get sinDeclaraciones => 'No hay declaraciones.';
+
+  @override
+  String get sinVacantes => 'No hay vacantes.';
+
+  @override
+  String get ausTabSolicitudes => 'Ausencias';
+
+  @override
+  String get ausTabVacantes => 'Vacantes';
+
+  @override
+  String get ausTabDisponibilidad => 'Disponibilidad';
+
+  @override
+  String get accionAprobar => 'Aprobar';
+
+  @override
+  String get accionRechazar => 'Rechazar';
+
+  @override
+  String get accionCancelarAusencia => 'Cancelar';
+
+  @override
+  String get accionRetirar => 'Retirar';
+
+  @override
+  String get accionCubrir => 'Buscar sustituto';
+
+  @override
+  String get motivoObligatorio => 'Motivo (obligatorio)';
+
+  @override
+  String get motivoOpcional => 'Motivo (opcional)';
+
+  @override
+  String turnosAfectados(int n) {
+    return 'Turnos afectados: $n';
+  }
+
+  @override
+  String vacantesCreadas(int n) {
+    return 'Ausencia aprobada. Vacantes creadas: $n';
+  }
+
+  @override
+  String get vacanteCubierta => 'Vacante cubierta';
+
+  @override
+  String vacanteAusente(String nombre) {
+    return 'Ausente: $nombre';
+  }
+
+  @override
+  String get estadoVacanteAbierta => 'Abierta';
+
+  @override
+  String get estadoVacanteCubierta => 'Cubierta';
+
+  @override
+  String get estadoVacanteCancelada => 'Cancelada';
+
+  @override
+  String diasNumero(int n) {
+    return '$n días';
+  }
+
+  @override
+  String get filtroTodas => 'Todas';
 }

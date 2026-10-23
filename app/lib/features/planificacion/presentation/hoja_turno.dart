@@ -82,7 +82,10 @@ class HojaTurno extends ConsumerWidget {
                           icon: const Icon(Icons.person_add_alt),
                           label: Text(t.asignarProfesional(n.plazasLibres)),
                           onPressed: () async {
-                            if (await showDialog<bool>(context: context, builder: (_) => _DialogoAsignar(necesidad: n)) == true) {
+                            if (await showDialog<bool>(context: context, builder: (_) => DialogoCandidatos(
+                                necesidadId: n.id,
+                                asignar: (profesionalId, justificacion) => repo.asignar(n.id, profesionalId, justificacion: justificacion),
+                              )) == true) {
                               ref.invalidate(turnosProvider(filtro));
                               ref.invalidate(cuadrantesProvider);
                               ref.invalidate(cuadranteProvider(turno.cuadranteId));
@@ -129,15 +132,18 @@ class _Cerrar extends StatelessWidget {
   Widget build(BuildContext context) => TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cerrar));
 }
 
-class _DialogoAsignar extends ConsumerStatefulWidget {
-  const _DialogoAsignar({required this.necesidad});
-  final NecesidadDto necesidad;
+class DialogoCandidatos extends ConsumerStatefulWidget {
+  const DialogoCandidatos({super.key, required this.necesidadId, required this.asignar});
+  final String necesidadId;
+
+  /// Realiza la asignación (normal o de una vacante). Recibe el profesional y la justificación de la excepción, si la hay.
+  final Future<ResultadoAsignacionDto> Function(String profesionalId, String? justificacion) asignar;
 
   @override
-  ConsumerState<_DialogoAsignar> createState() => _EstadoDialogoAsignar();
+  ConsumerState<DialogoCandidatos> createState() => _EstadoDialogoCandidatos();
 }
 
-class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
+class _EstadoDialogoCandidatos extends ConsumerState<DialogoCandidatos> {
   String? _error;
   String? _asignando;
 
@@ -148,7 +154,7 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
       _error = null;
     });
     try {
-      final r = await ref.read(planificacionRepositorioProvider).asignar(widget.necesidad.id, c.profesionalId, justificacion: justificacion);
+      final r = await widget.asignar(c.profesionalId, justificacion);
       if (!mounted) return;
       if (r.advertencias.isNotEmpty) mostrarMensaje(context, t.asignadoConAdvertencias(r.advertencias.length));
       if (r.excepciones.isNotEmpty) mostrarMensaje(context, t.asignadoConExcepcion);
@@ -156,7 +162,7 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
     } on FalloApi catch (f) {
       if (mounted) {
         setState(() => _error = mensajeDeFallo(t, f));
-        ref.invalidate(_candidatosProvider(widget.necesidad.id)); // otro usuario pudo cambiar la situación
+        ref.invalidate(_candidatosProvider(widget.necesidadId)); // otro usuario pudo cambiar la situación
       }
     } finally {
       if (mounted) setState(() => _asignando = null);
@@ -176,7 +182,7 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final candidatos = ref.watch(_candidatosProvider(widget.necesidad.id));
+    final candidatos = ref.watch(_candidatosProvider(widget.necesidadId));
     final aviso = Colors.orange.shade800;
     return AlertDialog(
       title: Text(t.candidatosTitulo),
@@ -189,7 +195,7 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
           Expanded(
             child: EstadoAsincrono(
               valor: candidatos,
-              alReintentar: () => ref.invalidate(_candidatosProvider(widget.necesidad.id)),
+              alReintentar: () => ref.invalidate(_candidatosProvider(widget.necesidadId)),
               constructor: (lista) => ListView.separated(
                 itemCount: lista.length,
                 separatorBuilder: (_, _) => const Divider(height: 1),
@@ -210,11 +216,12 @@ class _EstadoDialogoAsignar extends ConsumerState<_DialogoAsignar> {
                       color: switch (estado) { 0 => Colors.green, 1 => aviso, _ => null },
                     ),
                     title: Text(c.nombreCompleto),
-                    subtitle: (bloqueos.isEmpty && avisos.isEmpty && motivosSueltos.isEmpty)
+                    subtitle: (bloqueos.isEmpty && avisos.isEmpty && motivosSueltos.isEmpty && c.notas.isEmpty)
                         ? null
                         : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             for (final m in [...bloqueos, ...motivosSueltos]) Text(m),
                             for (final m in avisos) Text(m, style: TextStyle(color: aviso)),
+                            for (final m in c.notas) Text(m, style: const TextStyle(color: Colors.green)),
                           ]),
                     trailing: _asignando == c.profesionalId
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))

@@ -1,0 +1,98 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/estado_asincrono.dart';
+import '../../../shared/widgets/utilidades_ui.dart';
+import '../data/ausencias_repositorio.dart';
+import 'dialogo_ausencia.dart';
+import 'etiquetas_ausencias.dart';
+
+/// Ausencias y disponibilidad del propio profesional.
+class PaginaMiDisponibilidad extends ConsumerWidget {
+  const PaginaMiDisponibilidad({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final ausencias = ref.watch(misAusenciasProvider);
+    final declaraciones = ref.watch(miDisponibilidadProvider);
+    final repo = ref.read(ausenciasRepositorioProvider);
+
+    Future<void> ejecutar(Future<void> Function() accion) async {
+      try {
+        await accion();
+        ref.invalidate(misAusenciasProvider);
+        ref.invalidate(miDisponibilidadProvider);
+      } catch (e) {
+        if (context.mounted) mostrarMensaje(context, mensajeDeFallo(t, e));
+      }
+    }
+
+    Future<void> abrir(Widget dialogo) async {
+      if (await showDialog<bool>(context: context, builder: (_) => dialogo) == true) {
+        ref.invalidate(misAusenciasProvider);
+        ref.invalidate(miDisponibilidadProvider);
+      }
+    }
+
+    return ContenidoCentrado(
+      child: ListView(padding: const EdgeInsets.all(12), children: [
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          FilledButton.icon(icon: const Icon(Icons.beach_access_outlined), label: Text(t.solicitarAusencia), onPressed: () => abrir(const DialogoAusencia())),
+          OutlinedButton.icon(icon: const Icon(Icons.event_busy_outlined), label: Text(t.declararDisponibilidad), onPressed: () => abrir(const DialogoDisponibilidad())),
+        ]),
+        const SizedBox(height: 16),
+        Text(t.misAusencias, style: Theme.of(context).textTheme.titleMedium),
+        EstadoAsincrono(
+          valor: ausencias,
+          alReintentar: () => ref.invalidate(misAusenciasProvider),
+          constructor: (lista) => lista.isEmpty
+              ? Padding(padding: const EdgeInsets.all(16), child: Text(t.sinAusencias))
+              : Column(children: [
+                  for (final a in lista)
+                    Card(
+                      child: ListTile(
+                        title: Text('${etiquetaTipoAusencia(t, a.tipo)} · ${rangoFechasApi(a.desde, a.hasta)}'),
+                        subtitle: Text([t.diasNumero(a.dias), if (a.comentario != null) a.comentario!].join(' · ')),
+                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                          ChipEstadoAusencia(etiqueta: etiquetaEstadoAusencia(t, a.estado), color: colorEstadoAusencia(context, a.estado)),
+                          if (a.vigente) IconButton(tooltip: t.accionCancelarAusencia, icon: const Icon(Icons.close), onPressed: () => ejecutar(() => repo.cancelarPropia(a.id))),
+                        ]),
+                      ),
+                    ),
+                ]),
+        ),
+        const SizedBox(height: 16),
+        Text(t.misDeclaraciones, style: Theme.of(context).textTheme.titleMedium),
+        EstadoAsincrono(
+          valor: declaraciones,
+          alReintentar: () => ref.invalidate(miDisponibilidadProvider),
+          constructor: (lista) => lista.isEmpty
+              ? Padding(padding: const EdgeInsets.all(16), child: Text(t.sinDeclaraciones))
+              : Column(children: [
+                  for (final d in lista)
+                    Card(
+                      child: ListTile(
+                        isThreeLine: true,
+                        title: Text('${etiquetaTipoDisponibilidad(t, d.tipo)} · ${rangoFechasApi(d.desde, d.hasta)}'),
+                        subtitle: Text([etiquetaDias(t, d.dias), if (d.tipoTurno != null) d.tipoTurno!, if (d.comentario != null) d.comentario!, if (d.motivoDecision != null) d.motivoDecision!].join(' · ')),
+                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                          ChipEstadoAusencia(
+                            etiqueta: etiquetaEstadoDisponibilidad(t, d.estado),
+                            color: switch (d.estado) {
+                              EstadoDisponibilidad.declarada => Colors.orange.shade800,
+                              EstadoDisponibilidad.aprobada => Colors.green.shade700,
+                              EstadoDisponibilidad.rechazada => Theme.of(context).colorScheme.error,
+                            },
+                          ),
+                          IconButton(tooltip: t.accionRetirar, icon: const Icon(Icons.delete_outline), onPressed: () => ejecutar(() => repo.retirarDeclaracion(d.id))),
+                        ]),
+                      ),
+                    ),
+                ]),
+        ),
+      ]),
+    );
+  }
+}

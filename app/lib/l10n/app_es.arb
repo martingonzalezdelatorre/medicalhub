@@ -7,8 +7,16 @@
   "sinDatos": "No hay datos para mostrar.",
   "listaVacia": "Todavía no hay elementos.",
   "versionEntorno": "Versión {version} · {entorno}",
-  "@versionEntorno": { "placeholders": { "version": { "type": "String" }, "entorno": { "type": "String" } } },
-
+  "@versionEntorno": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "entorno": {
+        "type": "String"
+      }
+    }
+  },
   "loginTitulo": "Iniciar sesión",
   "campoCorreo": "Correo electrónico",
   "campoContrasena": "Contraseña",
@@ -18,28 +26,37 @@
   "validaObligatorio": "Campo obligatorio",
   "validaCorreo": "Introduzca un correo válido",
   "validaLongitudMinima": "Mínimo {n} caracteres",
-  "@validaLongitudMinima": { "placeholders": { "n": { "type": "int" } } },
+  "@validaLongitudMinima": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "validaCodigo": "El código tiene 6 dígitos",
-
   "mfaTitulo": "Verificación en dos pasos",
   "mfaInstrucciones": "Escanee el código QR con su aplicación autenticadora e introduzca el código de 6 dígitos para activar la protección.",
   "mfaClaveManual": "O introduzca esta clave manualmente",
   "botonActivar": "Activar",
   "botonCopiar": "Copiar",
   "copiado": "Copiado al portapapeles",
-
   "cerrarSesion": "Cerrar sesión",
   "menuInicio": "Inicio",
   "menuUsuarios": "Usuarios",
   "menuOrganizaciones": "Sociedades",
   "bienvenida": "Hola, {nombre}",
-  "@bienvenida": { "placeholders": { "nombre": { "type": "String" } } },
+  "@bienvenida": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
   "perfilSociedad": "Sociedad",
   "perfilRoles": "Roles",
   "perfilMfa": "Verificación en dos pasos",
   "mfaActiva": "Activada",
   "mfaInactiva": "No activada",
-
   "usuariosTitulo": "Usuarios",
   "nuevoUsuario": "Nuevo usuario",
   "campoNombre": "Nombre completo",
@@ -53,14 +70,12 @@
   "accionActivar": "Activar",
   "accionReiniciarMfa": "Reiniciar verificación en dos pasos",
   "operacionRealizada": "Operación realizada",
-
   "organizacionesTitulo": "Sociedades",
   "nuevaOrganizacion": "Nueva sociedad",
   "campoNombreSociedad": "Nombre de la sociedad",
   "campoZonaHoraria": "Zona horaria",
   "campoMfaObligatorio": "Exigir verificación en dos pasos a administradores y coordinadores",
   "datosAdministrador": "Administrador inicial",
-
   "rolAdministradorPlataforma": "Administrador de plataforma",
   "rolAdministradorSociedad": "Administrador de sociedad",
   "rolCoordinadorMedico": "Coordinador médico",
@@ -75,13 +90,11 @@
   "buscar": "Buscar",
   "soloActivos": "Solo activos",
   "campoDescripcion": "Descripción",
-
   "catEspecialidades": "Especialidades",
   "catCategorias": "Categorías",
   "catCompetencias": "Competencias",
   "catNuevo": "Nuevo elemento",
   "catEditar": "Editar elemento",
-
   "centrosTitulo": "Centros",
   "nuevoCentro": "Nuevo centro",
   "editarCentro": "Editar centro",
@@ -108,7 +121,13 @@
   "campoGuardia": "Es guardia",
   "cruzaMedianoche": "termina al día siguiente",
   "duracionHoras": "{horas} h",
-  "@duracionHoras": { "placeholders": { "horas": { "type": "String" } } },
+  "@duracionHoras": {
+    "placeholders": {
+      "horas": {
+        "type": "String"
+      }
+    }
+  },
   "requisitosTitulo": "Requisitos de cobertura",
   "editarRequisitos": "Editar requisitos",
   "campoNumeroProfesionales": "Nº de profesionales",
@@ -117,7 +136,6 @@
   "sinElementos": "Sin elementos",
   "validaNumero": "Número entre 1 y 50",
   "validaJson": "No es un JSON válido",
-
   "profesionalesTitulo": "Profesionales",
   "nuevoProfesional": "Nuevo profesional",
   "editarProfesional": "Editar profesional",
@@ -131,7 +149,13 @@
   "campoUsuarioVinculado": "Usuario vinculado",
   "sinUsuario": "Sin usuario",
   "vigenteHasta": "Vigente hasta {fecha}",
-  "@vigenteHasta": { "placeholders": { "fecha": { "type": "String" } } },
+  "@vigenteHasta": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
   "sinCaducidad": "Sin caducidad",
   "fijarCaducidad": "Fijar caducidad",
   "historial": "Historial",
@@ -146,7 +170,6 @@
   "eliminar": "Eliminar",
   "crear": "Crear",
   "cerrarMenu": "Cerrar",
-
   "vistaDia": "Día",
   "vistaSemana": "Semana",
   "vistaMes": "Mes",
@@ -160,30 +183,73 @@
   "soloSinCubrir": "Solo sin cubrir",
   "sinTurnos": "Sin turnos",
   "resumenDia": "{turnos} turnos, {sinCubrir} sin cubrir",
-  "@resumenDia": { "placeholders": { "turnos": { "type": "int" }, "sinCubrir": { "type": "int" } } },
+  "@resumenDia": {
+    "placeholders": {
+      "turnos": {
+        "type": "int"
+      },
+      "sinCubrir": {
+        "type": "int"
+      }
+    }
+  },
   "plazasCubiertasSemantica": "{cubiertas} de {total} plazas cubiertas",
-  "@plazasCubiertasSemantica": { "placeholders": { "cubiertas": { "type": "int" }, "total": { "type": "int" } } },
+  "@plazasCubiertasSemantica": {
+    "placeholders": {
+      "cubiertas": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "faltanProfesionales": "{n, plural, =1{Falta 1 profesional} other{Faltan {n} profesionales}}",
-  "@faltanProfesionales": { "placeholders": { "n": { "type": "int" } } },
-
+  "@faltanProfesionales": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "cuadranteNoEditable": "El cuadrante no está en borrador: reábralo para modificarlo.",
   "asignarProfesional": "{n, plural, =1{Asignar profesional (1 plaza libre)} other{Asignar profesional ({n} plazas libres)}}",
-  "@asignarProfesional": { "placeholders": { "n": { "type": "int" } } },
+  "@asignarProfesional": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "plazasLibres": "{n, plural, =1{1 plaza libre} other{{n} plazas libres}}",
-  "@plazasLibres": { "placeholders": { "n": { "type": "int" } } },
+  "@plazasLibres": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sinNecesidades": "Este turno no tiene necesidades de cobertura definidas.",
   "eliminarTurno": "Eliminar turno",
   "confirmaEliminarTurno": "Se eliminará el turno con sus necesidades y asignaciones.",
   "candidatosTitulo": "Candidatos",
   "asignar": "Asignar",
-
   "estadoBorrador": "Borrador",
   "estadoPublicado": "Publicado",
   "estadoArchivado": "Archivado",
   "nuevoCuadrante": "Nuevo cuadrante",
   "desdePlantilla": "Desde plantilla",
   "plazasCubiertasDe": "{cubiertas}/{total} plazas cubiertas",
-  "@plazasCubiertasDe": { "placeholders": { "cubiertas": { "type": "int" }, "total": { "type": "int" } } },
+  "@plazasCubiertasDe": {
+    "placeholders": {
+      "cubiertas": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "nombreOpcional": "Nombre (opcional)",
   "campoDesde": "Desde",
   "campoHasta": "Hasta",
@@ -191,11 +257,29 @@
   "plantilla": "Plantilla",
   "sinPlantillas": "Todavía no hay plantillas. Guarde un cuadrante como plantilla para reutilizarlo.",
   "diasPlantilla": "{n} días",
-  "@diasPlantilla": { "placeholders": { "n": { "type": "int" } } },
+  "@diasPlantilla": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "turnosCuenta": "{n, plural, =1{1 turno} other{{n} turnos}}",
-  "@turnosCuenta": { "placeholders": { "n": { "type": "int" } } },
+  "@turnosCuenta": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "versionPublicada": "Versión publicada: {v}",
-  "@versionPublicada": { "placeholders": { "v": { "type": "int" } } },
+  "@versionPublicada": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
   "verCalendario": "Ver calendario",
   "validarYPublicar": "Validar y publicar",
   "publicar": "Publicar",
@@ -212,12 +296,24 @@
   "versiones": "Versiones publicadas",
   "sinVersiones": "Todavía no se ha publicado.",
   "versionTitulo": "Versión {n}",
-  "@versionTitulo": { "placeholders": { "n": { "type": "int" } } },
+  "@versionTitulo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sinIncidencias": "No hay incidencias: el cuadrante está listo para publicarse.",
   "errores": "Errores (impiden publicar)",
   "advertencias": "Advertencias (revisables)",
   "yMasAvisos": "… y {n} avisos más",
-  "@yMasAvisos": { "placeholders": { "n": { "type": "int" } } },
+  "@yMasAvisos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "menuReglas": "Reglas",
   "reglasTabReglas": "Reglas",
   "reglasTabExcepciones": "Excepciones",
@@ -234,7 +330,16 @@
   "fundamentoAyuda": "Lo completa la sociedad: el sistema no incluye límites legales por defecto",
   "pendienteRevision": "Pendiente de revisión",
   "revisadaPor": "Revisada por {nombre} el {fecha}",
-  "@revisadaPor": { "placeholders": { "nombre": { "type": "String" }, "fecha": { "type": "String" } } },
+  "@revisadaPor": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
   "marcarRevisada": "Marcar como revisada",
   "reglasAviso": "Las reglas las define y revisa su sociedad. Los límites (descansos, horas, guardias…) no existen hasta que los configure según su convenio o acuerdo; consulte la normativa aplicable a cada colectivo.",
   "reglasVacio": "Todavía no ha configurado ninguna regla.",
@@ -244,20 +349,139 @@
   "sinExcepciones": "No hay excepciones registradas.",
   "excepcionAnulada": "Asignación anulada",
   "validaRango": "Número entre {min} y {max}",
-  "@validaRango": { "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } } },
+  "@validaRango": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "conExcepcion": "Con excepción",
   "conExcepcionTitulo": "Asignar a {nombre} con excepción",
-  "@conExcepcionTitulo": { "placeholders": { "nombre": { "type": "String" } } },
+  "@conExcepcionTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
   "soloAdministrador": "Requiere al administrador",
   "asignadoConAdvertencias": "{n, plural, =1{Asignado con 1 advertencia} other{Asignado con {n} advertencias}}",
-  "@asignadoConAdvertencias": { "placeholders": { "n": { "type": "int" } } },
+  "@asignadoConAdvertencias": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "asignadoConExcepcion": "Asignado con excepción registrada",
   "excepcionAviso": "Esta asignación incumple las siguientes reglas. Puede autorizarla como excepción: quedará registrada con su justificación y su nombre.",
   "justificacion": "Justificación",
   "justificacionMinimo": "Explique el motivo (mínimo {n} caracteres)",
-  "@justificacionMinimo": { "placeholders": { "n": { "type": "int" } } },
+  "@justificacionMinimo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "autorizarExcepcion": "Autorizar excepción",
   "excepcionesAutorizadas": "Excepciones autorizadas",
   "autorizadaPor": "Autorizada por {nombre}",
-  "@autorizadaPor": { "placeholders": { "nombre": { "type": "String" } } }
+  "@autorizadaPor": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "ausenciaVacaciones": "Vacaciones",
+  "ausenciaAsuntosPropios": "Asuntos propios",
+  "ausenciaPermiso": "Permiso",
+  "ausenciaFormacion": "Formación",
+  "ausenciaBajaTemporal": "Baja temporal",
+  "ausenciaOtro": "Otro",
+  "ausenciaSolicitada": "Solicitada",
+  "ausenciaAprobada": "Aprobada",
+  "ausenciaRechazada": "Rechazada",
+  "ausenciaCancelada": "Cancelada",
+  "dispDisponible": "Disponible",
+  "dispBloqueo": "No disponible (bloqueo)",
+  "dispPrefiere": "Prefiere",
+  "dispEvita": "Prefiere evitar",
+  "dispPendiente": "Pendiente de aprobación",
+  "todosLosDias": "Todos los días",
+  "registrarAusencia": "Registrar ausencia",
+  "solicitarAusencia": "Solicitar ausencia",
+  "campoTipoAusencia": "Tipo de ausencia",
+  "campoProfesional": "Profesional",
+  "campoComentarioOpcional": "Comentario (opcional)",
+  "avisoSinDatosSalud": "No incluya datos de salud ni diagnósticos.",
+  "aprobarAlRegistrar": "Aprobar al registrar",
+  "registrar": "Registrar",
+  "solicitar": "Solicitar",
+  "declararDisponibilidad": "Declarar disponibilidad",
+  "campoTipoDisponibilidad": "Tipo",
+  "campoDiasSemana": "Días de la semana",
+  "campoTipoTurnoOpcional": "Tipo de turno (opcional)",
+  "cualquierTurno": "Cualquier turno",
+  "avisoDisponibilidad": "Las declaraciones solo cuentan para la planificación cuando las aprueba la coordinación.",
+  "declarar": "Declarar",
+  "menuMiDisponibilidad": "Mi disponibilidad",
+  "menuAusencias": "Ausencias",
+  "misAusencias": "Mis ausencias",
+  "misDeclaraciones": "Mis declaraciones",
+  "sinAusencias": "No hay ausencias.",
+  "sinDeclaraciones": "No hay declaraciones.",
+  "sinVacantes": "No hay vacantes.",
+  "ausTabSolicitudes": "Ausencias",
+  "ausTabVacantes": "Vacantes",
+  "ausTabDisponibilidad": "Disponibilidad",
+  "accionAprobar": "Aprobar",
+  "accionRechazar": "Rechazar",
+  "accionCancelarAusencia": "Cancelar",
+  "accionRetirar": "Retirar",
+  "accionCubrir": "Buscar sustituto",
+  "motivoObligatorio": "Motivo (obligatorio)",
+  "motivoOpcional": "Motivo (opcional)",
+  "turnosAfectados": "Turnos afectados: {n}",
+  "vacantesCreadas": "Ausencia aprobada. Vacantes creadas: {n}",
+  "vacanteCubierta": "Vacante cubierta",
+  "vacanteAusente": "Ausente: {nombre}",
+  "estadoVacanteAbierta": "Abierta",
+  "estadoVacanteCubierta": "Cubierta",
+  "estadoVacanteCancelada": "Cancelada",
+  "diasNumero": "{n} días",
+  "@diasNumero": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filtroTodas": "Todas",
+  "@turnosAfectados": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@vacantesCreadas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@vacanteAusente": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  }
 }
