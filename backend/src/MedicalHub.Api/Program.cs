@@ -145,7 +145,9 @@ if (app.Environment.IsDevelopment())
 else
     app.UseHsts();
 
-app.UseHttpsRedirection();
+// En desarrollo se admite HTTP para poder probar desde un móvil (adb reverse) sin certificado de confianza.
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseCors();
 app.UseRateLimiter();
 app.UseAuthentication();

@@ -29,8 +29,13 @@ class EstadoAsincrono<T> extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
-              const SizedBox(height: 12),
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.error.withAlpha(24), shape: BoxShape.circle),
+                child: Icon(Icons.cloud_off_outlined, size: 34, color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 16),
               Text(mensaje, textAlign: TextAlign.center),
               if (alReintentar != null) ...[
                 const SizedBox(height: 16),

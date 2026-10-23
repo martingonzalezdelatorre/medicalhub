@@ -62,11 +62,18 @@ class _EstadoPaginaInformes extends ConsumerState<PaginaInformes> {
     return DefaultTabController(
       length: 3,
       child: Column(children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          ),
           child: Wrap(spacing: 8, runSpacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
-            OutlinedButton(onPressed: () => _elegir(inicio: true), child: Text('${t.campoDesde}: ${formatearFecha(fechaParaApi(_desde))}')),
-            OutlinedButton(onPressed: () => _elegir(inicio: false), child: Text('${t.campoHasta}: ${formatearFecha(fechaParaApi(_hasta))}')),
+            OutlinedButton.icon(icon: const Icon(Icons.event_outlined, size: 18), onPressed: () => _elegir(inicio: true), label: Text('${t.campoDesde}: ${formatearFecha(fechaParaApi(_desde))}')),
+            OutlinedButton.icon(icon: const Icon(Icons.event_outlined, size: 18), onPressed: () => _elegir(inicio: false), label: Text('${t.campoHasta}: ${formatearFecha(fechaParaApi(_hasta))}')),
             SizedBox(
               width: 240,
               child: DropdownButtonFormField<String?>(
@@ -82,7 +89,7 @@ class _EstadoPaginaInformes extends ConsumerState<PaginaInformes> {
             ),
           ]),
         ),
-        TabBar(tabs: [Tab(text: t.informesTabHoras), Tab(text: t.informesTabRegistro), Tab(text: t.informesTabCobertura)]),
+        TabBar(indicatorWeight: 3, tabs: [Tab(text: t.informesTabHoras), Tab(text: t.informesTabRegistro), Tab(text: t.informesTabCobertura)]),
         Expanded(
           child: TabBarView(children: [
             _TablaHoras(filtro: _filtro, puedeExportar: gestion),
@@ -126,7 +133,7 @@ class _TablaHoras extends ConsumerWidget {
       valor: datos,
       alReintentar: () => ref.invalidate(informeHorasProvider),
       constructor: (i) => i.filas.isEmpty
-          ? Center(child: Text(t.sinDatosPeriodo))
+          ? EstadoVacio(mensaje: t.sinDatosPeriodo)
           : ListView(padding: const EdgeInsets.all(12), children: [
               if (puedeExportar)
                 Align(
@@ -135,7 +142,7 @@ class _TablaHoras extends ConsumerWidget {
                 ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: DataTable(
+                child: Card(margin: EdgeInsets.zero, child: DataTable(
                   columns: [
                     DataColumn(label: Text(t.campoProfesional)),
                     DataColumn(label: Text(t.colTurnos), numeric: true),
@@ -159,7 +166,7 @@ class _TablaHoras extends ConsumerWidget {
                         DataCell(Text(f.turnosRegistrados == 0 ? '—' : formatearMinutos(f.efectivasMin))),
                       ]),
                   ],
-                ),
+                )),
               ),
             ]),
     );
@@ -179,7 +186,7 @@ class _TablaCobertura extends ConsumerWidget {
       valor: datos,
       alReintentar: () => ref.invalidate(informeCoberturaProvider),
       constructor: (i) => i.filas.isEmpty
-          ? Center(child: Text(t.sinDatosPeriodo))
+          ? EstadoVacio(mensaje: t.sinDatosPeriodo)
           : ListView(padding: const EdgeInsets.all(12), children: [
               if (puedeExportar)
                 Align(
@@ -188,7 +195,7 @@ class _TablaCobertura extends ConsumerWidget {
                 ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: DataTable(
+                child: Card(margin: EdgeInsets.zero, child: DataTable(
                   columns: [
                     DataColumn(label: Text(t.filtroCentro)),
                     DataColumn(label: Text(t.filtroServicio)),
@@ -212,7 +219,7 @@ class _TablaCobertura extends ConsumerWidget {
                         DataCell(Text('${f.excepciones}')),
                       ]),
                   ],
-                ),
+                )),
               ),
             ]),
     );
@@ -247,7 +254,7 @@ class _RegistroHoras extends ConsumerWidget {
       valor: datos,
       alReintentar: () => ref.invalidate(lineasHorasProvider),
       constructor: (lista) => lista.isEmpty
-          ? Center(child: Text(t.sinDatosPeriodo))
+          ? EstadoVacio(mensaje: t.sinDatosPeriodo)
           : ContenidoCentrado(
               child: ListView(padding: const EdgeInsets.symmetric(vertical: 8), children: [
                 for (final l in lista)

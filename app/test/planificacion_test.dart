@@ -122,7 +122,7 @@ void main() {
 
     testWidgets('en móvil la agenda es la vista por defecto y no desborda', (t) async {
       await montarApp(t, _Servidor().falso, tamano: const Size(375, 812));
-      await t.tap(find.text('Planificación').first);
+      await t.tap(find.byTooltip('Planificación').first);
       await t.pumpAndSettle();
 
       expect(find.textContaining('08:00–15:00'), findsOneWidget);

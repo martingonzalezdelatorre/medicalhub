@@ -29,14 +29,13 @@ class PaginaUsuarios extends ConsumerWidget {
         valor: usuarios,
         alReintentar: () => ref.invalidate(usuariosProvider),
         constructor: (lista) => lista.isEmpty
-            ? Center(child: Text(t.listaVacia))
+            ? EstadoVacio(mensaje: t.listaVacia, icono: Icons.group_outlined)
             : RefreshIndicator(
                 onRefresh: () => ref.refresh(usuariosProvider.future),
                 child: ContenidoCentrado(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 88),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
                     itemCount: lista.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (_, i) => _FilaUsuario(usuario: lista[i]),
                   ),
                 ),
@@ -64,11 +63,11 @@ class _FilaUsuario extends ConsumerWidget {
     }
 
     final repo = ref.read(usuariosRepositorioProvider);
-    return ListTile(
-      leading: CircleAvatar(child: Icon(usuario.activo ? Icons.person : Icons.person_off)),
-      title: Text(usuario.nombreCompleto),
-      subtitle: Text('${usuario.email}\n${usuario.roles.map((r) => etiquetaRol(t, r)).join(' · ')}'),
-      isThreeLine: true,
+    return TarjetaElemento(
+      icono: usuario.activo ? Icons.person_outline : Icons.person_off_outlined,
+      titulo: usuario.nombreCompleto,
+      tachado: !usuario.activo,
+      subtitulo: '${usuario.email}\n${usuario.roles.map((r) => etiquetaRol(t, r)).join(' · ')}',
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
         if (!usuario.activo) Chip(label: Text(t.estadoInactivo)),
         PopupMenuButton<String>(

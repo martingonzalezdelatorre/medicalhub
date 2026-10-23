@@ -28,16 +28,15 @@ class PaginaOrganizaciones extends ConsumerWidget {
         valor: organizaciones,
         alReintentar: () => ref.invalidate(organizacionesProvider),
         constructor: (lista) => lista.isEmpty
-            ? Center(child: Text(t.listaVacia))
+            ? EstadoVacio(mensaje: t.listaVacia, icono: Icons.business_outlined)
             : ContenidoCentrado(
-                child: ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 88),
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
                   itemCount: lista.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (_, i) => ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.business)),
-                    title: Text(lista[i].nombre),
-                    subtitle: Text(lista[i].zonaHoraria),
+                  itemBuilder: (_, i) => TarjetaElemento(
+                    icono: Icons.business_outlined,
+                    titulo: lista[i].nombre,
+                    subtitulo: lista[i].zonaHoraria,
                     trailing: lista[i].activa ? null : Chip(label: Text(t.estadoInactivo)),
                   ),
                 ),

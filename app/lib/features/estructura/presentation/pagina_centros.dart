@@ -46,19 +46,18 @@ class PaginaCentros extends ConsumerWidget {
         valor: centros,
         alReintentar: () => ref.invalidate(centrosProvider),
         constructor: (lista) => lista.isEmpty
-            ? Center(child: Text(t.listaVacia))
+            ? EstadoVacio(mensaje: t.listaVacia, icono: Icons.local_hospital_outlined)
             : ContenidoCentrado(
-                child: ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 88),
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
                   itemCount: lista.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (_, i) {
                     final c = lista[i];
-                    return ListTile(
-                      leading: const CircleAvatar(child: Icon(Icons.local_hospital_outlined)),
-                      title: Text(c.nombre),
-                      subtitle: Text('${etiquetaTipoCentro(t, c.tipo)} · ${c.zonaHoraria}'),
-                      trailing: c.activo ? const Icon(Icons.chevron_right) : Chip(label: Text(t.estadoInactivo)),
+                    return TarjetaElemento(
+                      icono: Icons.local_hospital_outlined,
+                      titulo: c.nombre,
+                      subtitulo: '${etiquetaTipoCentro(t, c.tipo)} · ${c.zonaHoraria}',
+                      trailing: c.activo ? null : Chip(label: Text(t.estadoInactivo)),
                       onTap: () => context.go('/centros/${c.id}'),
                     );
                   },

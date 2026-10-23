@@ -99,7 +99,7 @@ class _ListaAusencias extends ConsumerWidget {
         valor: datos,
         alReintentar: () => ref.invalidate(ausenciasProvider),
         constructor: (lista) => lista.isEmpty
-            ? Center(child: Text(t.sinAusencias))
+            ? EstadoVacio(mensaje: t.sinAusencias)
             : ContenidoCentrado(
                 child: ListView(padding: const EdgeInsets.only(bottom: 88, top: 8), children: [
                   for (final a in lista)
@@ -107,6 +107,10 @@ class _ListaAusencias extends ConsumerWidget {
                       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       child: ListTile(
                         isThreeLine: true,
+                        leading: CircleAvatar(
+                          backgroundColor: colorEstadoAusencia(context, a.estado).withValues(alpha: 0.15),
+                          child: Icon(Icons.event_busy_outlined, color: colorEstadoAusencia(context, a.estado)),
+                        ),
                         title: Text('${a.profesional} · ${etiquetaTipoAusencia(t, a.tipo)}'),
                         subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text('${rangoFechasApi(a.desde, a.hasta)} · ${t.diasNumero(a.dias)}'),
@@ -204,7 +208,7 @@ class _ListaVacantes extends ConsumerWidget {
       valor: datos,
       alReintentar: refrescar,
       constructor: (lista) => lista.isEmpty
-          ? Center(child: Text(t.sinVacantes))
+          ? EstadoVacio(mensaje: t.sinVacantes)
           : ContenidoCentrado(
               child: ListView(padding: const EdgeInsets.symmetric(vertical: 8), children: [
                 for (final v in lista)
@@ -276,7 +280,7 @@ class _ListaDisponibilidad extends ConsumerWidget {
       valor: datos,
       alReintentar: () => ref.invalidate(disponibilidadesPendientesProvider),
       constructor: (lista) => lista.isEmpty
-          ? Center(child: Text(t.sinDeclaraciones))
+          ? EstadoVacio(mensaje: t.sinDeclaraciones)
           : ContenidoCentrado(
               child: ListView(padding: const EdgeInsets.symmetric(vertical: 8), children: [
                 for (final d in lista)
@@ -284,6 +288,10 @@ class _ListaDisponibilidad extends ConsumerWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     child: ListTile(
                       isThreeLine: true,
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                        child: Icon(Icons.event_available_outlined, color: Theme.of(context).colorScheme.primary),
+                      ),
                       title: Text('${d.profesional} · ${etiquetaTipoDisponibilidad(t, d.tipo)}'),
                       subtitle: Text([rangoFechasApi(d.desde, d.hasta), etiquetaDias(t, d.dias), if (d.tipoTurno != null) d.tipoTurno!, if (d.comentario != null) d.comentario!].join(' · ')),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [

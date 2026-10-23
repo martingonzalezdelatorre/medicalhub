@@ -59,7 +59,7 @@ class PaginaNotificaciones extends ConsumerWidget {
       valor: datos,
       alReintentar: refrescar,
       constructor: (lista) => lista.isEmpty
-          ? Center(child: Text(t.sinNotificaciones))
+          ? EstadoVacio(mensaje: t.sinNotificaciones)
           : ContenidoCentrado(
               child: ListView(padding: const EdgeInsets.symmetric(vertical: 8), children: [
                 Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: todasLeidas, icon: const Icon(Icons.done_all), label: Text(t.marcarTodasLeidas))),
@@ -68,7 +68,10 @@ class PaginaNotificaciones extends ConsumerWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     color: n.leida ? null : Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.4),
                     child: ListTile(
-                      leading: Icon(iconoDeNotificacion(n.tipo)),
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: n.leida ? 0.08 : 0.18),
+                        child: Icon(iconoDeNotificacion(n.tipo), color: Theme.of(context).colorScheme.primary),
+                      ),
                       title: Text(n.titulo, style: TextStyle(fontWeight: n.leida ? FontWeight.normal : FontWeight.w700)),
                       subtitle: Text('${n.mensaje}\n${fechaHoraLocal(n.fecha)}'),
                       isThreeLine: true,

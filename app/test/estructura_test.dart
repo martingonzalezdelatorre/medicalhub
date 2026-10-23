@@ -165,7 +165,7 @@ void main() {
       await t.tap(find.text('Profesionales').first);
       await t.pumpAndSettle();
 
-      expect(find.text('Ana García'), findsOneWidget);
+      expect(find.text('Ana García'), findsWidgets);
       expect(find.text('Adjunto · COL-1'), findsOneWidget);
       expect(find.text('Nuevo profesional'), findsOneWidget);
     });
@@ -174,7 +174,7 @@ void main() {
       await montarApp(t, _servidor(roles: ['CoordinadorMedico']));
       await t.tap(find.text('Profesionales').first);
       await t.pumpAndSettle();
-      expect(find.text('Ana García'), findsOneWidget);
+      expect(find.text('Ana García'), findsWidgets);
       expect(find.text('Nuevo profesional'), findsNothing);
     });
 
@@ -224,7 +224,7 @@ void main() {
 
     testWidgets('el formulario móvil no desborda', (t) async {
       await montarApp(t, _servidor(), tamano: const Size(375, 812));
-      await t.tap(find.text('Profesionales').last);
+      await t.tap(find.byTooltip('Profesionales').last);
       await t.pumpAndSettle();
       await t.tap(find.text('Nuevo profesional'));
       await t.pumpAndSettle();

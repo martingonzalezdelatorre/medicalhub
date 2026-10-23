@@ -197,7 +197,7 @@ void main() {
       await t.tap(find.text('Excepciones'));
       await t.pumpAndSettle();
 
-      expect(find.text('Ana García'), findsOneWidget);
+      expect(find.text('Ana García'), findsWidgets);
       expect(find.textContaining('Cobertura urgente por baja del titular.'), findsOneWidget);
       expect(find.textContaining('Autorizada por Admin Sociedad'), findsOneWidget);
       expect(find.text('Asignación anulada'), findsOneWidget);

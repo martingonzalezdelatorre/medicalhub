@@ -165,7 +165,7 @@ class _ListaExcepciones extends ConsumerWidget {
       valor: ref.watch(excepcionesProvider),
       alReintentar: () => ref.invalidate(excepcionesProvider),
       constructor: (lista) => lista.isEmpty
-          ? Center(child: Text(t.sinExcepciones))
+          ? EstadoVacio(mensaje: t.sinExcepciones)
           : ContenidoCentrado(
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 8, bottom: 24),

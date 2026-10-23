@@ -32,9 +32,12 @@ class ChipEstado extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = colorEstado(context, estado);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-      child: Text(etiquetaEstado(AppLocalizations.of(context), estado), style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(20)),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 7, height: 7, margin: const EdgeInsets.only(right: 6), decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Text(etiquetaEstado(AppLocalizations.of(context), estado), style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12)),
+      ]),
     );
   }
 }
@@ -81,21 +84,46 @@ class PaginaCuadrantes extends ConsumerWidget {
         valor: cuadrantes,
         alReintentar: () => ref.invalidate(cuadrantesProvider),
         constructor: (lista) => lista.isEmpty
-            ? Center(child: Text(t.listaVacia))
+            ? EstadoVacio(mensaje: t.listaVacia, icono: Icons.view_timeline_outlined)
             : ContenidoCentrado(
                 child: ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 160, top: 8),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 160),
                   itemCount: lista.length,
                   itemBuilder: (_, i) {
                     final c = lista[i];
+                    final cs = Theme.of(context).colorScheme;
+                    final ratio = c.plazasTotales == 0 ? 0.0 : (c.plazasCubiertas / c.plazasTotales).clamp(0.0, 1.0);
+                    final colorBarra = ratio >= 0.95 ? Colors.green.shade600 : (ratio >= 0.5 ? Colors.orange.shade700 : cs.error);
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      child: ListTile(
-                        title: Text(c.nombre),
-                        subtitle: Text('${c.servicioNombre} · ${c.centroNombre}\n${rangoFechas(c)} · ${t.plazasCubiertasDe(c.plazasCubiertas, c.plazasTotales)}'),
-                        isThreeLine: true,
-                        trailing: ChipEstado(c.estado),
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: InkWell(
                         onTap: () => context.go('/cuadrantes/${c.id}'),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Row(children: [
+                              Expanded(child: Text(c.nombre, style: Theme.of(context).textTheme.titleMedium)),
+                              const SizedBox(width: 8),
+                              ChipEstado(c.estado),
+                            ]),
+                            const SizedBox(height: 4),
+                            Text('${c.servicioNombre} · ${c.centroNombre}',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                            const SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LinearProgressIndicator(value: ratio, minHeight: 8, color: colorBarra, backgroundColor: colorBarra.withValues(alpha: 0.15)),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(children: [
+                              Icon(Icons.date_range_outlined, size: 16, color: cs.onSurfaceVariant),
+                              const SizedBox(width: 6),
+                              Expanded(child: Text(rangoFechas(c), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))),
+                              Text(t.plazasCubiertasDe(c.plazasCubiertas, c.plazasTotales),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorBarra, fontWeight: FontWeight.w700)),
+                            ]),
+                          ]),
+                        ),
                       ),
                     );
                   },

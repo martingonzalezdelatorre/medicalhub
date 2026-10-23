@@ -60,17 +60,18 @@ class _ListaCatalogo extends ConsumerWidget {
         valor: datos,
         alReintentar: () => ref.invalidate(catalogoCompletoProvider(tipo)),
         constructor: (lista) => lista.isEmpty
-            ? Center(child: Text(t.listaVacia))
+            ? EstadoVacio(mensaje: t.listaVacia, icono: Icons.category_outlined)
             : ContenidoCentrado(
-                child: ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 88),
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
                   itemCount: lista.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (_, i) {
                     final c = lista[i];
-                    return ListTile(
-                      title: Text(c.nombre, style: c.activa ? null : const TextStyle(decoration: TextDecoration.lineThrough)),
-                      subtitle: c.descripcion == null ? null : Text(c.descripcion!),
+                    return TarjetaElemento(
+                      icono: Icons.label_outline,
+                      titulo: c.nombre,
+                      tachado: !c.activa,
+                      subtitulo: c.descripcion,
                       trailing: PopupMenuButton<String>(
                         onSelected: (accion) async {
                           if (accion == 'editar') return editar(c);

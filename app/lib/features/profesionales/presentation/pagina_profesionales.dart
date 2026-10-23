@@ -68,18 +68,17 @@ class _EstadoPaginaProfesionales extends ConsumerState<PaginaProfesionales> {
               valor: profesionales,
               alReintentar: () => ref.invalidate(profesionalesProvider(_filtro)),
               constructor: (lista) => lista.isEmpty
-                  ? Center(child: Text(t.listaVacia))
-                  : ListView.separated(
-                      padding: const EdgeInsets.only(top: 8, bottom: 88),
+                  ? EstadoVacio(mensaje: t.listaVacia, icono: Icons.badge_outlined)
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
                       itemCount: lista.length,
-                      separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (_, i) {
                         final p = lista[i];
-                        return ListTile(
-                          leading: CircleAvatar(child: Text(p.nombre.characters.first.toUpperCase())),
-                          title: Text(p.nombreCompleto, style: p.activo ? null : const TextStyle(decoration: TextDecoration.lineThrough)),
-                          subtitle: Text([categorias[p.categoriaId] ?? '', if (p.numeroColegiado != null) p.numeroColegiado!].where((x) => x.isNotEmpty).join(' · ')),
-                          trailing: const Icon(Icons.chevron_right),
+                        return TarjetaElemento(
+                          inicial: p.nombre.characters.first.toUpperCase(),
+                          titulo: p.nombreCompleto,
+                          tachado: !p.activo,
+                          subtitulo: [categorias[p.categoriaId] ?? '', if (p.numeroColegiado != null) p.numeroColegiado!].where((x) => x.isNotEmpty).join(' · '),
                           onTap: () => context.go('/profesionales/${p.id}'),
                         );
                       },

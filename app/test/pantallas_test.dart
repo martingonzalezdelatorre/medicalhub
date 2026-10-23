@@ -82,7 +82,8 @@ void main() {
       final servidor = ServidorFalso((p) => p.path.contains('refrescar') ? json(sesionJson()) : json(<dynamic>[]));
       await _montar(t, servidor, tokenGuardado: 'R');
 
-      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(find.byTooltip('Cerrar sesión'), findsOneWidget); // menú lateral de escritorio
+      expect(find.byType(NavigationRail), findsNothing);
       expect(find.byType(NavigationBar), findsNothing);
       expect(find.text('Usuarios'), findsOneWidget);
       expect(find.text('Sociedades'), findsNothing);

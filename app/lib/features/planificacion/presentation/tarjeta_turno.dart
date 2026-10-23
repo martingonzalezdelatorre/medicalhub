@@ -28,13 +28,15 @@ class TarjetaTurno extends StatelessWidget {
     final nombres = [for (final n in turno.necesidades) ...n.asignaciones.map((a) => a.profesional)];
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: compacta ? 2 : 4, horizontal: compacta ? 0 : 12),
+      margin: EdgeInsets.symmetric(vertical: compacta ? 3 : 5, horizontal: compacta ? 0 : 16),
       clipBehavior: Clip.antiAlias,
+      color: Color.alphaBlend(color.withValues(alpha: 0.07), Theme.of(context).colorScheme.surface),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: color.withValues(alpha: 0.30))),
       child: InkWell(
         onTap: alPulsar,
         child: Container(
-          decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 5))),
-          padding: EdgeInsets.all(compacta ? 8 : 12),
+          decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 6))),
+          padding: EdgeInsets.all(compacta ? 8 : 14),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               if (turno.esGuardia) const Padding(padding: EdgeInsets.only(right: 4), child: Icon(Icons.nightlight_outlined, size: 16)),
@@ -47,8 +49,9 @@ class TarjetaTurno extends StatelessWidget {
                 label: t.plazasCubiertasSemantica(turno.plazasCubiertas, turno.plazasTotales),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                  child: Text('${turno.plazasCubiertas}/${turno.plazasTotales}', style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+                  child: Text('${turno.plazasCubiertas}/${turno.plazasTotales}',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
                 ),
               ),
             ]),

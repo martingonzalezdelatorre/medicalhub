@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_controlador.dart';
 import '../../../core/auth/modelos.dart';
+import '../../../core/tema/tema.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
@@ -154,18 +155,43 @@ class _Cabecera extends StatelessWidget {
       VistaCalendario.mes: t.vistaMes,
       VistaCalendario.agenda: t.vistaAgenda,
     };
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant),
+      ),
       child: Column(children: [
         Row(children: [
-          IconButton(tooltip: t.anterior, icon: const Icon(Icons.chevron_left), onPressed: () => alMover(-1)),
-          Expanded(child: Text(titulo, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium, overflow: TextOverflow.ellipsis)),
-          IconButton(tooltip: t.siguiente, icon: const Icon(Icons.chevron_right), onPressed: () => alMover(1)),
-          TextButton(onPressed: alHoy, child: Text(t.hoy)),
+          IconButton.filledTonal(tooltip: t.anterior, icon: const Icon(Icons.chevron_left), onPressed: () => alMover(-1)),
+          Expanded(
+            child: Text(titulo,
+                textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis),
+          ),
+          IconButton.filledTonal(tooltip: t.siguiente, icon: const Icon(Icons.chevron_right), onPressed: () => alMover(1)),
+          const SizedBox(width: 6),
+          FilledButton.tonalIcon(
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 40), padding: const EdgeInsets.symmetric(horizontal: 14)),
+            onPressed: alHoy,
+            icon: const Icon(Icons.today_outlined, size: 18),
+            label: Text(t.hoy),
+          ),
         ]),
-        Wrap(spacing: 8, children: [
+        const SizedBox(height: 10),
+        Wrap(spacing: 8, runSpacing: 6, alignment: WrapAlignment.center, children: [
           for (final e in etiquetas.entries)
-            ChoiceChip(label: Text(e.value), selected: vista == e.key, onSelected: (_) => alCambiarVista(e.key)),
+            ChoiceChip(
+              label: Text(e.value),
+              selected: vista == e.key,
+              showCheckmark: false,
+              selectedColor: cs.primary,
+              labelStyle: TextStyle(fontWeight: FontWeight.w600, color: vista == e.key ? cs.onPrimary : cs.onSurface),
+              side: BorderSide(color: vista == e.key ? cs.primary : cs.outlineVariant),
+              onSelected: (_) => alCambiarVista(e.key),
+            ),
         ]),
       ]),
     );
@@ -242,14 +268,24 @@ class _VistaAgenda extends StatelessWidget {
     final porDia = {for (final d in dias) d: turnos.where((x) => soloFecha(x.dia) == d).toList()};
     final visibles = dias.where((d) => mostrarDiasVacios || porDia[d]!.isNotEmpty).toList();
 
-    if (visibles.isEmpty) return Center(child: Text(t.sinTurnos));
+    if (visibles.isEmpty) return EstadoVacio(mensaje: t.sinTurnos, icono: Icons.event_busy_outlined);
     return ContenidoCentrado(
       child: ListView(padding: const EdgeInsets.only(bottom: 24), children: [
         for (final d in visibles) ...[
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(_nombreDia(d),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: soloFecha(DateTime.now()) == d ? Theme.of(context).colorScheme.primary : null)),
+            padding: const EdgeInsets.fromLTRB(20, 18, 16, 4),
+            child: Row(children: [
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: soloFecha(DateTime.now()) == d ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline),
+              ),
+              Text(_nombreDia(d),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: soloFecha(DateTime.now()) == d ? Theme.of(context).colorScheme.primary : null)),
+            ]),
           ),
           if (porDia[d]!.isEmpty)
             Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(t.sinTurnos, style: Theme.of(context).textTheme.bodySmall)),
@@ -282,13 +318,18 @@ class _VistaSemana extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 InkWell(
                   onTap: () => alPulsarDia(lunes.add(Duration(days: i))),
+                  borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: lunes.add(Duration(days: i)) == hoy ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
+                      gradient: lunes.add(Duration(days: i)) == hoy ? TemaApp.degradadoMarca : null,
+                      color: lunes.add(Duration(days: i)) == hoy ? null : Theme.of(context).colorScheme.surface,
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(toBeginningOfSentenceCase(DateFormat('EEE d', 'es_ES').format(lunes.add(Duration(days: i)))), textAlign: TextAlign.center),
+                    child: Text(toBeginningOfSentenceCase(DateFormat('EEE d', 'es_ES').format(lunes.add(Duration(days: i)))),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.w700, color: lunes.add(Duration(days: i)) == hoy ? Colors.white : null)),
                   ),
                 ),
                 for (final turno in turnos.where((x) => soloFecha(x.dia) == lunes.add(Duration(days: i))))
@@ -341,16 +382,31 @@ class _VistaMes extends StatelessWidget {
                         margin: const EdgeInsets.all(1),
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: dia == hoy ? esquema.primaryContainer : esquema.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(6),
-                          border: sinCubrir > 0 ? Border.all(color: esquema.error.withValues(alpha: 0.6)) : null,
+                          color: dia == hoy
+                              ? esquema.primary.withValues(alpha: 0.14)
+                              : (delMes ? esquema.surface : esquema.surfaceContainerLow),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: dia == hoy
+                                  ? esquema.primary
+                                  : (sinCubrir > 0 ? esquema.error.withValues(alpha: 0.6) : esquema.outlineVariant),
+                              width: dia == hoy ? 2 : 1),
                         ),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('${dia.day}', style: TextStyle(fontWeight: FontWeight.w600, color: delMes ? null : esquema.outline)),
+                          Text('${dia.day}',
+                              style: TextStyle(fontWeight: FontWeight.w700, color: dia == hoy ? esquema.primary : (delMes ? null : esquema.outline))),
                           const Spacer(),
-                          if (delDia.isNotEmpty)
-                            Text('${delDia.length}', style: Theme.of(context).textTheme.labelSmall),
-                          if (sinCubrir > 0) Text('!$sinCubrir', style: TextStyle(color: esquema.error, fontSize: 11, fontWeight: FontWeight.bold)),
+                          Row(children: [
+                            if (delDia.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                decoration: BoxDecoration(color: esquema.primary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                                child: Text('${delDia.length}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: esquema.primary)),
+                              ),
+                            const Spacer(),
+                            if (sinCubrir > 0)
+                              Text('!$sinCubrir', style: TextStyle(color: esquema.error, fontSize: 11, fontWeight: FontWeight.bold)),
+                          ]),
                         ]),
                       ),
                     ),
