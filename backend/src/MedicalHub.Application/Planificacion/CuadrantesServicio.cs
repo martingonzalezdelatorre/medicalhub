@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using MedicalHub.Application.Comun;
+using MedicalHub.Application.Reglas;
 using MedicalHub.Domain.Comun;
 using MedicalHub.Domain.Planificacion;
 using MedicalHub.Domain.Profesionales;
@@ -10,12 +11,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedicalHub.Application.Planificacion;
 
-public sealed class CuadrantesServicio(
+public sealed partial class CuadrantesServicio(
     IAppDbContext db,
     IContextoActual contexto,
     TimeProvider reloj,
     CalendarioServicio calendario,
-    TurnosServicio turnosServicio)
+    TurnosServicio turnosServicio,
+    EvaluacionServicio evaluacion)
 {
     // ───────────── Consulta ─────────────
 
@@ -293,62 +295,6 @@ public sealed class CuadrantesServicio(
     }
 
     // ───────────── Internos ─────────────
-
-    private async Task<ValidacionDto> ValidarInternoAsync(Cuadrante cuadrante, CancellationToken ct)
-    {
-        var incidencias = new List<IncidenciaDto>();
-        var turnos = await db.Turnos.Where(t => t.CuadranteId == cuadrante.Id).OrderBy(t => t.InicioUtc).ToListAsync(ct);
-        if (turnos.Count == 0)
-        {
-            incidencias.Add(new(Severidad.Bloqueante, "CUADRANTE_VACIO", "El cuadrante no tiene turnos.", null, null));
-            return new ValidacionDto(false, incidencias);
-        }
-
-        var turnoIds = turnos.Select(t => t.Id).ToList();
-        var tipos = await db.TiposTurno.Where(t => t.ServicioId == cuadrante.ServicioId).ToDictionaryAsync(t => t.Id, t => t.Nombre, ct);
-        var necesidades = await db.Necesidades.Where(n => turnoIds.Contains(n.TurnoId)).ToListAsync(ct);
-        var asignaciones = await db.Asignaciones.Where(a => turnoIds.Contains(a.TurnoId) && a.Estado != EstadoAsignacion.Cancelada).ToListAsync(ct);
-        var servicio = await db.Servicios.FirstAsync(s => s.Id == cuadrante.ServicioId, ct);
-        var profIds = asignaciones.Select(a => a.ProfesionalId).Distinct().ToList();
-        var profesionales = await db.Profesionales.Where(p => profIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);
-        var competencias = await db.Competencias.ToDictionaryAsync(c => c.Id, c => c.Nombre, ct);
-
-        string Etiqueta(Turno t) => $"{tipos.GetValueOrDefault(t.TipoTurnoId, "Turno")} del {t.Fecha:dd/MM/yyyy}";
-
-        foreach (var t in turnos)
-        {
-            var ns = necesidades.Where(n => n.TurnoId == t.Id).ToList();
-            if (ns.Count == 0)
-                incidencias.Add(new(Severidad.Advertencia, "TURNO_SIN_NECESIDADES", $"{Etiqueta(t)} no tiene necesidades de cobertura definidas.", t.Id, null));
-            foreach (var n in ns)
-            {
-                var cubiertas = asignaciones.Count(a => a.NecesidadId == n.Id);
-                if (cubiertas < n.NumeroPlazas)
-                    incidencias.Add(new(Severidad.Advertencia, "SIN_CUBRIR", $"{Etiqueta(t)}: faltan {n.NumeroPlazas - cubiertas} de {n.NumeroPlazas} plazas.", t.Id, null));
-            }
-        }
-
-        // Las asignaciones existentes deben seguir cumpliendo las condiciones (un profesional puede haberse desactivado o perder una habilitación).
-        foreach (var a in asignaciones)
-        {
-            var t = turnos.First(x => x.Id == a.TurnoId);
-            if (!profesionales.TryGetValue(a.ProfesionalId, out var p)) continue;
-            var r = EvaluadorElegibilidad.Evaluar(p, servicio, t.Fecha, competencias);
-            if (!r.Elegible)
-                incidencias.Add(new(Severidad.Bloqueante, "ASIGNACION_NO_ELEGIBLE", $"{p.NombreCompleto} en {Etiqueta(t)}: {string.Join(" ", r.Motivos)}", t.Id, p.Id));
-        }
-
-        // Solapes (la asignación los impide; esto detecta datos inconsistentes)
-        foreach (var grupo in asignaciones.GroupBy(a => a.ProfesionalId))
-        {
-            var ordenadas = grupo.OrderBy(a => a.InicioUtc).ToList();
-            for (var i = 1; i < ordenadas.Count; i++)
-                if (CalculadoraHorario.Solapan(ordenadas[i - 1].InicioUtc, ordenadas[i - 1].FinUtc, ordenadas[i].InicioUtc, ordenadas[i].FinUtc))
-                    incidencias.Add(new(Severidad.Bloqueante, "SOLAPE", $"{profesionales.GetValueOrDefault(grupo.Key)?.NombreCompleto ?? "Un profesional"} tiene turnos solapados.", ordenadas[i].TurnoId, grupo.Key));
-        }
-
-        return new ValidacionDto(incidencias.All(i => i.Severidad != Severidad.Bloqueante), incidencias);
-    }
 
     private async Task<Cuadrante> BuscarAsync(Guid id, CancellationToken ct)
     {

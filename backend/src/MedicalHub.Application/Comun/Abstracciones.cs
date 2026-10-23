@@ -2,6 +2,7 @@ using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
 using MedicalHub.Domain.Planificacion;
+using MedicalHub.Domain.Reglas;
 using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Organizaciones;
 using MedicalHub.Domain.Seguridad;
@@ -31,6 +32,8 @@ public interface IAppDbContext
     DbSet<Asignacion> Asignaciones { get; }
     DbSet<VersionCuadrante> VersionesCuadrante { get; }
     DbSet<PlantillaCuadrante> Plantillas { get; }
+    DbSet<ReglaPlanificacion> Reglas { get; }
+    DbSet<ExcepcionRegla> Excepciones { get; }
     DbSet<T> Set<T>() where T : class;
 
     /// <summary>

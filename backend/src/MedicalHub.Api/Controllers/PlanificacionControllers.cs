@@ -155,8 +155,14 @@ public sealed class TurnosController(CalendarioServicio calendario, TurnosServic
 
     [HttpPost("api/necesidades/{id:guid}/asignaciones")]
     [Authorize(Politicas.GestionPlanificacion)]
-    public async Task<ActionResult<AsignacionDto>> Asignar(Guid id, SolicitudAsignacion solicitud, CancellationToken ct)
-        => Created($"/api/asignaciones", await asignaciones.AsignarAsync(id, solicitud.ProfesionalId, ct));
+    public async Task<ActionResult<MedicalHub.Application.Reglas.ResultadoAsignacionDto>> Asignar(Guid id, SolicitudAsignacion solicitud, CancellationToken ct)
+        => Created($"/api/asignaciones", await asignaciones.AsignarAsync(id, solicitud.ProfesionalId, solicitud.Excepcion, ct));
+
+    /// <summary>Autoriza con justificación las infracciones bloqueantes (que admiten excepción) de una asignación ya hecha.</summary>
+    [HttpPost("api/asignaciones/{id:guid}/excepciones")]
+    [Authorize(Politicas.GestionPlanificacion)]
+    public async Task<ActionResult<IReadOnlyList<MedicalHub.Application.Reglas.ViolacionDto>>> AutorizarExcepcion(Guid id, MedicalHub.Application.Reglas.SolicitudExcepcion solicitud, CancellationToken ct)
+        => Ok(await asignaciones.AutorizarExcepcionAsync(id, solicitud, ct));
 
     [HttpDelete("api/asignaciones/{id:guid}")]
     [Authorize(Politicas.GestionPlanificacion)]

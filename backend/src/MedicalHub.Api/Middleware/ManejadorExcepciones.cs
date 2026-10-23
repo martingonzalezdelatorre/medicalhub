@@ -28,6 +28,12 @@ public sealed class ManejadorExcepciones(ILogger<ManejadorExcepciones> logger, I
             _ => (StatusCodes.Status500InternalServerError, "Error interno", "Se ha producido un error inesperado.")
         };
         if (excepcion is ExcepcionNoAutenticado { Codigo: { } c2 }) codigo = c2;
+        if (excepcion is MedicalHub.Application.Reglas.ExcepcionReglas er)
+        {
+            (estado, titulo, detalle) = (er.Prohibida ? StatusCodes.Status403Forbidden : StatusCodes.Status422UnprocessableEntity,
+                "Regla de planificación incumplida", er.Message);
+            codigo = er.Codigo;
+        }
 
         if (estado >= 500) logger.LogError(excepcion, "Error no controlado");
         else logger.LogInformation("Solicitud rechazada ({Estado}): {Mensaje}", estado, excepcion.Message);
@@ -36,6 +42,7 @@ public sealed class ManejadorExcepciones(ILogger<ManejadorExcepciones> logger, I
         var problema = new ProblemDetails { Status = estado, Title = titulo, Detail = detalle };
         if (excepcion is ExcepcionValidacion val) problema.Extensions["errores"] = val.Errores;
         if (codigo is not null) problema.Extensions["codigo"] = codigo;
+        if (excepcion is MedicalHub.Application.Reglas.ExcepcionReglas reglas) problema.Extensions["violaciones"] = reglas.Violaciones;
 
         return await problemas.TryWriteAsync(new ProblemDetailsContext
         {

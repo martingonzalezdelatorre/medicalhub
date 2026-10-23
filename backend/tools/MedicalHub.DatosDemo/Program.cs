@@ -2,6 +2,8 @@
 using MedicalHub.Application.Comun;
 using MedicalHub.Application.Identidad;
 using MedicalHub.Application.Planificacion;
+using MedicalHub.Application.Reglas;
+using MedicalHub.Domain.Reglas;
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
@@ -169,12 +171,22 @@ for (var d = 0; d < 7; d++)
     // Quirófano: mañana con 3 de 4 plazas (queda una vacante) y tarde completa; fines de semana sin cubrir
     if (laborable)
     {
-        foreach (var p in new[] { pCarmen, pJavier, pElena }) await asignaciones.AsignarAsync(manana, p, ct);
-        foreach (var p in new[] { pPablo, pSergio }) await asignaciones.AsignarAsync(tarde, p, ct);
+        foreach (var p in new[] { pCarmen, pJavier, pElena }) await asignaciones.AsignarAsync(manana, p, null, ct);
+        foreach (var p in new[] { pPablo, pSergio }) await asignaciones.AsignarAsync(tarde, p, null, ct);
         // Reanimación: noches de lunes a viernes cubiertas; fin de semana sin cubrir
-        await asignaciones.AsignarAsync(await Necesidad(dia, reanimacion, rNoche), pNuria, ct);
+        await asignaciones.AsignarAsync(await Necesidad(dia, reanimacion, rNoche), pNuria, null, ct);
     }
 }
+// 7. Reglas de EJEMPLO (los valores son ilustrativos: la sociedad debe sustituirlos por los de su convenio y revisarlos)
+var reglasServicio = sp.GetRequiredService<ReglasServicio>();
+const string aviso = "Ejemplo de la demostración. No es una referencia legal: sustituir por lo que establezca el convenio o acuerdo aplicable.";
+await reglasServicio.CrearAsync(new SolicitudRegla(TipoRegla.DescansoMinimo, "Descanso mínimo (ejemplo demo)", null, null, SeveridadRegla.Bloqueante, true, true,
+    System.Text.Json.JsonDocument.Parse("""{"horas":12}""").RootElement.Clone(), aviso), ct);
+await reglasServicio.CrearAsync(new SolicitudRegla(TipoRegla.MaxHorasPeriodo, "Máximo de horas en 7 días (ejemplo demo)", null, null, SeveridadRegla.Advertencia, false, false,
+    System.Text.Json.JsonDocument.Parse("""{"ventanaDias":7,"maxHoras":40}""").RootElement.Clone(), aviso), ct);
+await reglasServicio.CrearAsync(new SolicitudRegla(TipoRegla.CoberturaMinima, "Cobertura mínima del 75 % (ejemplo demo)", null, quirofano, SeveridadRegla.Advertencia, false, false,
+    System.Text.Json.JsonDocument.Parse("""{"porcentajeMinimo":75}""").RootElement.Clone(), aviso), ct);
+
 // La planificación de Reanimación se publica; la de Quirófano queda en borrador para poder editarla
 await cuadrantes.PublicarAsync(cuadReanimacion.Id, ct);
 
@@ -201,6 +213,8 @@ static async Task EliminarAsync(MedicalHubDbContext db, Guid orgId)
     // Orden inverso a las dependencias. Solo afecta a la organización indicada.
     string[] borrados =
     [
+        "DELETE FROM ExcepcionesRegla WHERE OrganizacionId=@o",
+        "DELETE FROM ReglasPlanificacion WHERE OrganizacionId=@o",
         "DELETE FROM Asignaciones WHERE OrganizacionId=@o",
         "DELETE FROM NecesidadesCobertura WHERE OrganizacionId=@o",
         "DELETE FROM VersionesCuadrante WHERE OrganizacionId=@o",

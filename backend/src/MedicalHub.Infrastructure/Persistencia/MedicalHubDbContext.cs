@@ -7,6 +7,7 @@ using MedicalHub.Domain.Estructura;
 using MedicalHub.Domain.Identidad;
 using MedicalHub.Domain.Organizaciones;
 using MedicalHub.Domain.Planificacion;
+using MedicalHub.Domain.Reglas;
 using MedicalHub.Domain.Profesionales;
 using MedicalHub.Domain.Seguridad;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,8 @@ public sealed class MedicalHubDbContext(
     public DbSet<Asignacion> Asignaciones => Set<Asignacion>();
     public DbSet<VersionCuadrante> VersionesCuadrante => Set<VersionCuadrante>();
     public DbSet<PlantillaCuadrante> Plantillas => Set<PlantillaCuadrante>();
+    public DbSet<ReglaPlanificacion> Reglas => Set<ReglaPlanificacion>();
+    public DbSet<ExcepcionRegla> Excepciones => Set<ExcepcionRegla>();
 
     /// <summary>
     /// Organización de la petición. Es null para usuarios de plataforma y para contextos sin sesión;

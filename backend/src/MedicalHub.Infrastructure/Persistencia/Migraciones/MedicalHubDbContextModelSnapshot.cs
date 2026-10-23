@@ -790,6 +790,143 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.ToTable("Profesionales", (string)null);
                 });
 
+            modelBuilder.Entity("MedicalHub.Domain.Reglas.ExcepcionRegla", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AsignacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AutorizadaPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClaveRegla")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<DateTimeOffset>("Fecha")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Justificacion")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ReglaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfesionalId");
+
+                    b.HasIndex("TurnoId");
+
+                    b.HasIndex("AsignacionId", "ClaveRegla")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizacionId", "Fecha");
+
+                    b.ToTable("ExcepcionesRegla", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Reglas.ReglaPlanificacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Activa")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("ExcepcionRequiereAdministrador")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("FechaCreacion")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Fundamento")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ParametrosJson")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("PermiteExcepcion")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("RevisadaEl")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("RevisadaPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ServicioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Severidad")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServicioId");
+
+                    b.HasIndex("OrganizacionId", "Tipo");
+
+                    b.ToTable("ReglasPlanificacion", (string)null);
+                });
+
             modelBuilder.Entity("MedicalHub.Domain.Seguridad.EventoSeguridad", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1243,6 +1380,35 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.Navigation("Especialidades");
 
                     b.Navigation("ServiciosAutorizados");
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Reglas.ExcepcionRegla", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.Asignacion", null)
+                        .WithMany()
+                        .HasForeignKey("AsignacionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Planificacion.Turno", null)
+                        .WithMany()
+                        .HasForeignKey("TurnoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Reglas.ReglaPlanificacion", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Estructura.Servicio", null)
+                        .WithMany()
+                        .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

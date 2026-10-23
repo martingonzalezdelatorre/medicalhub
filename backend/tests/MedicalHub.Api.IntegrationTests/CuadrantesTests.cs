@@ -153,7 +153,7 @@ public class CuadrantesTests(FabricaApi fabrica)
 
         var validacion = await e.C.GetFromJsonAsync<JsonElement>($"/api/cuadrantes/{cuadrante.Id}/validacion", AyudaSesion.Json);
         Assert.True(validacion.GetProperty("puedePublicarse").GetBoolean());
-        Assert.Contains(validacion.GetProperty("incidencias").EnumerateArray(), i => i.GetProperty("codigo").GetString() == "SIN_CUBRIR" && i.GetProperty("severidad").GetString() == "Advertencia");
+        Assert.Contains(validacion.GetProperty("incidencias").EnumerateArray(), i => i.GetProperty("codigo").GetString() == "CoberturaMinima" && i.GetProperty("severidad").GetString() == "Advertencia");
 
         var publicado = await Planif.LeerAsync<JsonElement>(await e.C.PostAsync($"/api/cuadrantes/{cuadrante.Id}/publicar", null));
         Assert.Equal("Publicado", publicado.GetProperty("estado").GetString());
@@ -205,7 +205,7 @@ public class CuadrantesTests(FabricaApi fabrica)
 
         var validacion = await e.C.GetFromJsonAsync<JsonElement>($"/api/cuadrantes/{cuadrante.Id}/validacion", AyudaSesion.Json);
         Assert.False(validacion.GetProperty("puedePublicarse").GetBoolean());
-        Assert.Contains(validacion.GetProperty("incidencias").EnumerateArray(), i => i.GetProperty("codigo").GetString() == "ASIGNACION_NO_ELEGIBLE" && i.GetProperty("severidad").GetString() == "Bloqueante");
+        Assert.Contains(validacion.GetProperty("incidencias").EnumerateArray(), i => i.GetProperty("codigo").GetString() == "ProfesionalInactivo" && i.GetProperty("severidad").GetString() == "Bloqueante");
         Assert.Equal(HttpStatusCode.UnprocessableEntity, (await e.C.PostAsync($"/api/cuadrantes/{cuadrante.Id}/publicar", null)).StatusCode);
     }
 

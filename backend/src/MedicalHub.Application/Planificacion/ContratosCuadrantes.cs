@@ -18,7 +18,8 @@ public static class Severidad
     public const string Advertencia = "Advertencia";
 }
 
-public sealed record IncidenciaDto(string Severidad, string Codigo, string Mensaje, Guid? TurnoId, Guid? ProfesionalId);
+public sealed record IncidenciaDto(string Severidad, string Codigo, string Mensaje, Guid? TurnoId, Guid? ProfesionalId,
+    bool Excepcionada = false, string? Justificacion = null, string? AutorizadaPor = null);
 public sealed record ValidacionDto(bool PuedePublicarse, IReadOnlyList<IncidenciaDto> Incidencias);
 
 public sealed record VersionResumenDto(int Numero, DateTimeOffset Fecha, string? Usuario, int Turnos, int PlazasTotales, int PlazasCubiertas);
@@ -34,7 +35,7 @@ public sealed record LineaNecesidad(int NumeroPlazas, Guid? CategoriaProfesional
 /// <param name="Necesidades">Si va vacío, se toman los requisitos de cobertura del servicio para ese tipo de turno.</param>
 public sealed record SolicitudTurno(DateOnly Fecha, Guid TipoTurnoId, IReadOnlyList<LineaNecesidad>? Necesidades);
 public sealed record SolicitudNecesidades(IReadOnlyList<LineaNecesidad> Necesidades);
-public sealed record SolicitudAsignacion(Guid ProfesionalId);
+public sealed record SolicitudAsignacion(Guid ProfesionalId, MedicalHub.Application.Reglas.SolicitudExcepcion? Excepcion);
 
 public sealed record AsignacionDto(Guid Id, Guid ProfesionalId, string Profesional, EstadoAsignacion Estado);
 
@@ -56,7 +57,8 @@ public sealed record TurnoDto(Guid Id, Guid CuadranteId, EstadoCuadrante Cuadran
 public sealed record FiltroCalendario(DateOnly Desde, DateOnly Hasta, Guid? CentroId, Guid? ServicioId, Guid? ProfesionalId,
     Guid? CategoriaId, Guid? CuadranteId, bool SoloSinCubrir);
 
-public sealed record CandidatoDto(Guid ProfesionalId, string NombreCompleto, bool Elegible, bool Libre, IReadOnlyList<string> Motivos);
+public sealed record CandidatoDto(Guid ProfesionalId, string NombreCompleto, bool Elegible, bool Libre, IReadOnlyList<string> Motivos,
+    IReadOnlyList<MedicalHub.Application.Reglas.ViolacionDto> Violaciones, bool RequiereExcepcion, bool PuedeAutorizar);
 
 public sealed record ArchivoExportado(string NombreArchivo, string TipoContenido, byte[] Contenido);
 

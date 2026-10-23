@@ -65,7 +65,7 @@ public class AsignacionesTests(FabricaApi fabrica)
         Assert.Contains("autorizado", await Rechazo(manana, await e.ProfesionalAsync(autorizado: false)));
         Assert.Contains("Falta la competencia", await Rechazo(manana, await e.ProfesionalAsync(conCompetencia: false)));
         Assert.Contains("inactivo", await Rechazo(manana, await e.ProfesionalAsync(activo: false)));
-        Assert.Contains("categoría del profesional no coincide", await Rechazo(noche, await e.ProfesionalAsync(categoria: e.Residente)));
+        Assert.Contains("no es la que exige esta necesidad", await Rechazo(noche, await e.ProfesionalAsync(categoria: e.Residente)));
     }
 
     [Fact]

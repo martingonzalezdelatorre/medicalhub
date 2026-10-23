@@ -1,5 +1,6 @@
 using MedicalHub.Application.Identidad;
 using MedicalHub.Application.Planificacion;
+using MedicalHub.Application.Reglas;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MedicalHub.Application;
@@ -20,6 +21,9 @@ public static class DependenciasAplicacion
         servicios.AddScoped<TurnosServicio>();
         servicios.AddScoped<AsignacionesServicio>();
         servicios.AddScoped<CuadrantesServicio>();
+        servicios.AddScoped<EvaluacionServicio>();
+        servicios.AddScoped<ReglasServicio>();
+        servicios.AddScoped<ExcepcionesServicio>();
         return servicios;
     }
 }
