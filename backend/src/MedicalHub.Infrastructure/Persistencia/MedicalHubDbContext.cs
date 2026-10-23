@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using MedicalHub.Application.Comun;
 using MedicalHub.Domain.Ausencias;
+using MedicalHub.Domain.Horas;
 using MedicalHub.Domain.Notificaciones;
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Comun;
@@ -48,6 +49,8 @@ public sealed class MedicalHubDbContext(
     public DbSet<Disponibilidad> Disponibilidades => Set<Disponibilidad>();
     public DbSet<Vacante> Vacantes => Set<Vacante>();
     public DbSet<OfertaSustitucion> Ofertas => Set<OfertaSustitucion>();
+    public DbSet<RegistroHoras> RegistrosHoras => Set<RegistroHoras>();
+    public DbSet<AjusteHoras> AjustesHoras => Set<AjusteHoras>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
 
     /// <summary>

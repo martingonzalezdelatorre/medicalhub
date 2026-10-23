@@ -226,6 +226,8 @@ static async Task EliminarAsync(MedicalHubDbContext db, Guid orgId)
     // Orden inverso a las dependencias. Solo afecta a la organización indicada.
     string[] borrados =
     [
+        "DELETE FROM AjustesHoras WHERE OrganizacionId=@o",
+        "DELETE FROM RegistrosHoras WHERE OrganizacionId=@o",
         "DELETE FROM Notificaciones WHERE OrganizacionId=@o",
         "DELETE FROM OfertasSustitucion WHERE OrganizacionId=@o",
         "DELETE FROM Vacantes WHERE OrganizacionId=@o",

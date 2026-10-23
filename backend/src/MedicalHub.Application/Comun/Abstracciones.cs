@@ -1,6 +1,7 @@
 using MedicalHub.Domain.Ausencias;
 using MedicalHub.Domain.Catalogos;
 using MedicalHub.Domain.Estructura;
+using MedicalHub.Domain.Horas;
 using MedicalHub.Domain.Identidad;
 using MedicalHub.Domain.Notificaciones;
 using MedicalHub.Domain.Planificacion;
@@ -41,6 +42,8 @@ public interface IAppDbContext
     DbSet<Disponibilidad> Disponibilidades { get; }
     DbSet<Vacante> Vacantes { get; }
     DbSet<OfertaSustitucion> Ofertas { get; }
+    DbSet<RegistroHoras> RegistrosHoras { get; }
+    DbSet<AjusteHoras> AjustesHoras { get; }
     DbSet<Notificacion> Notificaciones { get; }
     DbSet<T> Set<T>() where T : class;
 

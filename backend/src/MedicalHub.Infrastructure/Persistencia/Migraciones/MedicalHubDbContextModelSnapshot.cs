@@ -473,6 +473,88 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.ToTable("TiposTurno", (string)null);
                 });
 
+            modelBuilder.Entity("MedicalHub.Domain.Horas.AjusteHoras", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("Fecha")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Minutos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RegistroHorasId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegistroHorasId");
+
+                    b.ToTable("AjustesHoras", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Horas.RegistroHoras", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AsignacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("FechaRegistro")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("FinRealUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("InicioRealUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RegistradoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AsignacionId")
+                        .IsUnique();
+
+                    b.HasIndex("ProfesionalId");
+
+                    b.HasIndex("OrganizacionId", "ProfesionalId");
+
+                    b.ToTable("RegistrosHoras", (string)null);
+                });
+
             modelBuilder.Entity("MedicalHub.Domain.Identidad.TokenRefresco", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1511,6 +1593,30 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.HasOne("MedicalHub.Domain.Estructura.Servicio", null)
                         .WithMany()
                         .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Horas.AjusteHoras", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Horas.RegistroHoras", null)
+                        .WithMany()
+                        .HasForeignKey("RegistroHorasId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Horas.RegistroHoras", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Planificacion.Asignacion", null)
+                        .WithMany()
+                        .HasForeignKey("AsignacionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfesionalId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
