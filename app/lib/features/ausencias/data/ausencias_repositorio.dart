@@ -189,6 +189,8 @@ class DisponibilidadDto {
     required this.estado,
     required this.fechaDeclaracion,
     this.motivoDecision,
+    this.centroId,
+    this.centro,
   });
 
   factory DisponibilidadDto.fromJson(Map<String, dynamic> json) => _$DisponibilidadDtoFromJson(json);
@@ -206,11 +208,21 @@ class DisponibilidadDto {
   final EstadoDisponibilidad estado;
   final DateTime fechaDeclaracion;
   final String? motivoDecision;
+  final String? centroId;
+  final String? centro;
+}
+
+/// Un hospital, unos días de la semana y (opcionalmente) un tipo de turno concreto. `centroId` nulo = cualquier hospital.
+class BloqueDisponibilidad {
+  const BloqueDisponibilidad({required this.dias, this.centroId, this.tipoTurnoId});
+  final int dias;
+  final String? centroId;
+  final String? tipoTurnoId;
 }
 
 @JsonSerializable(createToJson: false)
 class TipoTurnoPropioDto {
-  const TipoTurnoPropioDto({required this.id, required this.nombre, required this.franja, required this.servicio, required this.centro});
+  const TipoTurnoPropioDto({required this.id, required this.nombre, required this.franja, required this.servicio, required this.centro, this.centroId});
 
   factory TipoTurnoPropioDto.fromJson(Map<String, dynamic> json) => _$TipoTurnoPropioDtoFromJson(json);
 
@@ -219,6 +231,7 @@ class TipoTurnoPropioDto {
   final String franja;
   final String servicio;
   final String centro;
+  final String? centroId;
 }
 
 @JsonSerializable(createToJson: false)
@@ -357,6 +370,29 @@ class AusenciasRepositorio {
             'dias': dias,
             'tipoTurnoId': tipoTurnoId,
             'comentario': comentario,
+          }));
+
+  /// Declara varios bloques (hospital · días · turno) a la vez: el servidor guarda todos o ninguno.
+  Future<void> declararLote({
+    required TipoDisponibilidad tipo,
+    required DateTime desde,
+    required DateTime hasta,
+    required List<BloqueDisponibilidad> bloques,
+    String? comentario,
+  }) =>
+      protegerApi(() => _dio.post<void>('/api/mi-disponibilidad/lote', data: {
+            'bloques': [
+              for (final b in bloques)
+                {
+                  'tipo': tipo.valorApi,
+                  'desde': fechaParaApi(desde),
+                  'hasta': fechaParaApi(hasta),
+                  'dias': b.dias,
+                  'tipoTurnoId': b.tipoTurnoId,
+                  'centroId': b.centroId,
+                  'comentario': comentario,
+                },
+            ],
           }));
 
   Future<void> retirarDeclaracion(String id) => protegerApi(() => _dio.delete<void>('/api/mi-disponibilidad/$id'));

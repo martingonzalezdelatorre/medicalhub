@@ -12,6 +12,7 @@ public sealed class DashboardServicio(IAppDbContext db, IContextoActual contexto
 {
     public const int DiasVentana = 14;
     public const int MaxSinCubrir = 8;
+    public const int MaxAtencion = 12;
 
     public async Task<DashboardDto> ObtenerAsync(CancellationToken ct)
     {
@@ -56,6 +57,8 @@ public sealed class DashboardServicio(IAppDbContext db, IContextoActual contexto
         var sinCubrir = detalle.Select(d => new TurnoSinCubrirDto(d.Id, d.Fecha,
             $"{d.Tipo} {CalculadoraHorario.ALocal(d.ZonaHoraria, d.InicioUtc):HH\\:mm}–{CalculadoraHorario.ALocal(d.ZonaHoraria, d.FinUtc):HH\\:mm}", d.Servicio, d.Centro, libres[d.Id])).ToList();
 
+        var (semaforo, atencion) = await SemaforoAsync(turnos, ct);
+
         var borradores = await (from c in db.Cuadrantes where c.Estado == EstadoCuadrante.Borrador && c.Hasta >= hoy join s in servicios on c.ServicioId equals s.Id select c.Id).CountAsync(ct);
 
         PendientesGestionDto? pendientes = null;
@@ -69,7 +72,49 @@ public sealed class DashboardServicio(IAppDbContext db, IContextoActual contexto
                 await db.Disponibilidades.CountAsync(d => d.Estado == EstadoDisponibilidad.Declarada, ct),
                 await db.Excepciones.CountAsync(e => e.Fecha >= desde30, ct));
         }
-        return new DashboardGestionDto(hoy, hasta, plazas.Values.Sum(), plazas.Keys.Sum(k => Math.Min(cubiertas.GetValueOrDefault(k), plazas[k])), borradores, sinCubrir, pendientes);
+        return new DashboardGestionDto(hoy, hasta, plazas.Values.Sum(), plazas.Keys.Sum(k => Math.Min(cubiertas.GetValueOrDefault(k), plazas[k])), borradores, sinCubrir, pendientes, semaforo, atencion);
+    }
+
+    /// <summary>Estado de cada turno de la ventana: verde (justo el tope), amarillo (faltan) o rojo (hay más asignados que plazas); y los que piden atención.</summary>
+    private async Task<(SemaforoCoberturaDto, IReadOnlyList<TurnoSemaforoDto>)> SemaforoAsync(IQueryable<Turno> turnos, CancellationToken ct)
+    {
+        var necesidades = await (from t in turnos
+                                 join n in db.Necesidades on t.Id equals n.TurnoId
+                                 join cat in db.CategoriasProfesionales on n.CategoriaProfesionalId equals cat.Id into cs
+                                 from cat in cs.DefaultIfEmpty()
+                                 select new { n.Id, n.TurnoId, n.NumeroPlazas, Categoria = cat.Nombre }).ToListAsync(ct);
+        var ocupadas = await (from t in turnos
+                              join a in db.Asignaciones on t.Id equals a.TurnoId
+                              where a.Estado != EstadoAsignacion.Cancelada
+                              group a by a.NecesidadId into g
+                              select new { g.Key, N = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.N, ct);
+
+        var estados = new Dictionary<Guid, (EstadoSemaforo Estado, string Detalle)>();
+        foreach (var g in necesidades.GroupBy(n => n.TurnoId))
+        {
+            var cubiertas = g.Sum(n => Math.Min(n.NumeroPlazas, ocupadas.GetValueOrDefault(n.Id)));
+            var excedidas = g.Sum(n => Math.Max(0, ocupadas.GetValueOrDefault(n.Id) - n.NumeroPlazas));
+            var estado = excedidas > 0 ? EstadoSemaforo.Rojo : cubiertas == g.Sum(n => n.NumeroPlazas) ? EstadoSemaforo.Verde : EstadoSemaforo.Amarillo;
+            var detalle = string.Join(" · ", g.OrderBy(n => n.Categoria).Select(n => $"{n.Categoria ?? "Cualquier categoría"} {ocupadas.GetValueOrDefault(n.Id)}/{n.NumeroPlazas}"));
+            estados[g.Key] = (estado, detalle);
+        }
+
+        var resumen = new SemaforoCoberturaDto(estados.Count(e => e.Value.Estado == EstadoSemaforo.Verde), estados.Count(e => e.Value.Estado == EstadoSemaforo.Amarillo),
+            estados.Count(e => e.Value.Estado == EstadoSemaforo.Rojo));
+        var ids = estados.Where(e => e.Value.Estado != EstadoSemaforo.Verde).Select(e => e.Key).ToList();
+        if (ids.Count == 0) return (resumen, []);
+
+        var filas = await (from t in db.Turnos where ids.Contains(t.Id)
+                           join s in db.Servicios on t.ServicioId equals s.Id
+                           join c in db.Centros on s.CentroId equals c.Id
+                           join tt in db.TiposTurno on t.TipoTurnoId equals tt.Id
+                           select new { t.Id, t.Fecha, t.InicioUtc, t.FinUtc, Tipo = tt.Nombre, Servicio = s.Nombre, Centro = c.Nombre, c.ZonaHoraria }).ToListAsync(ct);
+        var atencion = filas
+            .Select(f => new TurnoSemaforoDto(f.Id, f.Fecha,
+                $"{f.Tipo} {CalculadoraHorario.ALocal(f.ZonaHoraria, f.InicioUtc):HH\\:mm}–{CalculadoraHorario.ALocal(f.ZonaHoraria, f.FinUtc):HH\\:mm}", f.Servicio, f.Centro,
+                estados[f.Id].Estado, estados[f.Id].Detalle))
+            .OrderByDescending(x => x.Estado).ThenBy(x => x.Fecha).Take(MaxAtencion).ToList();
+        return (resumen, atencion);
     }
 
     private async Task<DashboardProfesionalDto> ProfesionalAsync(Guid profesionalId, DateOnly hoy, DateTimeOffset ahora, CancellationToken ct)

@@ -19,7 +19,8 @@ namespace MedicalHub.Application.Planificacion;
 public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual contexto, TimeProvider reloj, EvaluacionServicio evaluacion, NotificacionesServicio notificaciones)
 {
     /// <param name="vacanteId">Si se indica, la asignación cubre esa vacante (se permite en cuadrantes publicados) y la cierra en la misma transacción.</param>
-    public async Task<ResultadoAsignacionDto> AsignarAsync(Guid necesidadId, Guid profesionalId, SolicitudExcepcion? excepcion, CancellationToken ct, Guid? vacanteId = null)
+    /// <param name="permitirExceso">La asignación automática desde la disponibilidad puede superar las plazas de la necesidad: queda marcada en rojo para que la administración decida.</param>
+    public async Task<ResultadoAsignacionDto> AsignarAsync(Guid necesidadId, Guid profesionalId, SolicitudExcepcion? excepcion, CancellationToken ct, Guid? vacanteId = null, bool permitirExceso = false)
     {
         var org = contexto.ExigirOrganizacion();
         var uid = contexto.UsuarioId ?? throw new ExcepcionNoAutenticado("No autenticado.");
@@ -54,7 +55,7 @@ public sealed class AsignacionesServicio(IAppDbContext db, IContextoActual conte
             var activas = db.Asignaciones.Where(a => a.NecesidadId == necesidadId && a.Estado != EstadoAsignacion.Cancelada);
             if (await activas.AnyAsync(a => a.ProfesionalId == profesionalId, token))
                 throw new ExcepcionConflicto("El profesional ya está asignado a esta necesidad.");
-            if (await activas.CountAsync(token) >= necesidad.NumeroPlazas)
+            if (!permitirExceso && await activas.CountAsync(token) >= necesidad.NumeroPlazas)
                 throw new ExcepcionConflicto("No quedan plazas libres en esta necesidad.");
 
             // Reglas de planificación

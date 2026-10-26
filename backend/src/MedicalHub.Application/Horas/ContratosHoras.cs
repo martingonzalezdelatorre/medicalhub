@@ -36,8 +36,17 @@ public sealed record ProximoTurnoDto(Guid AsignacionId, DateOnly Fecha, string T
     EstadoCuadrante CuadranteEstado);
 
 /// <param name="Pendientes">Solo para administración y coordinación; null para el responsable de centro.</param>
+/// <summary>Verde = justo las plazas previstas, amarillo = faltan profesionales, rojo = hay más de los permitidos.</summary>
+public enum EstadoSemaforo { Verde = 1, Amarillo = 2, Rojo = 3 }
+
+public sealed record SemaforoCoberturaDto(int Verde, int Amarillo, int Rojo);
+
+/// <param name="Detalle">Por categoría, asignados/plazas (p. ej. «Anestesiología 5/4 · Enfermería 3/3»).</param>
+public sealed record TurnoSemaforoDto(Guid TurnoId, DateOnly Fecha, string Turno, string Servicio, string Centro, EstadoSemaforo Estado, string Detalle);
+
 public sealed record DashboardGestionDto(DateOnly Desde, DateOnly Hasta, int PlazasTotales, int PlazasCubiertas, int CuadrantesBorrador,
-    IReadOnlyList<TurnoSinCubrirDto> ProximosSinCubrir, PendientesGestionDto? Pendientes);
+    IReadOnlyList<TurnoSinCubrirDto> ProximosSinCubrir, PendientesGestionDto? Pendientes,
+    SemaforoCoberturaDto? Semaforo = null, IReadOnlyList<TurnoSemaforoDto>? Atencion = null);
 
 public sealed record PendientesGestionDto(int VacantesAbiertas, int AusenciasSolicitadas, int OfertasPorAprobar, int DisponibilidadesPendientes, int ExcepcionesUltimos30Dias);
 

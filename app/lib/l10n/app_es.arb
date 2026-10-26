@@ -164,6 +164,49 @@
   "datosContacto": "Datos de contacto",
   "sinContacto": "Sin datos de contacto",
   "menuPlanificacion": "Planificación",
+  "menuCobertura": "Cobertura",
+  "cobRango": "Rango",
+  "cobElegirRango": "Elegir intervalo de días",
+  "cobRangoMaximo": "El intervalo máximo es de {n} días; se ha ajustado.",
+  "@cobRangoMaximo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cobHospital": "Hospital",
+  "cobProfesional": "Profesional",
+  "cobTodosHospitales": "Todos los hospitales",
+  "cobTodosProfesionales": "Todos los profesionales",
+  "cobLimpiar": "Quitar filtros",
+  "cobBuscarProfesional": "Escriba al menos 3 letras para buscar",
+  "cobTurnos": "Turnos",
+  "cobCobertura": "Cobertura",
+  "cobPlazasSinCubrir": "Plazas sin cubrir",
+  "cobProfesionales": "Profesionales",
+  "cobPorDia": "Por día",
+  "cobPorHospital": "Por hospital",
+  "cobPorProfesional": "Por profesional",
+  "cobSinResultados": "No hay turnos con estos filtros",
+  "cobSinAsignar": "Sin asignar",
+  "cobBorrador": "Cuadrante en borrador",
+  "cobNTurnos": "{n, plural, =1{1 turno} other{{n} turnos}}",
+  "@cobNTurnos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cobHoras": "{h} h",
+  "@cobHoras": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
   "menuCuadrantes": "Cuadrantes",
   "menuMiPlanificacion": "Mi planificación",
   "menuMas": "Más",
@@ -212,7 +255,42 @@
       }
     }
   },
-  "cuadranteNoEditable": "El cuadrante no está en borrador: reábralo para modificarlo.",
+  "sobranProfesionales": "{n, plural, =1{Sobra 1 profesional} other{Sobran {n} profesionales}}",
+  "@sobranProfesionales": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dispAprobadaAsignada": "{n, plural, =1{Disponibilidad aprobada: asignado automáticamente a 1 turno} other{Disponibilidad aprobada: asignado automáticamente a {n} turnos}}",
+  "@dispAprobadaAsignada": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cobCualquierCategoria": "Cualquier categoría",
+  "dispAprobadaSinTurnos":"Disponibilidad aprobada. Se asignará sola cuando existan los turnos de esos días.",
+  "cuadranteSinTurnos": "Cuadrante creado sin turnos: defina los requisitos de cobertura del servicio (médicos, enfermería…) para poder generarlos.",
+  "cuadranteCreadoResumen": "Cuadrante creado: {turnos} turnos, {cubiertas} plazas ya cubiertas con la disponibilidad aprobada",
+  "@cuadranteCreadoResumen": {
+    "placeholders": {
+      "turnos": {
+        "type": "int"
+      },
+      "cubiertas": {
+        "type": "int"
+      }
+    }
+  },
+  "dashSemaforoTitulo":"Cobertura por turno",
+  "dashSemaforoVerde": "En su tope",
+  "dashSemaforoAmarillo": "Faltan profesionales",
+  "dashSemaforoRojo": "Pasados del tope",
+  "dashSemaforoAtencion": "Turnos que requieren atención",
+  "cuadranteNoEditable":"El cuadrante no está en borrador: reábralo para modificarlo.",
   "asignarProfesional": "{n, plural, =1{Asignar profesional (1 plaza libre)} other{Asignar profesional ({n} plazas libres)}}",
   "@asignarProfesional": {
     "placeholders": {
@@ -428,6 +506,26 @@
   "campoDiasSemana": "Días de la semana",
   "campoTipoTurnoOpcional": "Tipo de turno (opcional)",
   "cualquierTurno": "Cualquier turno",
+  "campoHospital": "Hospital",
+  "cualquierHospital": "Cualquier hospital",
+  "campoTurnoDia": "Turno en esos días",
+  "seccionPeriodo": "Periodo",
+  "seccionDiasTurno": "Días y turno",
+  "diasLaborables": "Lun–Vie",
+  "diasFinSemana": "Fin de semana",
+  "diasTodosAtajo": "Todos",
+  "seccionHospitales": "Hospitales, días y turnos",
+  "anadirHospital": "Añadir otro hospital",
+  "hospitalYaElegido": "No se puede crear esa disponibilidad porque ese hospital ya se ha elegido en esta selección.",
+  "anadirFranja": "Añadir otros días y turnos",
+  "quitarBloque": "Quitar",
+  "todosLosTurnos": "Todos los turnos",
+  "turnosEnLosDias": "Turnos en esos días",
+  "sinTurnosPropios": "No tiene servicios autorizados con turnos definidos: la declaración se aplicará a cualquier hospital.",
+  "avisoAusenciaSolicitada": "Ausencia solicitada",
+  "avisoAusenciaRegistrada": "Ausencia registrada",
+  "resumenTitulo": "Resumen",
+  "disponibilidadDeclarada": "Disponibilidad declarada",
   "avisoDisponibilidad": "Las declaraciones solo cuentan para la planificación cuando las aprueba la coordinación.",
   "declarar": "Declarar",
   "menuMiDisponibilidad": "Mi disponibilidad",

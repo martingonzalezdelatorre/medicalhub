@@ -24,6 +24,35 @@ class TurnoSinCubrirDto {
   final int plazasLibres;
 }
 
+/// Turnos de la ventana según su cobertura: verde = justo las plazas previstas, amarillo = faltan, rojo = hay más asignados que plazas.
+@JsonSerializable(createToJson: false)
+class SemaforoCoberturaDto {
+  const SemaforoCoberturaDto({required this.verde, required this.amarillo, required this.rojo});
+  factory SemaforoCoberturaDto.fromJson(Map<String, dynamic> json) => _$SemaforoCoberturaDtoFromJson(json);
+
+  final int verde;
+  final int amarillo;
+  final int rojo;
+}
+
+@JsonSerializable(createToJson: false)
+class TurnoSemaforoDto {
+  const TurnoSemaforoDto({required this.turnoId, required this.fecha, required this.turno, required this.servicio, required this.centro, required this.estado, required this.detalle});
+  factory TurnoSemaforoDto.fromJson(Map<String, dynamic> json) => _$TurnoSemaforoDtoFromJson(json);
+
+  final String turnoId;
+  final String fecha;
+  final String turno;
+  final String servicio;
+  final String centro;
+  /// `Verde`, `Amarillo` o `Rojo`.
+  final String estado;
+  /// Por categoría, asignados/plazas.
+  final String detalle;
+
+  bool get esRojo => estado == 'Rojo';
+}
+
 @JsonSerializable(createToJson: false)
 class PendientesGestionDto {
   const PendientesGestionDto({
@@ -52,6 +81,8 @@ class DashboardGestionDto {
     required this.cuadrantesBorrador,
     required this.proximosSinCubrir,
     this.pendientes,
+    this.semaforo,
+    this.atencion = const [],
   });
   factory DashboardGestionDto.fromJson(Map<String, dynamic> json) => _$DashboardGestionDtoFromJson(json);
 
@@ -62,6 +93,9 @@ class DashboardGestionDto {
   final int cuadrantesBorrador;
   final List<TurnoSinCubrirDto> proximosSinCubrir;
   final PendientesGestionDto? pendientes;
+  final SemaforoCoberturaDto? semaforo;
+  @JsonKey(defaultValue: <TurnoSemaforoDto>[])
+  final List<TurnoSemaforoDto> atencion;
 
   double get porcentaje => plazasTotales == 0 ? 100 : 100 * plazasCubiertas / plazasTotales;
 }

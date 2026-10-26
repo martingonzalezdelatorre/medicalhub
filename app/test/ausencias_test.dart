@@ -28,8 +28,9 @@ Map<String, dynamic> _oferta({String estado = 'Pendiente'}) => {
     };
 
 class _Servidor {
-  _Servidor({this.roles = const ['CoordinadorMedico']});
+  _Servidor({this.roles = const ['CoordinadorMedico'], this.tipos = const []});
   final List<String> roles;
+  final List<Map<String, dynamic>> tipos;
   final peticiones = <RequestOptions>[];
 
   late final ServidorFalso falso = ServidorFalso((p) {
@@ -42,7 +43,9 @@ class _Servidor {
       case ('GET', '/api/mi-disponibilidad'):
         return json([_disp()]);
       case ('GET', '/api/mis-tipos-turno'):
-        return json(<dynamic>[]);
+        return json(tipos);
+      case ('POST', '/api/mi-disponibilidad/lote'):
+        return json(<dynamic>[], 201);
       case ('POST', '/api/mis-ausencias'):
         return json(_ausencia(), 201);
       case ('POST', '/api/mis-ausencias/a1/cancelar'):
@@ -112,6 +115,47 @@ void main() {
       await t.tap(find.byTooltip('Cancelar').first);
       await t.pumpAndSettle();
       expect(s.peticiones.any((p) => p.method == 'POST' && p.path == '/api/mis-ausencias/a1/cancelar'), isTrue);
+    });
+
+    testWidgets('declarar disponibilidad por hospital envía un bloque por cada día y turno elegidos', (t) async {
+      Map<String, dynamic> tipo(String id, String nombre, String franja, String centro, String centroId) =>
+          {'id': id, 'nombre': nombre, 'franja': franja, 'servicio': 'Urgencias', 'centro': centro, 'centroId': centroId};
+      final s = _Servidor(roles: ['ProfesionalSanitario'], tipos: [
+        tipo('m1', 'Mañana', '08:00–15:00', 'Hospital Norte', 'c1'),
+        tipo('t1', 'Tarde', '15:00–22:00', 'Hospital Norte', 'c1'),
+        tipo('m2', 'Mañana', '08:00–15:00', 'Hospital Sur', 'c2'),
+      ]);
+      await t.binding.setSurfaceSize(const Size(1200, 2400));
+      addTearDown(() => t.binding.setSurfaceSize(null));
+      await montarApp(t, s.falso);
+      await t.tap(find.text('Mi disponibilidad').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text('Declarar disponibilidad').first);
+      await t.pumpAndSettle();
+
+      // Hospital Norte: lunes y miércoles por la mañana; viernes por la tarde.
+      expect(find.text('Hospital 1'), findsOneWidget);
+      await t.tap(find.text('Mañana · 08:00–15:00').first);
+      await t.tap(find.text('Lun–Vie').first);
+      await t.tap(find.text('Mar').first);
+      await t.tap(find.text('Jue').first);
+      await t.tap(find.text('Vie').first);
+      await t.tap(find.text('Añadir otros días y turnos'));
+      await t.pumpAndSettle();
+      for (final d in ['Lun', 'Mar', 'Mié', 'Jue', 'Sáb', 'Dom']) {
+        await t.tap(find.text(d).last);
+      }
+      await t.tap(find.text('Tarde · 15:00–22:00').last);
+      // Hospital Sur: todos los días, cualquier turno.
+      await t.tap(find.text('Añadir otro hospital'));
+      await t.pumpAndSettle();
+      expect(find.text('Hospital 2'), findsOneWidget);
+
+      await t.tap(find.widgetWithText(FilledButton, 'Declarar'));
+      await t.pumpAndSettle();
+      final cuerpo = s.peticiones.singleWhere((p) => p.method == 'POST' && p.path == '/api/mi-disponibilidad/lote').data as Map<String, dynamic>;
+      final bloques = (cuerpo['bloques'] as List).cast<Map<String, dynamic>>();
+      expect(bloques.map((b) => (b['centroId'], b['tipoTurnoId'], b['dias'])), [('c1', 'm1', 5), ('c1', 't1', 16), ('c2', null, 127)]);
     });
 
     testWidgets('solicitar una ausencia envía el tipo y las fechas y avisa de no incluir datos de salud', (t) async {

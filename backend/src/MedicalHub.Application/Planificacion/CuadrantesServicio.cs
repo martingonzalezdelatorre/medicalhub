@@ -17,7 +17,8 @@ public sealed partial class CuadrantesServicio(
     TimeProvider reloj,
     CalendarioServicio calendario,
     TurnosServicio turnosServicio,
-    EvaluacionServicio evaluacion)
+    EvaluacionServicio evaluacion,
+    AutoAsignacionServicio autoAsignacion)
 {
     // ───────────── Consulta ─────────────
 
@@ -42,10 +43,9 @@ public sealed partial class CuadrantesServicio(
         var org = contexto.ExigirOrganizacion();
         var servicio = await ServicioVisibleAsync(s.ServicioId, ct);
         if (!servicio.Activo) throw new ExcepcionConflicto("El servicio está inactivo.");
-        await ComprobarSolapeAsync(servicio.Id, s.Desde, s.Hasta, null, ct);
-
         var nombre = string.IsNullOrWhiteSpace(s.Nombre) ? $"{servicio.Nombre} {s.Desde:dd/MM/yyyy}–{s.Hasta:dd/MM/yyyy}" : s.Nombre;
         var cuadrante = new Cuadrante(org, servicio.Id, nombre, s.Desde, s.Hasta, reloj.GetUtcNow());
+        var nuevos = new List<Guid>();
         db.Cuadrantes.Add(cuadrante);
 
         if (s.GenerarTurnos)
@@ -53,16 +53,20 @@ public sealed partial class CuadrantesServicio(
             var requisitos = await db.RequisitosCobertura.Where(r => r.ServicioId == servicio.Id).ToListAsync(ct);
             var tipos = await db.TiposTurno.Where(t => t.ServicioId == servicio.Id && t.Activo).ToListAsync(ct);
             var zona = await turnosServicio.ZonaDelServicioAsync(servicio.Id, ct);
+            var yaExisten = await turnosServicio.TurnosExistentesAsync(servicio.Id, s.Desde, s.Hasta, ct);
             for (var dia = s.Desde; dia <= s.Hasta; dia = dia.AddDays(1))
                 foreach (var tipo in tipos.Where(t => requisitos.Any(r => r.TipoTurnoId == t.Id)))
                 {
+                    if (yaExisten.Contains((tipo.Id, dia))) continue; // ya está en otro cuadrante del servicio
                     var turno = TurnosServicio.NuevoTurno(org, cuadrante, tipo, dia, zona);
                     db.Turnos.Add(turno);
+                    nuevos.Add(turno.Id);
                     foreach (var r in requisitos.Where(r => r.TipoTurnoId == tipo.Id))
                         db.Necesidades.Add(new NecesidadCobertura(org, turno.Id, r.NumeroProfesionales, r.CategoriaProfesionalId));
                 }
         }
         await db.SaveChangesAsync(ct);
+        await autoAsignacion.AsignarTurnosAsync(nuevos, null, ct);
         return await ObtenerAsync(cuadrante.Id, ct);
     }
 
@@ -226,8 +230,6 @@ public sealed partial class CuadrantesServicio(
         if (!servicio.Activo) throw new ExcepcionConflicto("El servicio está inactivo.");
 
         var hasta = s.Desde.AddDays(plantilla.DiasPeriodo - 1);
-        await ComprobarSolapeAsync(servicio.Id, s.Desde, hasta, null, ct);
-
         var tiposActivos = await db.TiposTurno.Where(t => t.ServicioId == servicio.Id && t.Activo).ToDictionaryAsync(t => t.Id, ct);
         if (plantilla.Lineas.Any(l => !tiposActivos.ContainsKey(l.TipoTurnoId)))
             throw new ExcepcionConflicto("La plantilla usa tipos de turno que ya no están activos en el servicio.");
@@ -237,14 +239,19 @@ public sealed partial class CuadrantesServicio(
         db.Cuadrantes.Add(cuadrante);
 
         var zona = await turnosServicio.ZonaDelServicioAsync(servicio.Id, ct);
+        var yaExisten = await turnosServicio.TurnosExistentesAsync(servicio.Id, s.Desde, hasta, ct);
+        var nuevos = new List<Guid>();
         foreach (var grupo in plantilla.Lineas.GroupBy(l => (l.DiaOffset, l.TipoTurnoId)))
         {
+            if (yaExisten.Contains((grupo.Key.TipoTurnoId, s.Desde.AddDays(grupo.Key.DiaOffset)))) continue; // ya está en otro cuadrante del servicio
             var turno = TurnosServicio.NuevoTurno(org, cuadrante, tiposActivos[grupo.Key.TipoTurnoId], s.Desde.AddDays(grupo.Key.DiaOffset), zona);
             db.Turnos.Add(turno);
+            nuevos.Add(turno.Id);
             foreach (var l in grupo)
                 db.Necesidades.Add(new NecesidadCobertura(org, turno.Id, l.NumeroPlazas, l.CategoriaProfesionalId));
         }
         await db.SaveChangesAsync(ct);
+        await autoAsignacion.AsignarTurnosAsync(nuevos, null, ct);
         return await ObtenerAsync(cuadrante.Id, ct);
     }
 
@@ -307,13 +314,6 @@ public sealed partial class CuadrantesServicio(
     private async Task<Domain.Estructura.Servicio> ServicioVisibleAsync(Guid id, CancellationToken ct)
         => await AlcancePlanificacion.Servicios(db, contexto).FirstOrDefaultAsync(s => s.Id == id, ct)
            ?? throw new ExcepcionNoEncontrado("Servicio no encontrado.");
-
-    private async Task ComprobarSolapeAsync(Guid servicioId, DateOnly desde, DateOnly hasta, Guid? excepto, CancellationToken ct)
-    {
-        if (await db.Cuadrantes.AnyAsync(c => c.ServicioId == servicioId && c.Id != excepto && c.Estado != EstadoCuadrante.Archivado
-                                              && c.Desde <= hasta && desde <= c.Hasta, ct))
-            throw new ExcepcionConflicto("Ya existe un cuadrante de ese servicio que se solapa con el periodo indicado.");
-    }
 
     private async Task<Dictionary<Guid, string>> UsuariosAsync(IEnumerable<Guid?> ids, CancellationToken ct)
     {

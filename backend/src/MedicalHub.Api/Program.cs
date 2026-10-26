@@ -106,7 +106,11 @@ builder.Services.AddRateLimiter(o =>
 var origenesPermitidos = builder.Configuration.GetSection("Cors:OrigenesPermitidos").Get<string[]>() ?? [];
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 {
-    if (origenesPermitidos.Length > 0)
+    // TODO: CORS abierto en desarrollo mientras no se configure la lista de orígenes; retirar al incluir CORS.
+    if (builder.Environment.IsDevelopment())
+        p.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod()
+         .WithExposedHeaders("X-Correlation-Id");
+    else if (origenesPermitidos.Length > 0)
         p.WithOrigins(origenesPermitidos).AllowAnyHeader().AllowAnyMethod()
          .WithExposedHeaders("X-Correlation-Id");
 }));

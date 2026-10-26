@@ -1540,3 +1540,40 @@ END;
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261026111359_DisponibilidadPorHospital'
+)
+BEGIN
+    ALTER TABLE [Disponibilidades] ADD [CentroId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261026111359_DisponibilidadPorHospital'
+)
+BEGIN
+    CREATE INDEX [IX_Disponibilidades_CentroId] ON [Disponibilidades] ([CentroId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261026111359_DisponibilidadPorHospital'
+)
+BEGIN
+    ALTER TABLE [Disponibilidades] ADD CONSTRAINT [FK_Disponibilidades_Centros_CentroId] FOREIGN KEY ([CentroId]) REFERENCES [Centros] ([Id]) ON DELETE NO ACTION;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261026111359_DisponibilidadPorHospital'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261026111359_DisponibilidadPorHospital', N'10.0.13');
+END;
+
+COMMIT;
+GO
+

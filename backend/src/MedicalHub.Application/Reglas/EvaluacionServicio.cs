@@ -96,8 +96,16 @@ public sealed class EvaluacionServicio(IAppDbContext db)
         var disponibilidades = await db.Disponibilidades
             .Where(d => ids.Contains(d.ProfesionalId) && d.Estado == EstadoDisponibilidad.Aprobada && d.Desde <= dia2 && d.Hasta >= dia1).ToListAsync(ct);
 
+        // Las declaraciones de un hospital afectan a los turnos de cualquiera de sus servicios.
+        var centros = disponibilidades.Where(d => d.CentroId != null).Select(d => d.CentroId!.Value).Distinct().ToList();
+        var serviciosDeCentro = centros.Count == 0
+            ? new Dictionary<Guid, IReadOnlySet<Guid>>()
+            : (await db.Servicios.Where(s => centros.Contains(s.CentroId)).Select(s => new { s.Id, s.CentroId }).ToListAsync(ct))
+                .GroupBy(s => s.CentroId).ToDictionary(g => g.Key, g => (IReadOnlySet<Guid>)g.Select(s => s.Id).ToHashSet());
+
         return ids.ToDictionary(id => id, id => new DatosPersona(
             ausencias.Where(a => a.ProfesionalId == id).Select(a => new AusenciaLigera(a.Tipo, a.Desde, a.Hasta)).ToList(),
-            disponibilidades.Where(d => d.ProfesionalId == id).Select(d => new DisponibilidadLigera(d.Tipo, d.Desde, d.Hasta, d.Dias, d.TipoTurnoId, d.Comentario)).ToList()));
+            disponibilidades.Where(d => d.ProfesionalId == id).Select(d => new DisponibilidadLigera(d.Tipo, d.Desde, d.Hasta, d.Dias, d.TipoTurnoId, d.Comentario,
+                d.CentroId is { } c ? serviciosDeCentro.GetValueOrDefault(c, new HashSet<Guid>()) : null)).ToList()));
     }
 }

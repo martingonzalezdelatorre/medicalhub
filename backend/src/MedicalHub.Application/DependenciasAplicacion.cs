@@ -23,6 +23,7 @@ public static class DependenciasAplicacion
         servicios.AddScoped<CalendarioServicio>();
         servicios.AddScoped<TurnosServicio>();
         servicios.AddScoped<AsignacionesServicio>();
+        servicios.AddScoped<AutoAsignacionServicio>();
         servicios.AddScoped<CuadrantesServicio>();
         servicios.AddScoped<EvaluacionServicio>();
         servicios.AddScoped<ReglasServicio>();

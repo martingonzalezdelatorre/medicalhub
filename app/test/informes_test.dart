@@ -26,6 +26,17 @@ Map<String, dynamic> _dashGestion({bool pendientes = true}) => {
         'pendientes': pendientes
             ? {'vacantesAbiertas': 3, 'ausenciasSolicitadas': 2, 'ofertasPorAprobar': 1, 'disponibilidadesPendientes': 0, 'excepcionesUltimos30Dias': 4}
             : null,
+        'semaforo': {'verde': 11, 'amarillo': 12, 'rojo': 13},
+        'atencion': [
+          {
+            'turnoId': 't9', 'fecha': '2026-10-27', 'turno': 'Mañana 08:00–15:00', 'servicio': 'Urgencias', 'centro': 'Hospital Sur',
+            'estado': 'Rojo', 'detalle': 'Anestesiología 5/4 · Enfermería 3/3',
+          },
+          {
+            'turnoId': 't8', 'fecha': '2026-10-28', 'turno': 'Tarde 15:00–22:00', 'servicio': 'Urgencias', 'centro': 'Hospital Sur',
+            'estado': 'Amarillo', 'detalle': 'Anestesiología 3/4 · Enfermería 3/3',
+          },
+        ],
       },
       'profesional': null,
     };
@@ -91,6 +102,19 @@ void main() {
       expect(find.text('Próximos turnos sin cubrir'), findsOneWidget);
       expect(find.textContaining('25/10/2026 · Noche 22:00–08:00'), findsOneWidget);
       expect(find.text('1 libre(s)'), findsOneWidget);
+    });
+
+    testWidgets('el semáforo muestra cuántos turnos están en su tope, faltos de gente o pasados, y cuáles revisar', (t) async {
+      await t.binding.setSurfaceSize(const Size(1000, 2400));
+      addTearDown(() => t.binding.setSurfaceSize(null));
+      await montarApp(t, _Servidor().falso);
+      expect(find.text('Cobertura por turno'), findsOneWidget);
+      expect(find.text('En su tope'), findsOneWidget);
+      expect(find.text('Faltan profesionales'), findsOneWidget);
+      expect(find.text('Pasados del tope'), findsOneWidget);
+      expect(find.text('Turnos que requieren atención'), findsOneWidget);
+      expect(find.textContaining('Anestesiología 5/4'), findsOneWidget);
+      expect(find.textContaining('Anestesiología 3/4'), findsOneWidget);
     });
 
     testWidgets('el responsable de centro ve la cobertura pero no los pendientes de gestión', (t) async {

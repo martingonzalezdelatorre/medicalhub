@@ -79,6 +79,11 @@ public sealed class DisponibilidadController(DisponibilidadServicio servicio) : 
     public async Task<ActionResult<DisponibilidadDto>> Declarar(SolicitudDisponibilidad solicitud, CancellationToken ct)
         => Created("/api/mi-disponibilidad", await servicio.DeclararAsync(solicitud, ct));
 
+    [HttpPost("api/mi-disponibilidad/lote")]
+    [Authorize(Politicas.UsuarioSociedad)]
+    public async Task<ActionResult<IReadOnlyList<DisponibilidadDto>>> DeclararLote(SolicitudDisponibilidadLote solicitud, CancellationToken ct)
+        => Created("/api/mi-disponibilidad", await servicio.DeclararLoteAsync(solicitud, ct));
+
     [HttpDelete("api/mi-disponibilidad/{id:guid}")]
     [Authorize(Politicas.UsuarioSociedad)]
     public async Task<IActionResult> EliminarPropia(Guid id, CancellationToken ct)

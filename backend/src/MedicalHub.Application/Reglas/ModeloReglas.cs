@@ -20,10 +20,12 @@ public sealed record TurnoLigero(Guid TurnoId, Guid ServicioId, DateOnly Fecha, 
 public sealed record AusenciaLigera(MedicalHub.Domain.Ausencias.TipoAusencia Tipo, DateOnly Desde, DateOnly Hasta);
 
 /// <summary>Disponibilidad aprobada (disponible, bloqueo o preferencia).</summary>
-public sealed record DisponibilidadLigera(MedicalHub.Domain.Ausencias.TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta, int Dias, Guid? TipoTurnoId, string? Comentario)
+public sealed record DisponibilidadLigera(MedicalHub.Domain.Ausencias.TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta, int Dias, Guid? TipoTurnoId, string? Comentario,
+    IReadOnlySet<Guid>? ServiciosCentro = null)
 {
     public bool Afecta(TurnoLigero t) => Desde <= t.FechaFin && t.Fecha <= Hasta
-        && (Dias & MedicalHub.Domain.Ausencias.DiasSemana.Bit(t.Fecha.DayOfWeek)) != 0 && (TipoTurnoId is null || TipoTurnoId == t.TipoTurnoId);
+        && (Dias & MedicalHub.Domain.Ausencias.DiasSemana.Bit(t.Fecha.DayOfWeek)) != 0 && (TipoTurnoId is null || TipoTurnoId == t.TipoTurnoId)
+        && (ServiciosCentro is null || ServiciosCentro.Contains(t.ServicioId));
 }
 
 public sealed record AsignacionLigera(Guid AsignacionId, EstadoAsignacion Estado, TurnoLigero Turno, DateTimeOffset FechaAsignacion);

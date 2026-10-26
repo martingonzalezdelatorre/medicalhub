@@ -118,6 +118,9 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CentroId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Comentario")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -173,6 +176,8 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                         .HasColumnType("rowversion");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CentroId");
 
                     b.HasIndex("TipoTurnoId");
 
@@ -1549,6 +1554,11 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
 
             modelBuilder.Entity("MedicalHub.Domain.Ausencias.Disponibilidad", b =>
                 {
+                    b.HasOne("MedicalHub.Domain.Estructura.Centro", null)
+                        .WithMany()
+                        .HasForeignKey("CentroId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("MedicalHub.Domain.Profesionales.Profesional", null)
                         .WithMany()
                         .HasForeignKey("ProfesionalId")

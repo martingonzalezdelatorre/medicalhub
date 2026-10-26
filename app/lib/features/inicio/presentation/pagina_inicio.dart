@@ -8,7 +8,6 @@ import '../../../core/tema/tema.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
-import '../../ausencias/presentation/dialogo_ausencia.dart';
 import '../../informes/data/informes_repositorio.dart';
 
 const _alerta = Color(0xFFE08A00);
@@ -112,11 +111,6 @@ class _AccionesRapidas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    Future<void> abrir(Widget dialogo) async {
-      if (await showDialog<bool>(context: context, builder: (_) => dialogo) == true && context.mounted) {
-        context.go('/mi-disponibilidad');
-      }
-    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -130,7 +124,7 @@ class _AccionesRapidas extends StatelessWidget {
               icono: Icons.event_available_outlined,
               titulo: t.declararDisponibilidad,
               color: const Color(0xFF0B6E8A),
-              onTap: () => abrir(const DialogoDisponibilidad()),
+              onTap: () => context.go('/mi-disponibilidad/nueva'),
             ),
           ),
           SizedBox(
@@ -139,7 +133,7 @@ class _AccionesRapidas extends StatelessWidget {
               icono: Icons.beach_access_outlined,
               titulo: t.solicitarAusencia,
               color: const Color(0xFF7C5CE0),
-              onTap: () => abrir(const DialogoAusencia()),
+              onTap: () => context.go('/mi-disponibilidad/ausencia'),
             ),
           ),
         ]);
@@ -287,6 +281,12 @@ class _PanelGestion extends StatelessWidget {
           ),
         ]),
       ),
+      if (g.semaforo case final s?)
+        _Seccion(
+          titulo: t.dashSemaforoTitulo,
+          icono: Icons.traffic_outlined,
+          child: _SemaforoCobertura(s, g.atencion),
+        ),
       if (p != null)
         _Seccion(
           titulo: t.dashPendientes,
@@ -301,7 +301,7 @@ class _PanelGestion extends StatelessWidget {
               ind(t.dashVacantes, p.vacantesAbiertas, Icons.person_search_outlined, '/ausencias', const Color(0xFFE5484D), alertar: p.vacantesAbiertas > 0),
               ind(t.dashAusencias, p.ausenciasSolicitadas, Icons.beach_access_outlined, '/ausencias', const Color(0xFFE08A00), alertar: p.ausenciasSolicitadas > 0),
               ind(t.dashOfertas, p.ofertasPorAprobar, Icons.local_offer_outlined, '/ausencias', const Color(0xFF7C5CE0), alertar: p.ofertasPorAprobar > 0),
-              ind(t.dashDisponibilidades, p.disponibilidadesPendientes, Icons.event_available_outlined, '/ausencias', const Color(0xFF0B6E8A)),
+              ind(t.dashDisponibilidades, p.disponibilidadesPendientes, Icons.event_available_outlined, '/ausencias?tab=disponibilidad', const Color(0xFF0B6E8A), alertar: p.disponibilidadesPendientes > 0),
               ind(t.dashExcepciones, p.excepcionesUltimos30Dias, Icons.rule_outlined, '/reglas', const Color(0xFF2E9E6B)),
             ]);
           }),
@@ -331,6 +331,59 @@ class _PanelGestion extends StatelessWidget {
               ),
           ]),
         ),
+    ]);
+  }
+}
+
+/// Semáforo de cobertura por turno: verde = en su tope, amarillo = faltan profesionales, rojo = más de los permitidos (interviene el administrador).
+class _SemaforoCobertura extends StatelessWidget {
+  const _SemaforoCobertura(this.s, this.atencion);
+  final SemaforoCoberturaDto s;
+  final List<TurnoSemaforoDto> atencion;
+
+  static const _verde = Color(0xFF2E7D32);
+  static const _amarillo = Color(0xFFE0A100);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final tema = Theme.of(context);
+    final rojo = tema.colorScheme.error;
+    Color color(String estado) => switch (estado) { 'Rojo' => rojo, 'Verde' => _verde, _ => _amarillo };
+
+    Widget pastilla(Color c, int n, String texto) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(color: c.withAlpha(28), borderRadius: BorderRadius.circular(14), border: Border.all(color: c.withAlpha(110))),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(width: 12, height: 12, decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
+            const SizedBox(width: 8),
+            Text('$n', style: tema.textTheme.titleMedium?.copyWith(color: c, fontWeight: FontWeight.w800)),
+            const SizedBox(width: 8),
+            Flexible(child: Text(texto, style: tema.textTheme.bodyMedium)),
+          ]),
+        );
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Wrap(spacing: 10, runSpacing: 10, children: [
+        pastilla(_verde, s.verde, t.dashSemaforoVerde),
+        pastilla(_amarillo, s.amarillo, t.dashSemaforoAmarillo),
+        pastilla(rojo, s.rojo, t.dashSemaforoRojo),
+      ]),
+      if (atencion.isNotEmpty) ...[
+        const SizedBox(height: 16),
+        Text(t.dashSemaforoAtencion, style: tema.textTheme.labelLarge),
+        const SizedBox(height: 4),
+        for (final a in atencion)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            leading: CircleAvatar(backgroundColor: color(a.estado).withAlpha(35), child: Icon(a.esRojo ? Icons.error_outline : Icons.warning_amber_outlined, color: color(a.estado))),
+            title: Text('${formatearFecha(a.fecha)} · ${a.turno}'),
+            subtitle: Text('${a.centro} · ${a.servicio}\n${a.detalle}'),
+            isThreeLine: true,
+            onTap: () => context.go('/cobertura'),
+          ),
+      ],
     ]);
   }
 }

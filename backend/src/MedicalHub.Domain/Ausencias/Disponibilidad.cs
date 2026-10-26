@@ -29,6 +29,8 @@ public sealed class Disponibilidad : EntidadDeOrganizacion, IAuditable
     public int Dias { get; private set; } = DiasSemana.Todos;
     /// <summary>Si se indica, solo afecta a ese tipo de turno.</summary>
     public Guid? TipoTurnoId { get; private set; }
+    /// <summary>Si se indica, solo afecta a los turnos de los servicios de ese hospital (centro).</summary>
+    public Guid? CentroId { get; private set; }
     public string? Comentario { get; private set; }
     public EstadoDisponibilidad Estado { get; private set; } = EstadoDisponibilidad.Declarada;
     public Guid DeclaradaPorUsuarioId { get; private set; }
@@ -40,7 +42,7 @@ public sealed class Disponibilidad : EntidadDeOrganizacion, IAuditable
     private Disponibilidad() { }
 
     public Disponibilidad(Guid organizacionId, Guid profesionalId, TipoDisponibilidad tipo, DateOnly desde, DateOnly hasta, int dias,
-        Guid? tipoTurnoId, string? comentario, Guid declaradaPor, DateTimeOffset ahora) : base(organizacionId)
+        Guid? tipoTurnoId, string? comentario, Guid declaradaPor, DateTimeOffset ahora, Guid? centroId = null) : base(organizacionId)
     {
         if (!Enum.IsDefined(tipo)) throw new ExcepcionDominio("El tipo de disponibilidad no es válido.");
         if (hasta < desde) throw new ExcepcionDominio("La fecha final no puede ser anterior a la inicial.");
@@ -52,6 +54,7 @@ public sealed class Disponibilidad : EntidadDeOrganizacion, IAuditable
         Hasta = hasta;
         Dias = dias;
         TipoTurnoId = tipoTurnoId;
+        CentroId = centroId;
         Comentario = TextoOpcional(comentario, "El comentario", 300);
         DeclaradaPorUsuarioId = declaradaPor;
         FechaDeclaracion = ahora;

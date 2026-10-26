@@ -69,14 +69,26 @@ public class CuadrantesTests(FabricaApi fabrica)
     }
 
     [Fact]
-    public async Task No_se_permiten_cuadrantes_solapados_del_mismo_servicio()
+    public async Task Se_permiten_varios_cuadrantes_del_servicio_en_los_mismos_dias_pero_un_turno_no_se_duplica()
     {
         var e = await Escenario.CrearAsync(fabrica);
-        await e.CuadranteAsync("2026-11-02", "2026-11-08");
+        var primero = await e.CuadranteAsync("2026-11-02", "2026-11-08");
 
-        var r = await e.C.PostAsJsonAsync("/api/cuadrantes", new { servicioId = e.Servicio, desde = "2026-11-08", hasta = "2026-11-14", generarTurnos = false });
-        Assert.Equal(HttpStatusCode.Conflict, r.StatusCode);
-        await e.CuadranteAsync("2026-11-09", "2026-11-15", generar: false); // contiguo: sí
+        // Un segundo cuadrante en los mismos días se puede crear: no valida el periodo, valida cada turno
+        var segundo = await e.CuadranteAsync("2026-11-05", "2026-11-12", generar: false);
+        Assert.Equal(0, segundo.Json.GetProperty("totalTurnos").GetInt32());
+
+        // Un turno que ya existe ese día en el servicio (en otro cuadrante) se rechaza al añadirlo
+        var duplicado = await e.C.PostAsJsonAsync($"/api/cuadrantes/{segundo.Id}/turnos", new { fecha = "2026-11-06", tipoTurnoId = e.Manana });
+        Assert.Equal(HttpStatusCode.Conflict, duplicado.StatusCode);
+        Assert.Contains("Ya existe el turno", await duplicado.Content.ReadAsStringAsync());
+        // …pero un día que aún no tiene ese turno sí se puede añadir
+        Assert.Equal(HttpStatusCode.Created, (await e.C.PostAsJsonAsync($"/api/cuadrantes/{segundo.Id}/turnos", new { fecha = "2026-11-10", tipoTurnoId = e.Manana })).StatusCode);
+
+        // Al generar los turnos de otro cuadrante, los que ya existen en el servicio no se repiten
+        var tercero = await e.CuadranteAsync("2026-11-07", "2026-11-11");
+        Assert.Equal(5, tercero.Json.GetProperty("totalTurnos").GetInt32()); // 7 y 8 ya existían; del 9 al 11 faltan 6 y la mañana del 10 ya existe
+        Assert.NotEqual(primero.Id, tercero.Id);
     }
 
     [Fact]
@@ -246,9 +258,10 @@ public class CuadrantesTests(FabricaApi fabrica)
         Assert.Equal(21, copia.GetProperty("plazasTotales").GetInt32());
         Assert.Equal(0, copia.GetProperty("plazasCubiertas").GetInt32()); // sin profesionales
 
-        // la misma plantilla en un periodo ocupado → conflicto
-        Assert.Equal(HttpStatusCode.Conflict, (await e.C.PostAsJsonAsync("/api/cuadrantes/desde-plantilla",
-            new { plantillaId = plantilla.GetProperty("id").GetGuid(), desde = "2026-11-20" })).StatusCode);
+        // la misma plantilla sobre un periodo ya ocupado se crea, pero sin repetir los turnos que ya existen (20, 21 y 22 de noviembre)
+        var solapada = await Planif.LeerAsync<JsonElement>(await e.C.PostAsJsonAsync("/api/cuadrantes/desde-plantilla",
+            new { plantillaId = plantilla.GetProperty("id").GetGuid(), desde = "2026-11-20" }), HttpStatusCode.Created);
+        Assert.Equal(8, solapada.GetProperty("totalTurnos").GetInt32());
 
         var lista = await e.C.GetFromJsonAsync<List<JsonElement>>("/api/plantillas-cuadrante", AyudaSesion.Json);
         Assert.Contains(lista!, p => p.GetProperty("nombre").GetString() == "Semana tipo");

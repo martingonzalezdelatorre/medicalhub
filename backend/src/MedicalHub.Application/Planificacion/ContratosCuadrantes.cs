@@ -49,9 +49,12 @@ public sealed record TurnoDto(Guid Id, Guid CuadranteId, EstadoCuadrante Cuadran
     string InicioLocal, string FinLocal, DateTimeOffset InicioUtc, DateTimeOffset FinUtc, bool CruzaMedianoche, double DuracionHoras,
     Guid CentroId, string Centro, string ZonaHoraria, Guid ServicioId, string Servicio,
     Guid TipoTurnoId, string TipoTurno, bool EsGuardia,
-    IReadOnlyList<NecesidadDto> Necesidades, int PlazasTotales, int PlazasCubiertas)
+    IReadOnlyList<NecesidadDto> Necesidades, int PlazasTotales, int PlazasCubiertas, int PlazasExcedidas = 0)
 {
     public bool SinCubrir => PlazasCubiertas < PlazasTotales;
+
+    /// <summary>Más profesionales asignados que plazas: la administración debe decidir a quién quitar o ampliar el tope.</summary>
+    public bool Excedido => PlazasExcedidas > 0;
 }
 
 public sealed record FiltroCalendario(DateOnly Desde, DateOnly Hasta, Guid? CentroId, Guid? ServicioId, Guid? ProfesionalId,

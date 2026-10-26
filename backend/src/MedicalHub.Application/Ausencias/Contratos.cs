@@ -26,15 +26,18 @@ public sealed record ResultadoAusenciaDto(AusenciaDto Ausencia, IReadOnlyList<Tu
 // ── Disponibilidad ──
 public sealed record DisponibilidadDto(Guid Id, Guid ProfesionalId, string Profesional, TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta,
     int Dias, Guid? TipoTurnoId, string? TipoTurno, string? Comentario, EstadoDisponibilidad Estado, DateTimeOffset FechaDeclaracion,
-    string? MotivoDecision);
+    string? MotivoDecision, Guid? CentroId = null, string? Centro = null, int? TurnosAsignados = null);
+
+/// <summary>Varios bloques (hospital · días · turno) declarados a la vez: se guardan todos o ninguno.</summary>
+public sealed record SolicitudDisponibilidadLote(IReadOnlyList<SolicitudDisponibilidad> Bloques);
 
 /// <param name="Dias">Máscara de días (lunes = 1 … domingo = 64). Null = todos.</param>
-public sealed record SolicitudDisponibilidad(TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta, int? Dias, Guid? TipoTurnoId, string? Comentario);
+public sealed record SolicitudDisponibilidad(TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta, int? Dias, Guid? TipoTurnoId, string? Comentario, Guid? CentroId = null);
 
 public sealed record SolicitudDisponibilidadDeProfesional(Guid ProfesionalId, TipoDisponibilidad Tipo, DateOnly Desde, DateOnly Hasta, int? Dias,
-    Guid? TipoTurnoId, string? Comentario, bool Aprobar);
+    Guid? TipoTurnoId, string? Comentario, bool Aprobar, Guid? CentroId = null);
 
-public sealed record TipoTurnoPropioDto(Guid Id, string Nombre, string Franja, string Servicio, string Centro);
+public sealed record TipoTurnoPropioDto(Guid Id, string Nombre, string Franja, string Servicio, string Centro, Guid? CentroId = null);
 
 // ── Vacantes ──
 public sealed record VacanteDto(Guid Id, EstadoVacante Estado, string Motivo, DateTimeOffset FechaCreacion, DateTimeOffset? FechaCierre, Guid NecesidadId,

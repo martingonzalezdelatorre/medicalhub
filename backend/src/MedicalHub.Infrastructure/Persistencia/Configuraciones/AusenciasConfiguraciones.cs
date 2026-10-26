@@ -53,6 +53,7 @@ internal sealed class DisponibilidadConfiguracion : IEntityTypeConfiguration<Dis
         b.Property(x => x.MotivoDecision).HasMaxLength(500);
         b.HasOne<Profesional>().WithMany().HasForeignKey(x => x.ProfesionalId).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<TipoTurno>().WithMany().HasForeignKey(x => x.TipoTurnoId).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<Centro>().WithMany().HasForeignKey(x => x.CentroId).OnDelete(DeleteBehavior.Restrict);
         b.HasIndex(x => new { x.ProfesionalId, x.Desde, x.Hasta });
         b.HasIndex(x => new { x.OrganizacionId, x.Estado });
     }

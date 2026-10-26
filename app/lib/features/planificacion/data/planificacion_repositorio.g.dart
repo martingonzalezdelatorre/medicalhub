@@ -73,6 +73,7 @@ TurnoDto _$TurnoDtoFromJson(Map<String, dynamic> json) => TurnoDto(
       .toList(),
   plazasTotales: (json['plazasTotales'] as num).toInt(),
   plazasCubiertas: (json['plazasCubiertas'] as num).toInt(),
+  plazasExcedidas: (json['plazasExcedidas'] as num?)?.toInt() ?? 0,
 );
 
 ViolacionDto _$ViolacionDtoFromJson(Map<String, dynamic> json) => ViolacionDto(

@@ -16,8 +16,11 @@ import '../../features/reglas/presentation/pagina_reglas.dart';
 import '../../features/ausencias/presentation/pagina_ausencias.dart';
 import '../../features/fichaje/presentation/pagina_fichaje.dart';
 import '../../features/informes/presentation/pagina_informes.dart';
+import '../../features/ausencias/presentation/pagina_declarar_disponibilidad.dart';
 import '../../features/ausencias/presentation/pagina_mi_disponibilidad.dart';
 import '../../features/ausencias/presentation/pagina_notificaciones.dart';
+import '../../features/ausencias/presentation/pagina_solicitar_ausencia.dart';
+import '../../features/planificacion/presentation/pagina_cobertura.dart';
 import '../../features/planificacion/presentation/pagina_cuadrante.dart';
 import '../../features/planificacion/presentation/pagina_cuadrantes.dart';
 import '../../features/planificacion/presentation/pagina_planificacion.dart';
@@ -42,7 +45,8 @@ String? redireccionar(EstadoAuth auth, String ubicacion) {
   if (en('/catalogos') && !admin) return '/';
   if (ubicacion == '/profesionales/nuevo' && !admin) return '/';
   if ((en('/profesionales') || en('/centros') || en('/servicios') || en('/cuadrantes') || en('/planificacion') || en('/informes')) && !lectura) return '/';
-  if (en('/reglas') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
+  if (en('/cobertura') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
+  if (en('/reglas') &&!(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
   if (en('/ausencias') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
   if (en('/mi-disponibilidad') && !perfil.tieneRol(Rol.profesionalSanitario)) return '/';
   if (en('/fichaje') && !perfil.tieneRol(Rol.profesionalSanitario)) return '/';
@@ -78,13 +82,25 @@ final enrutadorProvider = Provider<GoRouter>((ref) {
                 cuadranteId: e.uri.queryParameters['cuadrante'],
                 fechaInicial: e.uri.queryParameters['fecha'] == null ? null : fechaDeApi(e.uri.queryParameters['fecha']!),
               )),
+          GoRoute(path: '/cobertura', builder: (_, _) => const PaginaCobertura()),
           GoRoute(path: '/mi-planificacion', builder: (_, _) => const PaginaPlanificacion(propia: true)),
           GoRoute(path: '/reglas', builder: (_, _) => const PaginaReglas()),
-          GoRoute(path: '/mi-disponibilidad', builder: (_, _) => const PaginaMiDisponibilidad()),
+          GoRoute(
+            path: '/mi-disponibilidad',
+            builder: (_, _) => const PaginaMiDisponibilidad(),
+            routes: [
+              GoRoute(path: 'nueva', builder: (_, _) => const PaginaDeclararDisponibilidad()),
+              GoRoute(path: 'ausencia', builder: (_, _) => const PaginaSolicitarAusencia()),
+            ],
+          ),
           GoRoute(path: '/fichaje', builder: (_, _) => const PaginaFichaje()),
           GoRoute(path: '/notificaciones', builder: (_, _) => const PaginaNotificaciones()),
           GoRoute(path: '/informes', builder: (_, _) => const PaginaInformes()),
-          GoRoute(path: '/ausencias', builder: (_, _) => const PaginaAusencias()),
+          GoRoute(
+            path: '/ausencias',
+            builder: (_, e) => PaginaAusencias(pestana: e.uri.queryParameters['tab'] == 'disponibilidad' ? 2 : 0),
+            routes: [GoRoute(path: 'nueva', builder: (_, _) => const PaginaSolicitarAusencia(coordinador: true))],
+          ),
           GoRoute(path: '/cuadrantes', builder: (_, _) => const PaginaCuadrantes()),
           GoRoute(path: '/cuadrantes/:id', builder: (_, e) => PaginaCuadrante(id: e.pathParameters['id']!)),
           GoRoute(path: '/profesionales', builder: (_, _) => const PaginaProfesionales()),

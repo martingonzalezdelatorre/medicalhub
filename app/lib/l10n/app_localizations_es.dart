@@ -402,6 +402,84 @@ class AppLocalizationsEs extends AppLocalizations {
   String get menuPlanificacion => 'Planificación';
 
   @override
+  String get menuCobertura => 'Cobertura';
+
+  @override
+  String get cobRango => 'Rango';
+
+  @override
+  String get cobElegirRango => 'Elegir intervalo de días';
+
+  @override
+  String cobRangoMaximo(int n) {
+    return 'El intervalo máximo es de $n días; se ha ajustado.';
+  }
+
+  @override
+  String get cobHospital => 'Hospital';
+
+  @override
+  String get cobProfesional => 'Profesional';
+
+  @override
+  String get cobTodosHospitales => 'Todos los hospitales';
+
+  @override
+  String get cobTodosProfesionales => 'Todos los profesionales';
+
+  @override
+  String get cobLimpiar => 'Quitar filtros';
+
+  @override
+  String get cobBuscarProfesional => 'Escriba al menos 3 letras para buscar';
+
+  @override
+  String get cobTurnos => 'Turnos';
+
+  @override
+  String get cobCobertura => 'Cobertura';
+
+  @override
+  String get cobPlazasSinCubrir => 'Plazas sin cubrir';
+
+  @override
+  String get cobProfesionales => 'Profesionales';
+
+  @override
+  String get cobPorDia => 'Por día';
+
+  @override
+  String get cobPorHospital => 'Por hospital';
+
+  @override
+  String get cobPorProfesional => 'Por profesional';
+
+  @override
+  String get cobSinResultados => 'No hay turnos con estos filtros';
+
+  @override
+  String get cobSinAsignar => 'Sin asignar';
+
+  @override
+  String get cobBorrador => 'Cuadrante en borrador';
+
+  @override
+  String cobNTurnos(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n turnos',
+      one: '1 turno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cobHoras(String h) {
+    return '$h h';
+  }
+
+  @override
   String get menuCuadrantes => 'Cuadrantes';
 
   @override
@@ -475,6 +553,59 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String sobranProfesionales(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Sobran $n profesionales',
+      one: 'Sobra 1 profesional',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dispAprobadaAsignada(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Disponibilidad aprobada: asignado automáticamente a $n turnos',
+      one: 'Disponibilidad aprobada: asignado automáticamente a 1 turno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cobCualquierCategoria => 'Cualquier categoría';
+
+  @override
+  String get dispAprobadaSinTurnos =>
+      'Disponibilidad aprobada. Se asignará sola cuando existan los turnos de esos días.';
+
+  @override
+  String get cuadranteSinTurnos =>
+      'Cuadrante creado sin turnos: defina los requisitos de cobertura del servicio (médicos, enfermería…) para poder generarlos.';
+
+  @override
+  String cuadranteCreadoResumen(int turnos, int cubiertas) {
+    return 'Cuadrante creado: $turnos turnos, $cubiertas plazas ya cubiertas con la disponibilidad aprobada';
+  }
+
+  @override
+  String get dashSemaforoTitulo => 'Cobertura por turno';
+
+  @override
+  String get dashSemaforoVerde => 'En su tope';
+
+  @override
+  String get dashSemaforoAmarillo => 'Faltan profesionales';
+
+  @override
+  String get dashSemaforoRojo => 'Pasados del tope';
+
+  @override
+  String get dashSemaforoAtencion => 'Turnos que requieren atención';
 
   @override
   String get cuadranteNoEditable =>
@@ -866,6 +997,68 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cualquierTurno => 'Cualquier turno';
+
+  @override
+  String get campoHospital => 'Hospital';
+
+  @override
+  String get cualquierHospital => 'Cualquier hospital';
+
+  @override
+  String get campoTurnoDia => 'Turno en esos días';
+
+  @override
+  String get seccionPeriodo => 'Periodo';
+
+  @override
+  String get seccionDiasTurno => 'Días y turno';
+
+  @override
+  String get diasLaborables => 'Lun–Vie';
+
+  @override
+  String get diasFinSemana => 'Fin de semana';
+
+  @override
+  String get diasTodosAtajo => 'Todos';
+
+  @override
+  String get seccionHospitales => 'Hospitales, días y turnos';
+
+  @override
+  String get anadirHospital => 'Añadir otro hospital';
+
+  @override
+  String get hospitalYaElegido =>
+      'No se puede crear esa disponibilidad porque ese hospital ya se ha elegido en esta selección.';
+
+  @override
+  String get anadirFranja => 'Añadir otros días y turnos';
+
+  @override
+  String get quitarBloque => 'Quitar';
+
+  @override
+  String get todosLosTurnos => 'Todos los turnos';
+
+  @override
+  String get turnosEnLosDias => 'Turnos en esos días';
+
+  @override
+  String get sinTurnosPropios =>
+      'No tiene servicios autorizados con turnos definidos: la declaración se aplicará a cualquier hospital.';
+
+  @override
+  String get avisoAusenciaSolicitada => 'Ausencia solicitada';
+
+  @override
+  String get avisoAusenciaRegistrada => 'Ausencia registrada';
+
+  @override
+  String get resumenTitulo => 'Resumen';
+
+  @override
+  String get disponibilidadDeclarada => 'Disponibilidad declarada';
 
   @override
   String get avisoDisponibilidad =>

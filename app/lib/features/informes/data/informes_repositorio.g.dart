@@ -16,6 +16,25 @@ TurnoSinCubrirDto _$TurnoSinCubrirDtoFromJson(Map<String, dynamic> json) =>
       plazasLibres: (json['plazasLibres'] as num).toInt(),
     );
 
+SemaforoCoberturaDto _$SemaforoCoberturaDtoFromJson(
+  Map<String, dynamic> json,
+) => SemaforoCoberturaDto(
+  verde: (json['verde'] as num).toInt(),
+  amarillo: (json['amarillo'] as num).toInt(),
+  rojo: (json['rojo'] as num).toInt(),
+);
+
+TurnoSemaforoDto _$TurnoSemaforoDtoFromJson(Map<String, dynamic> json) =>
+    TurnoSemaforoDto(
+      turnoId: json['turnoId'] as String,
+      fecha: json['fecha'] as String,
+      turno: json['turno'] as String,
+      servicio: json['servicio'] as String,
+      centro: json['centro'] as String,
+      estado: json['estado'] as String,
+      detalle: json['detalle'] as String,
+    );
+
 PendientesGestionDto _$PendientesGestionDtoFromJson(
   Map<String, dynamic> json,
 ) => PendientesGestionDto(
@@ -42,6 +61,16 @@ DashboardGestionDto _$DashboardGestionDtoFromJson(Map<String, dynamic> json) =>
           : PendientesGestionDto.fromJson(
               json['pendientes'] as Map<String, dynamic>,
             ),
+      semaforo: json['semaforo'] == null
+          ? null
+          : SemaforoCoberturaDto.fromJson(
+              json['semaforo'] as Map<String, dynamic>,
+            ),
+      atencion:
+          (json['atencion'] as List<dynamic>?)
+              ?.map((e) => TurnoSemaforoDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 ProximoTurnoDto _$ProximoTurnoDtoFromJson(Map<String, dynamic> json) =>

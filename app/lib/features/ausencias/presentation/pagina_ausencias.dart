@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/errores/fallo_api.dart';
 import '../../../l10n/app_localizations.dart';
@@ -9,21 +10,30 @@ import '../../../shared/widgets/seleccion.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
 import '../../planificacion/presentation/hoja_turno.dart' show DialogoCandidatos;
 import '../data/ausencias_repositorio.dart';
-import 'dialogo_ausencia.dart';
 import 'dialogo_ofrecer.dart';
 import 'etiquetas_ausencias.dart';
 
 /// Gestión de ausencias, vacantes y disponibilidad (coordinación).
-class PaginaAusencias extends StatelessWidget {
-  const PaginaAusencias({super.key});
+class PaginaAusencias extends ConsumerWidget {
+  const PaginaAusencias({super.key, this.pestana = 0});
+
+  /// Pestaña inicial: 0 solicitudes, 1 vacantes, 2 disponibilidad.
+  final int pestana;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
+    final pendientes = ref.watch(disponibilidadesPendientesProvider).value?.length ?? 0;
     return DefaultTabController(
+      key: ValueKey(pestana),
       length: 3,
+      initialIndex: pestana.clamp(0, 2),
       child: Column(children: [
-        TabBar(tabs: [Tab(text: t.ausTabSolicitudes), Tab(text: t.ausTabVacantes), Tab(text: t.ausTabDisponibilidad)]),
+        TabBar(tabs: [
+          Tab(text: t.ausTabSolicitudes),
+          Tab(text: t.ausTabVacantes),
+          Tab(child: Badge(isLabelVisible: pendientes > 0, label: Text('$pendientes'), offset: const Offset(14, -8), child: Text(t.ausTabDisponibilidad))),
+        ]),
         const Expanded(child: TabBarView(children: [_ListaAusencias(), _ListaVacantes(), _ListaDisponibilidad()])),
       ]),
     );
@@ -89,9 +99,7 @@ class _ListaAusencias extends ConsumerWidget {
       if (motivo != null) await ejecutar(() => repo.cancelar(a.id, motivo: motivo.isEmpty ? null : motivo));
     }
 
-    Future<void> nueva() async {
-      if (await showDialog<bool>(context: context, builder: (_) => const DialogoAusencia(coordinador: true)) == true) refrescar();
-    }
+    void nueva() => context.go('/ausencias/nueva');
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(heroTag: 'fab-ausencia', icon: const Icon(Icons.add), label: Text(t.registrarAusencia), onPressed: nueva),
@@ -293,7 +301,7 @@ class _ListaDisponibilidad extends ConsumerWidget {
                         child: Icon(Icons.event_available_outlined, color: Theme.of(context).colorScheme.primary),
                       ),
                       title: Text('${d.profesional} · ${etiquetaTipoDisponibilidad(t, d.tipo)}'),
-                      subtitle: Text([rangoFechasApi(d.desde, d.hasta), etiquetaDias(t, d.dias), if (d.tipoTurno != null) d.tipoTurno!, if (d.comentario != null) d.comentario!].join(' · ')),
+                      subtitle: Text([rangoFechasApi(d.desde, d.hasta), if (d.centro != null) d.centro!, etiquetaDias(t, d.dias), if (d.tipoTurno != null) d.tipoTurno!, if (d.comentario != null) d.comentario!].join(' · ')),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                         IconButton(tooltip: t.accionAprobar, icon: const Icon(Icons.check_circle_outline), onPressed: () => decidir(d, true)),
                         IconButton(tooltip: t.accionRechazar, icon: const Icon(Icons.cancel_outlined), onPressed: () => decidir(d, false)),

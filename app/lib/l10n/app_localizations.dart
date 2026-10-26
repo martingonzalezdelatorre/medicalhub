@@ -850,6 +850,138 @@ abstract class AppLocalizations {
   /// **'Planificación'**
   String get menuPlanificacion;
 
+  /// No description provided for @menuCobertura.
+  ///
+  /// In es, this message translates to:
+  /// **'Cobertura'**
+  String get menuCobertura;
+
+  /// No description provided for @cobRango.
+  ///
+  /// In es, this message translates to:
+  /// **'Rango'**
+  String get cobRango;
+
+  /// No description provided for @cobElegirRango.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir intervalo de días'**
+  String get cobElegirRango;
+
+  /// No description provided for @cobRangoMaximo.
+  ///
+  /// In es, this message translates to:
+  /// **'El intervalo máximo es de {n} días; se ha ajustado.'**
+  String cobRangoMaximo(int n);
+
+  /// No description provided for @cobHospital.
+  ///
+  /// In es, this message translates to:
+  /// **'Hospital'**
+  String get cobHospital;
+
+  /// No description provided for @cobProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'Profesional'**
+  String get cobProfesional;
+
+  /// No description provided for @cobTodosHospitales.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los hospitales'**
+  String get cobTodosHospitales;
+
+  /// No description provided for @cobTodosProfesionales.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los profesionales'**
+  String get cobTodosProfesionales;
+
+  /// No description provided for @cobLimpiar.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar filtros'**
+  String get cobLimpiar;
+
+  /// No description provided for @cobBuscarProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'Escriba al menos 3 letras para buscar'**
+  String get cobBuscarProfesional;
+
+  /// No description provided for @cobTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Turnos'**
+  String get cobTurnos;
+
+  /// No description provided for @cobCobertura.
+  ///
+  /// In es, this message translates to:
+  /// **'Cobertura'**
+  String get cobCobertura;
+
+  /// No description provided for @cobPlazasSinCubrir.
+  ///
+  /// In es, this message translates to:
+  /// **'Plazas sin cubrir'**
+  String get cobPlazasSinCubrir;
+
+  /// No description provided for @cobProfesionales.
+  ///
+  /// In es, this message translates to:
+  /// **'Profesionales'**
+  String get cobProfesionales;
+
+  /// No description provided for @cobPorDia.
+  ///
+  /// In es, this message translates to:
+  /// **'Por día'**
+  String get cobPorDia;
+
+  /// No description provided for @cobPorHospital.
+  ///
+  /// In es, this message translates to:
+  /// **'Por hospital'**
+  String get cobPorHospital;
+
+  /// No description provided for @cobPorProfesional.
+  ///
+  /// In es, this message translates to:
+  /// **'Por profesional'**
+  String get cobPorProfesional;
+
+  /// No description provided for @cobSinResultados.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay turnos con estos filtros'**
+  String get cobSinResultados;
+
+  /// No description provided for @cobSinAsignar.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin asignar'**
+  String get cobSinAsignar;
+
+  /// No description provided for @cobBorrador.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrante en borrador'**
+  String get cobBorrador;
+
+  /// No description provided for @cobNTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 turno} other{{n} turnos}}'**
+  String cobNTurnos(int n);
+
+  /// No description provided for @cobHoras.
+  ///
+  /// In es, this message translates to:
+  /// **'{h} h'**
+  String cobHoras(String h);
+
   /// No description provided for @menuCuadrantes.
   ///
   /// In es, this message translates to:
@@ -975,6 +1107,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{n, plural, =1{Falta 1 profesional} other{Faltan {n} profesionales}}'**
   String faltanProfesionales(int n);
+
+  /// No description provided for @sobranProfesionales.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{Sobra 1 profesional} other{Sobran {n} profesionales}}'**
+  String sobranProfesionales(int n);
+
+  /// No description provided for @dispAprobadaAsignada.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{Disponibilidad aprobada: asignado automáticamente a 1 turno} other{Disponibilidad aprobada: asignado automáticamente a {n} turnos}}'**
+  String dispAprobadaAsignada(int n);
+
+  /// No description provided for @cobCualquierCategoria.
+  ///
+  /// In es, this message translates to:
+  /// **'Cualquier categoría'**
+  String get cobCualquierCategoria;
+
+  /// No description provided for @dispAprobadaSinTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidad aprobada. Se asignará sola cuando existan los turnos de esos días.'**
+  String get dispAprobadaSinTurnos;
+
+  /// No description provided for @cuadranteSinTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrante creado sin turnos: defina los requisitos de cobertura del servicio (médicos, enfermería…) para poder generarlos.'**
+  String get cuadranteSinTurnos;
+
+  /// No description provided for @cuadranteCreadoResumen.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrante creado: {turnos} turnos, {cubiertas} plazas ya cubiertas con la disponibilidad aprobada'**
+  String cuadranteCreadoResumen(int turnos, int cubiertas);
+
+  /// No description provided for @dashSemaforoTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Cobertura por turno'**
+  String get dashSemaforoTitulo;
+
+  /// No description provided for @dashSemaforoVerde.
+  ///
+  /// In es, this message translates to:
+  /// **'En su tope'**
+  String get dashSemaforoVerde;
+
+  /// No description provided for @dashSemaforoAmarillo.
+  ///
+  /// In es, this message translates to:
+  /// **'Faltan profesionales'**
+  String get dashSemaforoAmarillo;
+
+  /// No description provided for @dashSemaforoRojo.
+  ///
+  /// In es, this message translates to:
+  /// **'Pasados del tope'**
+  String get dashSemaforoRojo;
+
+  /// No description provided for @dashSemaforoAtencion.
+  ///
+  /// In es, this message translates to:
+  /// **'Turnos que requieren atención'**
+  String get dashSemaforoAtencion;
 
   /// No description provided for @cuadranteNoEditable.
   ///
@@ -1629,6 +1827,126 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cualquier turno'**
   String get cualquierTurno;
+
+  /// No description provided for @campoHospital.
+  ///
+  /// In es, this message translates to:
+  /// **'Hospital'**
+  String get campoHospital;
+
+  /// No description provided for @cualquierHospital.
+  ///
+  /// In es, this message translates to:
+  /// **'Cualquier hospital'**
+  String get cualquierHospital;
+
+  /// No description provided for @campoTurnoDia.
+  ///
+  /// In es, this message translates to:
+  /// **'Turno en esos días'**
+  String get campoTurnoDia;
+
+  /// No description provided for @seccionPeriodo.
+  ///
+  /// In es, this message translates to:
+  /// **'Periodo'**
+  String get seccionPeriodo;
+
+  /// No description provided for @seccionDiasTurno.
+  ///
+  /// In es, this message translates to:
+  /// **'Días y turno'**
+  String get seccionDiasTurno;
+
+  /// No description provided for @diasLaborables.
+  ///
+  /// In es, this message translates to:
+  /// **'Lun–Vie'**
+  String get diasLaborables;
+
+  /// No description provided for @diasFinSemana.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin de semana'**
+  String get diasFinSemana;
+
+  /// No description provided for @diasTodosAtajo.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get diasTodosAtajo;
+
+  /// No description provided for @seccionHospitales.
+  ///
+  /// In es, this message translates to:
+  /// **'Hospitales, días y turnos'**
+  String get seccionHospitales;
+
+  /// No description provided for @anadirHospital.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir otro hospital'**
+  String get anadirHospital;
+
+  /// No description provided for @hospitalYaElegido.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede crear esa disponibilidad porque ese hospital ya se ha elegido en esta selección.'**
+  String get hospitalYaElegido;
+
+  /// No description provided for @anadirFranja.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir otros días y turnos'**
+  String get anadirFranja;
+
+  /// No description provided for @quitarBloque.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar'**
+  String get quitarBloque;
+
+  /// No description provided for @todosLosTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los turnos'**
+  String get todosLosTurnos;
+
+  /// No description provided for @turnosEnLosDias.
+  ///
+  /// In es, this message translates to:
+  /// **'Turnos en esos días'**
+  String get turnosEnLosDias;
+
+  /// No description provided for @sinTurnosPropios.
+  ///
+  /// In es, this message translates to:
+  /// **'No tiene servicios autorizados con turnos definidos: la declaración se aplicará a cualquier hospital.'**
+  String get sinTurnosPropios;
+
+  /// No description provided for @avisoAusenciaSolicitada.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencia solicitada'**
+  String get avisoAusenciaSolicitada;
+
+  /// No description provided for @avisoAusenciaRegistrada.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencia registrada'**
+  String get avisoAusenciaRegistrada;
+
+  /// No description provided for @resumenTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get resumenTitulo;
+
+  /// No description provided for @disponibilidadDeclarada.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidad declarada'**
+  String get disponibilidadDeclarada;
 
   /// No description provided for @avisoDisponibilidad.
   ///

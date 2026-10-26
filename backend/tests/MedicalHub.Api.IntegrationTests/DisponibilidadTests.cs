@@ -94,6 +94,123 @@ public class DisponibilidadTests(FabricaApi fabrica)
         Assert.NotNull(e);
     }
 
+    [Fact]
+    public async Task El_lote_declara_varios_bloques_por_hospital_y_un_hospital_ajeno_no_guarda_ninguno()
+    {
+        var (e, _, cliente) = await ConCuadranteAsync();
+        var lote = await Planif.LeerAsync<List<JsonElement>>(await cliente.PostAsJsonAsync("/api/mi-disponibilidad/lote", new
+        {
+            bloques = new object[]
+            {
+                new { tipo = "Disponible", desde = "2026-11-01", hasta = "2026-11-30", dias = Lunes | Miercoles, tipoTurnoId = e.Manana, centroId = e.Centro },
+                new { tipo = "Disponible", desde = "2026-11-01", hasta = "2026-11-30", dias = Martes, centroId = e.Centro },
+            }
+        }), HttpStatusCode.Created);
+        Assert.Equal(2, lote.Count);
+        Assert.All(lote, d => Assert.Equal(e.Centro, d.GetProperty("centroId").GetGuid()));
+        Assert.False(string.IsNullOrEmpty(lote[0].GetProperty("centro").GetString()));
+
+        // Un bloque inválido (hospital inexistente) invalida todo el lote
+        var antes = (await cliente.GetFromJsonAsync<List<JsonElement>>("/api/mi-disponibilidad", AyudaSesion.Json))!.Count;
+        var mal = await cliente.PostAsJsonAsync("/api/mi-disponibilidad/lote", new
+        {
+            bloques = new object[]
+            {
+                new { tipo = "Disponible", desde = "2026-12-01", hasta = "2026-12-31", dias = Lunes, centroId = e.Centro },
+                new { tipo = "Disponible", desde = "2026-12-01", hasta = "2026-12-31", dias = Lunes, centroId = Guid.NewGuid() },
+            }
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, mal.StatusCode);
+        Assert.Equal(antes, (await cliente.GetFromJsonAsync<List<JsonElement>>("/api/mi-disponibilidad", AyudaSesion.Json))!.Count);
+    }
+
+    [Fact]
+    public async Task Un_bloqueo_de_hospital_aprobado_afecta_a_los_turnos_de_ese_hospital()
+    {
+        var (e, prof, cliente) = await ConCuadranteAsync();
+        var lote = await Planif.LeerAsync<List<JsonElement>>(await cliente.PostAsJsonAsync("/api/mi-disponibilidad/lote", new
+        {
+            bloques = new object[] { new { tipo = "Bloqueo", desde = "2026-11-04", hasta = "2026-11-04", centroId = e.Centro } }
+        }), HttpStatusCode.Created);
+        await AprobarAsync(e.C, lote[0]);
+
+        var r = await e.AsignarAsync(await e.NecesidadAsync("2026-11-04", e.Manana), prof);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    private static async Task<JsonElement> DeclararEnHospitalAsync(HttpClient c, string fecha, Guid centro, Guid? tipoTurno, string tipo = "Disponible")
+        => (await Planif.LeerAsync<List<JsonElement>>(await c.PostAsJsonAsync("/api/mi-disponibilidad/lote", new
+        {
+            bloques = new object[] { new { tipo, desde = fecha, hasta = fecha, centroId = centro, tipoTurnoId = tipoTurno } }
+        }), HttpStatusCode.Created))[0];
+
+    [Fact]
+    public async Task La_disponibilidad_aprobada_asigna_sola_al_turno_de_su_hospital_y_si_se_pasa_del_tope_queda_en_rojo()
+    {
+        var (e, prof, cliente) = await ConCuadranteAsync();
+        var turno = async () => (await e.TurnosAsync("2026-11-04", "2026-11-04")).Single(t => t.GetProperty("tipoTurnoId").GetGuid() == e.Manana);
+
+        // Pendiente de aprobar: no asigna. Para otro tipo de turno, tampoco
+        var d1 = await DeclararEnHospitalAsync(cliente, "2026-11-04", e.Centro, e.Manana);
+        Assert.Equal(0, (await turno()).GetProperty("plazasCubiertas").GetInt32());
+        await AprobarAsync(e.C, await DeclararEnHospitalAsync(cliente, "2026-11-05", e.Centro, e.Noche)); // la noche del 5 no es la mañana del 4
+        Assert.Equal(0, (await turno()).GetProperty("plazasCubiertas").GetInt32());
+
+        // Aprobada: el profesional aparece asignado al turno (2 plazas: mañana)
+        await AprobarAsync(e.C, d1);
+        var t1 = await turno();
+        Assert.Equal(1, t1.GetProperty("plazasCubiertas").GetInt32());
+        Assert.Equal(0, t1.GetProperty("plazasExcedidas").GetInt32());
+        Assert.Equal(prof, t1.GetProperty("necesidades")[0].GetProperty("asignaciones")[0].GetProperty("profesionalId").GetGuid());
+
+        // Con dos más se completa el tope y el siguiente lo supera: se asigna igualmente, pero marcado en rojo para el administrador
+        var segundo = await e.ProfesionalConUsuarioAsync(nombre: "Segundo");
+        var tercero = await e.ProfesionalConUsuarioAsync(nombre: "Tercero");
+        await AprobarAsync(e.C, await DeclararEnHospitalAsync(segundo.cliente, "2026-11-04", e.Centro, e.Manana));
+        Assert.Equal(2, (await turno()).GetProperty("plazasCubiertas").GetInt32());
+        await AprobarAsync(e.C, await DeclararEnHospitalAsync(tercero.cliente, "2026-11-04", e.Centro, e.Manana));
+        var t3 = await turno();
+        Assert.Equal(2, t3.GetProperty("plazasCubiertas").GetInt32());
+        Assert.Equal(1, t3.GetProperty("plazasExcedidas").GetInt32());
+        Assert.True(t3.GetProperty("excedido").GetBoolean());
+        Assert.Equal(3, t3.GetProperty("necesidades").EnumerateArray().Sum(n => n.GetProperty("asignaciones").GetArrayLength()));
+    }
+
+    [Fact]
+    public async Task Un_turno_creado_despues_recoge_a_quienes_ya_tienen_la_disponibilidad_aprobada()
+    {
+        var (e, prof, cliente) = await ConCuadranteAsync();
+        var segundo = await e.CuadranteAsync("2026-11-16", "2026-11-22", generar: false);
+        await AprobarAsync(e.C, await DeclararEnHospitalAsync(cliente, "2026-11-17", e.Centro, null));   // cualquier turno del hospital
+
+        var r = await e.C.PostAsJsonAsync($"/api/cuadrantes/{segundo.Id}/turnos", new { fecha = "2026-11-17", tipoTurnoId = e.Manana });
+        Assert.Equal(HttpStatusCode.Created, r.StatusCode);
+        var turno = (await e.TurnosAsync("2026-11-17", "2026-11-17")).Single();
+        Assert.Equal(prof, turno.GetProperty("necesidades")[0].GetProperty("asignaciones")[0].GetProperty("profesionalId").GetGuid());
+    }
+
+    [Fact]
+    public async Task El_dashboard_muestra_el_semaforo_de_cobertura_con_los_turnos_pasados_de_tope_en_rojo()
+    {
+        var e = await Escenario.CrearAsync(fabrica);
+        var dia = DateTime.UtcNow.Date.AddDays(1);
+        await e.CuadranteAsync($"{dia:yyyy-MM-dd}", $"{dia.AddDays(2):yyyy-MM-dd}");
+        for (var i = 0; i < 3; i++)   // 3 disponibles para una mañana de 2 plazas
+        {
+            var p = await e.ProfesionalConUsuarioAsync(nombre: $"Prof{i}");
+            await AprobarAsync(e.C, await DeclararEnHospitalAsync(p.cliente, $"{dia:yyyy-MM-dd}", e.Centro, e.Manana));
+        }
+
+        var gestion = (await e.C.GetFromJsonAsync<JsonElement>("/api/dashboard", AyudaSesion.Json)).GetProperty("gestion");
+        var semaforo = gestion.GetProperty("semaforo");
+        Assert.Equal(1, semaforo.GetProperty("rojo").GetInt32());
+        Assert.Equal(0, semaforo.GetProperty("verde").GetInt32());
+        Assert.Equal(5, semaforo.GetProperty("amarillo").GetInt32());   // el resto de turnos de la ventana aún tiene plazas libres
+        var primero = gestion.GetProperty("atencion")[0];
+        Assert.Equal("Rojo", primero.GetProperty("estado").GetString());     // los rojos van primero
+        Assert.Contains("3/2", primero.GetProperty("detalle").GetString());
+    }
+
     // ── Efecto en las reglas: solo lo aprobado, y las preferencias no son prohibiciones ──
 
     [Fact]
@@ -160,18 +277,14 @@ public class DisponibilidadTests(FabricaApi fabrica)
         var (e, prof, cliente) = await ConCuadranteAsync();
         var neutro = await e.ProfesionalAsync(nombre: "Aaa");                      // orden alfabético: iría antes
         await AprobarAsync(e.C, await DeclararAsync(cliente, "Prefiere", "2026-11-04", "2026-11-04", comentario: "Me viene bien"));
-        var otro = await e.ProfesionalConUsuarioAsync(nombre: "Zzz");
-        await AprobarAsync(e.C, await DeclararAsync(otro.cliente, "Disponible", "2026-11-04", "2026-11-04"));
 
         var candidatos = (await e.C.GetFromJsonAsync<List<JsonElement>>($"/api/necesidades/{await e.NecesidadAsync("2026-11-04", e.Manana)}/candidatos", AyudaSesion.Json))!;
         var porId = candidatos.ToDictionary(c => c.GetProperty("profesionalId").GetGuid());
 
         Assert.Contains("Prefiere este turno.", porId[prof].GetProperty("notas").EnumerateArray().Select(n => n.GetString()));
-        Assert.Contains("Ha declarado disponibilidad para estas fechas.", porId[otro.profesionalId].GetProperty("notas").EnumerateArray().Select(n => n.GetString()));
         Assert.Empty(porId[neutro].GetProperty("notas").EnumerateArray());
         var orden = candidatos.Select(c => c.GetProperty("profesionalId").GetGuid()).ToList();
         Assert.True(orden.IndexOf(prof) < orden.IndexOf(neutro));
-        Assert.True(orden.IndexOf(otro.profesionalId) < orden.IndexOf(neutro));
     }
 
     [Fact]

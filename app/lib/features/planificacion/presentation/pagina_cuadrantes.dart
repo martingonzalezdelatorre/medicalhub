@@ -58,7 +58,10 @@ class PaginaCuadrantes extends ConsumerWidget {
       final creado = await showDialog<CuadranteDto>(context: context, builder: (_) => dialogo);
       if (creado != null) {
         ref.invalidate(cuadrantesProvider);
-        if (context.mounted) context.go('/cuadrantes/${creado.id}');
+        if (context.mounted) {
+          mostrarMensaje(context, creado.totalTurnos == 0 ? t.cuadranteSinTurnos : t.cuadranteCreadoResumen(creado.totalTurnos, creado.plazasCubiertas));
+          context.go('/cuadrantes/${creado.id}');
+        }
       }
     }
 

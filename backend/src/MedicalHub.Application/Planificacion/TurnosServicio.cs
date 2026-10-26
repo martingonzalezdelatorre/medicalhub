@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedicalHub.Application.Planificacion;
 
-public sealed class TurnosServicio(IAppDbContext db, IContextoActual contexto)
+public sealed class TurnosServicio(IAppDbContext db, IContextoActual contexto, AutoAsignacionServicio autoAsignacion)
 {
     public static ExcepcionConflicto CuadrantePublicado()
         => new("El cuadrante no está en borrador. Reábralo para modificarlo.");
@@ -21,8 +21,12 @@ public sealed class TurnosServicio(IAppDbContext db, IContextoActual contexto)
         var tipo = await db.TiposTurno.FirstOrDefaultAsync(t => t.Id == s.TipoTurnoId && t.ServicioId == cuadrante.ServicioId && t.Activo, ct)
             ?? throw new ExcepcionValidacion(new Dictionary<string, string[]> { [nameof(s.TipoTurnoId)] = ["El tipo de turno no existe, está inactivo o no pertenece al servicio."] });
 
-        if (await db.Turnos.AnyAsync(t => t.CuadranteId == cuadranteId && t.TipoTurnoId == tipo.Id && t.Fecha == s.Fecha, ct))
-            throw new ExcepcionConflicto("Ya existe un turno de ese tipo en esa fecha.");
+        // Varios cuadrantes pueden convivir en el mismo servicio y días, pero un turno (tipo + día) solo puede existir una vez.
+        var existente = await (from t in db.Turnos where t.ServicioId == cuadrante.ServicioId && t.TipoTurnoId == tipo.Id && t.Fecha == s.Fecha
+                               join c in db.Cuadrantes on t.CuadranteId equals c.Id where c.Estado != EstadoCuadrante.Archivado
+                               select c.Nombre).FirstOrDefaultAsync(ct);
+        if (existente is not null)
+            throw new ExcepcionConflicto($"Ya existe el turno «{tipo.Nombre}» del {s.Fecha:dd/MM/yyyy} en este servicio (cuadrante «{existente}»).");
 
         var lineas = s.Necesidades is { Count: > 0 } ? s.Necesidades
             : (await db.RequisitosCobertura.Where(r => r.TipoTurnoId == tipo.Id).ToListAsync(ct))
@@ -33,6 +37,7 @@ public sealed class TurnosServicio(IAppDbContext db, IContextoActual contexto)
         db.Turnos.Add(turno);
         foreach (var l in lineas) db.Necesidades.Add(new NecesidadCobertura(org, turno.Id, l.NumeroPlazas, l.CategoriaProfesionalId));
         await db.SaveChangesAsync(ct);
+        await autoAsignacion.AsignarTurnosAsync([turno.Id], null, ct);
         return turno.Id;
     }
 
@@ -82,6 +87,12 @@ public sealed class TurnosServicio(IAppDbContext db, IContextoActual contexto)
     }
 
     // ── Compartidos con CuadrantesServicio ──
+
+    /// <summary>Turnos (tipo + día) que el servicio ya tiene en cuadrantes no archivados del periodo, para no duplicarlos al generar otro cuadrante.</summary>
+    public async Task<HashSet<(Guid TipoTurnoId, DateOnly Fecha)>> TurnosExistentesAsync(Guid servicioId, DateOnly desde, DateOnly hasta, CancellationToken ct)
+        => (await (from t in db.Turnos where t.ServicioId == servicioId && t.Fecha >= desde && t.Fecha <= hasta
+                   join c in db.Cuadrantes on t.CuadranteId equals c.Id where c.Estado != EstadoCuadrante.Archivado
+                   select new { t.TipoTurnoId, t.Fecha }).ToListAsync(ct)).Select(x => (x.TipoTurnoId, x.Fecha)).ToHashSet();
 
     public static Turno NuevoTurno(Guid org, Cuadrante cuadrante, Domain.Estructura.TipoTurno tipo, DateOnly fecha, string zona)
     {

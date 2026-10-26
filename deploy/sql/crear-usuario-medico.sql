@@ -24,4 +24,19 @@ BEGIN
     INSERT INTO UsuarioRoles (UsuarioId, Rol) VALUES (@UsuarioId, N'ProfesionalSanitario');
 END;
 
+-- Categoría profesional (se crea si no existe).
+DECLARE @CategoriaId uniqueidentifier = (SELECT Id FROM CategoriasProfesionales WHERE OrganizacionId = @OrgId AND Nombre = N'Médico');
+IF @CategoriaId IS NULL
+BEGIN
+    SET @CategoriaId = NEWID();
+    INSERT INTO CategoriasProfesionales (Id, OrganizacionId, Nombre, Descripcion, Activa, FechaCreacion)
+    VALUES (@CategoriaId, @OrgId, N'Médico', N'Facultativos médicos', 1, SYSDATETIMEOFFSET());
+END;
+
+-- Ficha profesional vinculada al usuario (un usuario sanitario no puede existir sin ficha).
+DECLARE @UsuarioFichaId uniqueidentifier = (SELECT Id FROM Usuarios WHERE Email = N'medico@medicalhub.local');
+IF NOT EXISTS (SELECT 1 FROM Profesionales WHERE UsuarioId = @UsuarioFichaId)
+    INSERT INTO Profesionales (Id, OrganizacionId, UsuarioId, Nombre, Apellidos, Email, CategoriaId, Activo, FechaCreacion)
+    VALUES (NEWID(), @OrgId, @UsuarioFichaId, N'Médico', N'Demo', N'medico@medicalhub.local', @CategoriaId, 1, SYSDATETIMEOFFSET());
+
 COMMIT;

@@ -117,6 +117,7 @@ class TurnoDto {
     required this.necesidades,
     required this.plazasTotales,
     required this.plazasCubiertas,
+    this.plazasExcedidas = 0,
   });
 
   factory TurnoDto.fromJson(Map<String, dynamic> json) => _$TurnoDtoFromJson(json);
@@ -140,6 +141,14 @@ class TurnoDto {
   final int plazasTotales;
   final int plazasCubiertas;
 
+  /// Asignados por encima de las plazas previstas (el turno está en rojo hasta que la administración lo resuelva).
+  @JsonKey(defaultValue: 0)
+  final int plazasExcedidas;
+
+  bool get excedido => plazasExcedidas > 0;
+
+  /// Profesionales realmente asignados (puede superar las plazas).
+  int get asignados => plazasCubiertas + plazasExcedidas;
   DateTime get dia => fechaDeApi(fecha);
   bool get sinCubrir => plazasCubiertas < plazasTotales;
   bool get editable => cuadranteEstado == EstadoCuadrante.borrador;

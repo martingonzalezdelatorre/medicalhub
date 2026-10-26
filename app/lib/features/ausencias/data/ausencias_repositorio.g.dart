@@ -92,6 +92,8 @@ DisponibilidadDto _$DisponibilidadDtoFromJson(Map<String, dynamic> json) =>
       estado: $enumDecode(_$EstadoDisponibilidadEnumMap, json['estado']),
       fechaDeclaracion: DateTime.parse(json['fechaDeclaracion'] as String),
       motivoDecision: json['motivoDecision'] as String?,
+      centroId: json['centroId'] as String?,
+      centro: json['centro'] as String?,
     );
 
 const _$TipoDisponibilidadEnumMap = {
@@ -114,6 +116,7 @@ TipoTurnoPropioDto _$TipoTurnoPropioDtoFromJson(Map<String, dynamic> json) =>
       franja: json['franja'] as String,
       servicio: json['servicio'] as String,
       centro: json['centro'] as String,
+      centroId: json['centroId'] as String?,
     );
 
 VacanteDto _$VacanteDtoFromJson(Map<String, dynamic> json) => VacanteDto(

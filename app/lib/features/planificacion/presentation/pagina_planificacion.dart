@@ -8,6 +8,7 @@ import '../../../core/tema/tema.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
+import '../../ausencias/data/ausencias_repositorio.dart';
 import '../../estructura/data/estructura_repositorio.dart';
 import '../data/planificacion_repositorio.dart';
 import 'hoja_turno.dart';
@@ -89,6 +90,8 @@ class _EstadoPaginaPlanificacion extends ConsumerState<PaginaPlanificacion> {
       propia: widget.propia,
     );
     final turnos = ref.watch(turnosProvider(filtro));
+    // En «Mi planificación» también se ven los días que el profesional ofreció y el coordinador aprobó (no son turnos asignados).
+    final ofrecidas = widget.propia ? ofrecidasEnRango(ref.watch(miDisponibilidadProvider).value ?? const [], rango.$1, rango.$2) : const <DiaOfrecido>[];
 
     void abrirTurno(TurnoDto turno) => showDialog<void>(
         context: context, builder: (_) => HojaTurno(turnoId: turno.id, filtro: filtro, puedeGestionar: puedeGestionar && !widget.propia));
@@ -122,13 +125,13 @@ class _EstadoPaginaPlanificacion extends ConsumerState<PaginaPlanificacion> {
           valor: turnos,
           alReintentar: () => ref.invalidate(turnosProvider(filtro)),
           constructor: (lista) => switch (vista) {
-            VistaCalendario.mes => _VistaMes(ancla: _ancla, rango: rango, turnos: lista, alPulsarDia: irADia),
+            VistaCalendario.mes => _VistaMes(ancla: _ancla, rango: rango, turnos: lista, ofrecidas: ofrecidas, alPulsarDia: irADia),
             VistaCalendario.semana when ancho >= _estrecho =>
-              _VistaSemana(lunes: rango.$1, turnos: lista, alPulsarTurno: abrirTurno, alPulsarDia: irADia),
-            VistaCalendario.dia => _VistaAgenda(desde: rango.$1, hasta: rango.$2, turnos: lista, alPulsarTurno: abrirTurno, mostrarDiasVacios: true),
+              _VistaSemana(lunes: rango.$1, turnos: lista, ofrecidas: ofrecidas, alPulsarTurno: abrirTurno, alPulsarDia: irADia),
+            VistaCalendario.dia => _VistaAgenda(desde: rango.$1, hasta: rango.$2, turnos: lista, ofrecidas: ofrecidas, alPulsarTurno: abrirTurno, mostrarDiasVacios: true),
             // Semana en pantalla estrecha y agenda: lista vertical por días
             _ => _VistaAgenda(
-                desde: rango.$1, hasta: rango.$2, turnos: lista, alPulsarTurno: abrirTurno, mostrarDiasVacios: vista == VistaCalendario.semana),
+                desde: rango.$1, hasta: rango.$2, turnos: lista, ofrecidas: ofrecidas, alPulsarTurno: abrirTurno, mostrarDiasVacios: vista == VistaCalendario.semana),
           },
         ),
       ),
@@ -253,11 +256,12 @@ String _nombreDia(DateTime d) => toBeginningOfSentenceCase(DateFormat('EEEE d MM
 
 /// Lista vertical agrupada por día (agenda, día y semana en móvil).
 class _VistaAgenda extends StatelessWidget {
-  const _VistaAgenda({required this.desde, required this.hasta, required this.turnos, required this.alPulsarTurno, required this.mostrarDiasVacios});
+  const _VistaAgenda({required this.desde, required this.hasta, required this.turnos, required this.ofrecidas, required this.alPulsarTurno, required this.mostrarDiasVacios});
 
   final DateTime desde;
   final DateTime hasta;
   final List<TurnoDto> turnos;
+  final List<DiaOfrecido> ofrecidas;
   final ValueChanged<TurnoDto> alPulsarTurno;
   final bool mostrarDiasVacios;
 
@@ -266,7 +270,7 @@ class _VistaAgenda extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final dias = <DateTime>[for (var d = desde; !d.isAfter(hasta); d = d.add(const Duration(days: 1))) d];
     final porDia = {for (final d in dias) d: turnos.where((x) => soloFecha(x.dia) == d).toList()};
-    final visibles = dias.where((d) => mostrarDiasVacios || porDia[d]!.isNotEmpty).toList();
+    final visibles = dias.where((d) => mostrarDiasVacios || porDia[d]!.isNotEmpty || ofrecidas.any((o) => o.dia == d)).toList();
 
     if (visibles.isEmpty) return EstadoVacio(mensaje: t.sinTurnos, icono: Icons.event_busy_outlined);
     return ContenidoCentrado(
@@ -287,7 +291,8 @@ class _VistaAgenda extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(color: soloFecha(DateTime.now()) == d ? Theme.of(context).colorScheme.primary : null)),
             ]),
           ),
-          if (porDia[d]!.isEmpty)
+          for (final o in ofrecidas.where((o) => o.dia == d)) _TarjetaOfrecida(o),
+          if (porDia[d]!.isEmpty && !ofrecidas.any((o) => o.dia == d))
             Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(t.sinTurnos, style: Theme.of(context).textTheme.bodySmall)),
           for (final turno in porDia[d]!) TarjetaTurno(turno: turno, alPulsar: () => alPulsarTurno(turno), mostrarNombres: true),
         ],
@@ -298,10 +303,11 @@ class _VistaAgenda extends StatelessWidget {
 
 /// Cuadrícula semanal de 7 columnas (tablet y escritorio).
 class _VistaSemana extends StatelessWidget {
-  const _VistaSemana({required this.lunes, required this.turnos, required this.alPulsarTurno, required this.alPulsarDia});
+  const _VistaSemana({required this.lunes, required this.turnos, required this.ofrecidas, required this.alPulsarTurno, required this.alPulsarDia});
 
   final DateTime lunes;
   final List<TurnoDto> turnos;
+  final List<DiaOfrecido> ofrecidas;
   final ValueChanged<TurnoDto> alPulsarTurno;
   final ValueChanged<DateTime> alPulsarDia;
 
@@ -332,6 +338,7 @@ class _VistaSemana extends StatelessWidget {
                         style: TextStyle(fontWeight: FontWeight.w700, color: lunes.add(Duration(days: i)) == hoy ? Colors.white : null)),
                   ),
                 ),
+                for (final o in ofrecidas.where((o) => o.dia == lunes.add(Duration(days: i)))) _TarjetaOfrecida(o, compacta: true),
                 for (final turno in turnos.where((x) => soloFecha(x.dia) == lunes.add(Duration(days: i))))
                   TarjetaTurno(turno: turno, alPulsar: () => alPulsarTurno(turno), compacta: true),
               ]),
@@ -344,11 +351,12 @@ class _VistaSemana extends StatelessWidget {
 
 /// Vista mensual: una celda por día con el número de turnos y las plazas sin cubrir.
 class _VistaMes extends StatelessWidget {
-  const _VistaMes({required this.ancla, required this.rango, required this.turnos, required this.alPulsarDia});
+  const _VistaMes({required this.ancla, required this.rango, required this.turnos, required this.ofrecidas, required this.alPulsarDia});
 
   final DateTime ancla;
   final (DateTime, DateTime) rango;
   final List<TurnoDto> turnos;
+  final List<DiaOfrecido> ofrecidas;
   final ValueChanged<DateTime> alPulsarDia;
 
   @override
@@ -370,6 +378,7 @@ class _VistaMes extends StatelessWidget {
                 final dia = rango.$1.add(Duration(days: s * 7 + i));
                 final delDia = turnos.where((x) => soloFecha(x.dia) == dia).toList();
                 final sinCubrir = delDia.where((x) => x.sinCubrir).length;
+                final ofrecidasDia = ofrecidas.where((o) => o.dia == dia).length;
                 final delMes = dia.month == ancla.month;
                 return Expanded(
                   child: Semantics(
@@ -403,6 +412,11 @@ class _VistaMes extends StatelessWidget {
                                 decoration: BoxDecoration(color: esquema.primary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
                                 child: Text('${delDia.length}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: esquema.primary)),
                               ),
+                            if (ofrecidasDia > 0)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 3),
+                                child: Tooltip(message: t.dispDisponible, child: Icon(Icons.event_available_outlined, size: 14, color: esquema.tertiary)),
+                              ),
                             const Spacer(),
                             if (sinCubrir > 0)
                               Text('!$sinCubrir', style: TextStyle(color: esquema.error, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -414,6 +428,68 @@ class _VistaMes extends StatelessWidget {
                 );
               }),
           ]),
+      ]),
+    );
+  }
+}
+
+// ── Disponibilidad aprobada (solo «Mi planificación») ──
+
+/// Un día en el que el profesional ofreció disponibilidad y la coordinación la aprobó. No es un turno asignado.
+class DiaOfrecido {
+  const DiaOfrecido(this.dia, this.centro, this.turno);
+  final DateTime dia;
+  final String? centro;
+  final String? turno;
+}
+
+/// Expande las declaraciones APROBADAS de tipo «Disponible» a los días concretos del rango (según su máscara de días semanales).
+List<DiaOfrecido> ofrecidasEnRango(List<DisponibilidadDto> declaraciones, DateTime desde, DateTime hasta) {
+  final salida = <DiaOfrecido>[];
+  for (final d in declaraciones) {
+    if (d.estado != EstadoDisponibilidad.aprobada || d.tipo != TipoDisponibilidad.disponible) continue;
+    final inicio = soloFecha(DateTime.parse(d.desde));
+    final fin = soloFecha(DateTime.parse(d.hasta));
+    for (var dia = inicio.isBefore(desde) ? desde : inicio; !dia.isAfter(fin) && !dia.isAfter(hasta); dia = dia.add(const Duration(days: 1))) {
+      if (d.dias & (1 << (dia.weekday - 1)) != 0) salida.add(DiaOfrecido(dia, d.centro, d.tipoTurno));
+    }
+  }
+  // Un mismo turno ofrecido en varios servicios del hospital se declara una vez por servicio: se muestra una sola vez.
+  final vistos = <String>{};
+  salida.removeWhere((o) => !vistos.add('${o.dia}|${o.centro}|${o.turno}'));
+  salida.sort((a, b) => a.dia.compareTo(b.dia));
+  return salida;
+}
+
+class _TarjetaOfrecida extends StatelessWidget {
+  const _TarjetaOfrecida(this.o, {this.compacta = false});
+  final DiaOfrecido o;
+  final bool compacta;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final detalle = [if (o.centro != null) o.centro!, o.turno ?? t.cualquierTurno].join(' · ');
+    return Container(
+      margin: compacta ? const EdgeInsets.only(top: 4) : const EdgeInsets.fromLTRB(16, 4, 16, 2),
+      padding: EdgeInsets.symmetric(horizontal: compacta ? 6 : 12, vertical: compacta ? 6 : 10),
+      decoration: BoxDecoration(
+        color: cs.tertiary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.5)),
+      ),
+      child: Row(children: [
+        Icon(Icons.event_available_outlined, size: compacta ? 14 : 18, color: cs.tertiary),
+        SizedBox(width: compacta ? 4 : 10),
+        Expanded(
+          child: compacta
+              ? Text(detalle, style: Theme.of(context).textTheme.labelSmall, maxLines: 3, overflow: TextOverflow.ellipsis)
+              : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(t.dispDisponible, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: cs.tertiary, fontWeight: FontWeight.w700)),
+                  Text(detalle, style: Theme.of(context).textTheme.bodySmall),
+                ]),
+        ),
       ]),
     );
   }

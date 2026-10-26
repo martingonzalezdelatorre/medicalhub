@@ -90,6 +90,7 @@ public sealed class CalendarioServicio(IAppDbContext db, IContextoActual context
                     .Select(a => new AsignacionDto(a.Id, a.ProfesionalId, profesionales.GetValueOrDefault(a.ProfesionalId, "—"), a.Estado)).ToList())).ToList();
 
             var cubiertas = necesidadesTurno.Sum(n => Math.Min(n.NumeroPlazas, asignaciones.Count(a => a.NecesidadId == n.Id)));
+            var excedidas = necesidadesTurno.Sum(n => Math.Max(0, asignaciones.Count(a => a.NecesidadId == n.Id) - n.NumeroPlazas));
             var inicioLocal = CalculadoraHorario.ALocal(centro.ZonaHoraria, t.InicioUtc);
             var finLocal = CalculadoraHorario.ALocal(centro.ZonaHoraria, t.FinUtc);
 
@@ -98,7 +99,7 @@ public sealed class CalendarioServicio(IAppDbContext db, IContextoActual context
                 DateOnly.FromDateTime(finLocal) > t.Fecha, t.DuracionHoras,
                 servicio.CentroId, centro.Nombre, centro.ZonaHoraria, t.ServicioId, servicio.Nombre,
                 t.TipoTurnoId, tipo.Nombre, tipo.EsGuardia,
-                necesidadesDto, necesidadesTurno.Sum(n => n.NumeroPlazas), cubiertas);
+                necesidadesDto, necesidadesTurno.Sum(n => n.NumeroPlazas), cubiertas, excedidas);
         }).ToList();
     }
 }
