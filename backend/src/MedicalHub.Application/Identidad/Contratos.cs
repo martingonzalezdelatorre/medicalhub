@@ -3,7 +3,8 @@ using MedicalHub.Domain.Identidad;
 namespace MedicalHub.Application.Identidad;
 
 public sealed record SolicitudLogin(string Email, string Contrasena, string? CodigoMfa);
-public sealed record SolicitudRefresco(string TokenRefresco);
+/// <param name="TokenRefresco">En clientes móviles/escritorio viaja en el cuerpo. En la web va en una cookie HttpOnly y este campo se omite.</param>
+public sealed record SolicitudRefresco(string? TokenRefresco = null);
 public sealed record SolicitudCambioContrasena(string ContrasenaActual, string ContrasenaNueva);
 public sealed record SolicitudActivarMfa(string Codigo);
 

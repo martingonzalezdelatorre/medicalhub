@@ -26,6 +26,7 @@ class AuthControlador extends Notifier<EstadoAuth> {
   Dio get _publico => ref.read(clientePublicoProvider);
   Dio get _autenticado => ref.read(clienteApiProvider);
   AlmacenTokens get _almacen => ref.read(almacenTokensProvider);
+  bool get _cookie => ref.read(sesionCookieProvider);
 
   @override
   EstadoAuth build() {
@@ -36,15 +37,17 @@ class AuthControlador extends Notifier<EstadoAuth> {
   String? get tokenAcceso => state.sesion?.tokenAcceso;
 
   Future<void> _restaurar() async {
-    final token = await _almacen.leer();
-    if (token == null) {
+    // Modo cookie: el navegador envía la cookie HttpOnly; el cliente no puede saber si existe, así que simplemente lo intenta.
+    final token = _cookie ? null : await _almacen.leer();
+    if (!_cookie && token == null) {
       state = const EstadoAuth();
       return;
     }
     try {
-      await _aplicar(await _enviar(_publico, '/api/autenticacion/refrescar', {'tokenRefresco': token}));
+      await _aplicar(await _enviar(_publico, '/api/autenticacion/refrescar', {'tokenRefresco': ?token}));
     } on FalloApi catch (f) {
-      if (f.tipo == TipoFallo.noAutorizado) await _almacen.borrar();
+      if (!ref.mounted) return;
+      if (f.tipo == TipoFallo.noAutorizado && !_cookie) await _almacen.borrar();
       state = const EstadoAuth();
     }
   }
@@ -73,9 +76,9 @@ class AuthControlador extends Notifier<EstadoAuth> {
 
   Future<bool> _renovar() async {
     final token = state.sesion?.tokenRefresco;
-    if (token == null) return false;
+    if (!_cookie && token == null) return false;
     try {
-      await _aplicar(await _enviar(_publico, '/api/autenticacion/refrescar', {'tokenRefresco': token}));
+      await _aplicar(await _enviar(_publico, '/api/autenticacion/refrescar', {'tokenRefresco': ?(_cookie ? null : token)}));
       return true;
     } on FalloApi catch (f) {
       if (f.tipo == TipoFallo.noAutorizado) await _cerrarLocal();
@@ -85,9 +88,9 @@ class AuthControlador extends Notifier<EstadoAuth> {
 
   Future<void> cerrarSesion() async {
     final token = state.sesion?.tokenRefresco;
-    if (token != null) {
+    if (_cookie || token != null) {
       try {
-        await _autenticado.post<void>('/api/autenticacion/cerrar-sesion', data: {'tokenRefresco': token});
+        await _autenticado.post<void>('/api/autenticacion/cerrar-sesion', data: {'tokenRefresco': ?(_cookie ? null : token)});
       } catch (_) {
         // aunque el servidor no responda, la sesión local se elimina
       }
@@ -96,12 +99,14 @@ class AuthControlador extends Notifier<EstadoAuth> {
   }
 
   Future<void> _cerrarLocal() async {
-    await _almacen.borrar();
+    if (!_cookie) await _almacen.borrar();
     state = const EstadoAuth();
   }
 
   Future<void> _aplicar(RespuestaSesion r) async {
-    await _almacen.guardar(r.tokenRefresco);
+    if (!ref.mounted) return; // el contenedor se destruyó mientras la petición estaba en curso
+    // En modo cookie el token no llega al cliente (viene vacío) y no se guarda nada en el navegador
+    if (!_cookie && r.tokenRefresco.isNotEmpty) await _almacen.guardar(r.tokenRefresco);
     state = EstadoAuth(sesion: r);
   }
 

@@ -77,6 +77,14 @@ public class CoberturaAutorizacionTests(FabricaApi fabrica)
     }
 
     [Fact]
+    public void Las_pruebas_no_se_ven_limitadas_por_los_topes_de_peticiones()
+    {
+        var o = fabrica.Services.GetRequiredService<MedicalHub.Application.Comun.OpcionesSeguridad>();
+        Assert.True(o.LimiteGlobalPorMinuto >= 1_000_000, $"Límite global efectivo: {o.LimiteGlobalPorMinuto}");
+        Assert.True(o.LimiteLoginPorMinuto >= 10_000, $"Límite de login efectivo: {o.LimiteLoginPorMinuto}");
+    }
+
+    [Fact]
     public void Kestrel_limita_el_cuerpo_de_las_peticiones_y_oculta_su_cabecera()
     {
         var kestrel = fabrica.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>>().Value;

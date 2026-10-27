@@ -106,12 +106,13 @@ builder.Services.AddRateLimiter(o =>
 var origenesPermitidos = builder.Configuration.GetSection("Cors:OrigenesPermitidos").Get<string[]>() ?? [];
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 {
-    // TODO: CORS abierto en desarrollo mientras no se configure la lista de orígenes; retirar al incluir CORS.
-    if (builder.Environment.IsDevelopment())
-        p.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod()
+    // Con credenciales (cookie de refresco de la web) nunca se acepta cualquier origen: o la lista configurada, o en desarrollo local solo localhost.
+    if (origenesPermitidos.Length > 0)
+        p.WithOrigins(origenesPermitidos).AllowAnyHeader().AllowAnyMethod().AllowCredentials()
          .WithExposedHeaders("X-Correlation-Id");
-    else if (origenesPermitidos.Length > 0)
-        p.WithOrigins(origenesPermitidos).AllowAnyHeader().AllowAnyMethod()
+    else if (builder.Environment.IsDevelopment())
+        p.SetIsOriginAllowed(origen => Uri.TryCreate(origen, UriKind.Absolute, out var uri) && uri.IsLoopback)
+         .AllowAnyHeader().AllowAnyMethod().AllowCredentials()
          .WithExposedHeaders("X-Correlation-Id");
 }));
 

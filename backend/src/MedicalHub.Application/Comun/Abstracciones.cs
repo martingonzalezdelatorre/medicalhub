@@ -113,6 +113,8 @@ public sealed class OpcionesSeguridad
     public int LongitudMinimaContrasena { get; set; } = 12;
     public int LimiteLoginPorMinuto { get; set; } = 10;
     /// <summary>Peticiones por minuto y usuario (o IP si no hay sesión) para toda la API. Protege frente a abuso y bucles de cliente.</summary>
+    /// <summary>Marca Secure la cookie de refresco de la web (solo se envía por HTTPS). Desactívelo únicamente en desarrollo local con HTTP.</summary>
+    public bool CookieRefrescoSegura { get; set; } = true;
     public int LimiteGlobalPorMinuto { get; set; } = 600;
     /// <summary>Tamaño máximo del cuerpo de una petición, en bytes (la API solo recibe JSON pequeño).</summary>
     public int TamanoMaximoPeticionBytes { get; set; } = 1_048_576;

@@ -19,6 +19,7 @@ Instalación reproducible de MedicalHub: SQL Server + API (.NET 10) + web (Flutt
 | `Seguridad__ClaveJwt` | Clave HMAC ≥ 32 bytes, aleatoria. Cambiarla cierra todas las sesiones. |
 | `Cors__OrigenesPermitidos__0` | Origen público de la web. Con la web y la API bajo el mismo origen (`/api`), no hay CORS. |
 | `DataProtection__RutaClaves` | Carpeta persistente y protegida donde se guarda el anillo de claves que cifra los secretos MFA. **Hay que incluirla en las copias**: si se pierde, los usuarios deben volver a configurar el MFA. |
+| `Seguridad__CookieRefrescoSegura` | `true` por defecto: la cookie de refresco de la web solo viaja por HTTPS. Desactívelo solo en desarrollo local con HTTP. |
 | `Base__MigrarAlIniciar` | `false` en producción (las migraciones se aplican con el script, paso 4). |
 | `Bootstrap__AdministradorPlataforma__*` | Solo la primera vez, para crear el administrador de plataforma. Vacíelas después. |
 | `Retencion__*` | Plazos de depuración (ver `docs/rgpd.md`). |
@@ -94,5 +95,5 @@ Scripts en `deploy/scripts/` (PowerShell + `sqlcmd`):
 - Los `Dockerfile` y `docker-compose.yml` se han escrito pero **no se han construido** en este entorno (no hay Docker): pruébelos antes de usarlos.
 - La guía de IIS no se ha ejecutado.
 - El usuario de mínimo privilegio no se ha probado contra un servidor con autenticación SQL (LocalDB solo admite autenticación Windows).
-- La web con `API_BASE_URL=/` (mismo origen) no se ha probado en un navegador.
+- La web con `API_BASE_URL=/` (mismo origen) tras un proxy con HTTPS no se ha probado en un navegador.
 - No se han compilado ni probado las versiones móvil y de escritorio.

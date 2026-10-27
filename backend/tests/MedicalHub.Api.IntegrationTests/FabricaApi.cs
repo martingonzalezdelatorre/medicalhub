@@ -32,6 +32,8 @@ public sealed class FabricaApi : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
+        // CORS se lee al construir la aplicación (antes que ConfigureAppConfiguration), por eso se fija como ajuste del host.
+        builder.UseSetting("Cors:OrigenesPermitidos:0", "http://localhost:8080");
         // Máxima precedencia: nada de user-secrets ni variables de entorno del desarrollador (podrían apuntar a un servidor real) debe filtrarse a las pruebas.
         builder.ConfigureAppConfiguration((_, c) => c.AddInMemoryCollection(new Dictionary<string, string?>
         {

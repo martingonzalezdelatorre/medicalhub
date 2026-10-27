@@ -7,16 +7,24 @@ import '../config/entorno.dart';
 /// Permite sustituir el transporte HTTP (pruebas). En producción es null.
 final adaptadorHttpProvider = Provider<HttpClientAdapter?>((ref) => null);
 
-BaseOptions _opciones() => BaseOptions(
+/// ¿La sesión se mantiene con la cookie de refresco (web)? Es sustituible en pruebas.
+final sesionCookieProvider = Provider<bool>((ref) => Entorno.sesionCookie);
+
+/// Cabecera que pide a la API usar la cookie HttpOnly. Además de elegir el modo, actúa como defensa CSRF: un sitio ajeno no puede añadirla.
+const cabeceraSesionCookie = 'X-Sesion-Cookie';
+
+BaseOptions _opciones(bool cookie) => BaseOptions(
       baseUrl: Entorno.urlBaseApi,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 30),
-      headers: {'Accept': 'application/json'},
+      headers: {'Accept': 'application/json', if (cookie) cabeceraSesionCookie: '1'},
+      // En la web, el navegador solo envía y guarda la cookie si se piden credenciales
+      extra: {if (cookie) 'withCredentials': true},
     );
 
 /// Cliente sin autenticación (login y refresco).
 final clientePublicoProvider = Provider<Dio>((ref) {
-  final dio = Dio(_opciones());
+  final dio = Dio(_opciones(ref.watch(sesionCookieProvider)));
   final adaptador = ref.watch(adaptadorHttpProvider);
   if (adaptador != null) dio.httpClientAdapter = adaptador;
   return dio;
@@ -24,7 +32,7 @@ final clientePublicoProvider = Provider<Dio>((ref) {
 
 /// Cliente con el token de acceso; ante un 401 renueva la sesión una vez y reintenta.
 final clienteApiProvider = Provider<Dio>((ref) {
-  final dio = Dio(_opciones());
+  final dio = Dio(_opciones(ref.watch(sesionCookieProvider)));
   final adaptador = ref.watch(adaptadorHttpProvider);
   if (adaptador != null) dio.httpClientAdapter = adaptador;
   dio.interceptors.add(InterceptorsWrapper(
