@@ -36,7 +36,14 @@ public static class DependenciasInfraestructura
         servicios.AddSingleton<IServicioTotp, ServicioTotp>();
         servicios.AddSingleton<IProtectorSecretos, ProtectorSecretos>();
 
-        servicios.AddDbContext<MedicalHubDbContext>(o => o.UseSqlServer(cadena, sql => sql.EnableRetryOnFailure()));
+        // Consultas divididas: las entidades con colecciones propias (Servicio, Profesional…) se cargan con una consulta por colección en lugar de
+        // un LEFT JOIN con ORDER BY. Así SQL Server no reserva memoria para ordenar filas con columnas nvarchar(max) (en máquinas justas de memoria,
+        // esa reserva llegaba a esperar más de 20 s: RESOURCE_SEMAPHORE) y se evita el producto cartesiano entre colecciones.
+        servicios.AddDbContext<MedicalHubDbContext>(o => o.UseSqlServer(cadena, sql =>
+        {
+            sql.EnableRetryOnFailure();
+            sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        }));
         servicios.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<MedicalHubDbContext>());
         return servicios;
     }

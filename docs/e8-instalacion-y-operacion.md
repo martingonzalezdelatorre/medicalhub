@@ -88,6 +88,7 @@ Scripts en `deploy/scripts/` (PowerShell + `sqlcmd`):
 ## 9. Operación
 - **Registros:** Serilog a consola (JSON/texto según configuración); cada petición lleva un identificador de correlación (`X-Correlation-Id`). No se registran contraseñas ni tokens.
 - **Auditoría y seguridad:** tablas `RegistrosAuditoria` y `EventosSeguridad` (inicios de sesión, bloqueos, reutilización de tokens, exportaciones).
+- **Memoria de SQL Server:** las consultas de EF Core se ejecutan en modo dividido (una consulta por colección propia) para no depender de grandes reservas de memoria para ordenar. En equipos de desarrollo con poca RAM libre, LocalDB reduce su memoria objetivo (hasta ~200 MB) y una consulta con ORDER BY sobre columnas `nvarchar(max)` puede quedarse 25 s en `RESOURCE_SEMAPHORE`; en servidores de producción conviene fijar `max server memory` y dejar memoria libre al sistema.
 - **Límites:** 600 peticiones/minuto por usuario, 10 intentos de inicio de sesión/minuto por IP, cuerpo máximo 1 MB (configurables en `Seguridad__*`).
 - **Integración continua:** `.github/workflows/ci.yml` compila, ejecuta todas las pruebas (backend con SQL Server efímero; Flutter con análisis y compilación web) y falla si hay paquetes con vulnerabilidades conocidas.
 
