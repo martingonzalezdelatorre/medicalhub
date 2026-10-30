@@ -39,12 +39,14 @@ String? redireccionar(EstadoAuth auth, String ubicacion) {
   final perfil = auth.perfil!;
   final admin = perfil.tieneRol(Rol.administradorSociedad);
   final lectura = admin || perfil.tieneRol(Rol.coordinadorMedico) || perfil.tieneRol(Rol.responsableCentro);
+  final rrhh = perfil.tieneRol(Rol.recursosHumanos);
   bool en(String base) => ubicacion == base || ubicacion.startsWith('$base/');
 
   if (en('/usuarios') && !admin) return '/';
-  if (en('/catalogos') && !admin) return '/';
+  if (en('/catalogos') && !(admin || rrhh)) return '/';
   if (ubicacion == '/profesionales/nuevo' && !admin) return '/';
-  if ((en('/profesionales') || en('/centros') || en('/servicios') || en('/cuadrantes') || en('/planificacion') || en('/informes')) && !lectura) return '/';
+  if ((en('/centros') || en('/servicios')) && !(lectura || rrhh)) return '/';
+  if ((en('/profesionales') || en('/cuadrantes') || en('/planificacion') || en('/informes')) && !lectura) return '/';
   if (en('/cobertura') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
   if (en('/reglas') &&!(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';
   if (en('/ausencias') && !(admin || perfil.tieneRol(Rol.coordinadorMedico))) return '/';

@@ -27,6 +27,11 @@ public sealed record LineaRequisito(Guid TipoTurnoId, int NumeroProfesionales, G
 public sealed record SolicitudRequisitos(IReadOnlyList<LineaRequisito> Requisitos);
 public sealed record ElegibilidadDto(Guid ProfesionalId, string NombreCompleto, bool Elegible, IReadOnlyList<string> Motivos);
 
+// ── Tarifas ──
+public sealed record TarifaDto(Guid TipoTurnoId, Guid CategoriaProfesionalId, decimal Importe);
+public sealed record LineaTarifa(Guid TipoTurnoId, Guid CategoriaProfesionalId, decimal Importe);
+public sealed record SolicitudTarifas(IReadOnlyList<LineaTarifa> Tarifas);
+
 // ── Profesionales ──
 public sealed record CompetenciaProfesionalDto(Guid CompetenciaId, DateOnly? VigenteHasta);
 public sealed record ProfesionalDto(Guid Id, Guid? UsuarioId, string Nombre, string Apellidos, string? Email, string? Telefono,

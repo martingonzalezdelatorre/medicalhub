@@ -35,6 +35,7 @@ public sealed class MedicalHubDbContext(
     public DbSet<Servicio> Servicios => Set<Servicio>();
     public DbSet<TipoTurno> TiposTurno => Set<TipoTurno>();
     public DbSet<RequisitoCobertura> RequisitosCobertura => Set<RequisitoCobertura>();
+    public DbSet<TarifaTurno> TarifasTurno => Set<TarifaTurno>();
     public DbSet<Profesional> Profesionales => Set<Profesional>();
     public DbSet<Cuadrante> Cuadrantes => Set<Cuadrante>();
     public DbSet<Turno> Turnos => Set<Turno>();

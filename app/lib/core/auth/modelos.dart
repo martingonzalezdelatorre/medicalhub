@@ -13,6 +13,8 @@ enum Rol {
   profesionalSanitario,
   @JsonValue('ResponsableCentro')
   responsableCentro,
+  @JsonValue('RecursosHumanos')
+  recursosHumanos,
 }
 
 @JsonSerializable()

@@ -190,6 +190,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get rolResponsableCentro => 'Responsable de centro';
 
   @override
+  String get rolRecursosHumanos => 'RRHH y Administración';
+
+  @override
   String get menuProfesionales => 'Profesionales';
 
   @override
@@ -220,7 +223,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get catEspecialidades => 'Especialidades';
 
   @override
-  String get catCategorias => 'Categorías';
+  String get catCategorias => 'Perfiles';
+
+  @override
+  String get catTarifas => 'Tarifas por turno';
+
+  @override
+  String get tarifasAyuda =>
+      'Coste de cada turno según el perfil que lo trabaja. Los turnos de un servicio se definen en su ficha.';
+
+  @override
+  String get tarifasServicio => 'Servicio';
+
+  @override
+  String get tarifasSinTurnos =>
+      'Este servicio todavía no tiene turnos. Créelos en la ficha del servicio.';
+
+  @override
+  String get tarifasSinPerfiles =>
+      'Primero cree algún perfil en la pestaña «Perfiles».';
+
+  @override
+  String get tarifasGestionarTurnos => 'Gestionar turnos del servicio';
+
+  @override
+  String get tarifasImporte => '€ por turno';
+
+  @override
+  String get tarifasGuardado => 'Tarifas guardadas';
+
+  @override
+  String get validaImporte => 'Importe no válido';
 
   @override
   String get catCompetencias => 'Competencias';
@@ -355,7 +388,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get campoColegiado => 'Nº de colegiado';
 
   @override
-  String get campoCategoria => 'Categoría profesional';
+  String get campoCategoria => 'Perfil profesional';
 
   @override
   String get campoEspecialidades => 'Especialidades';

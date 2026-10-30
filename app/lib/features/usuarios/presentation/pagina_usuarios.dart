@@ -99,6 +99,7 @@ class _EstadoDialogoNuevoUsuario extends ConsumerState<_DialogoNuevoUsuario> {
     Rol.coordinadorMedico,
     Rol.profesionalSanitario,
     Rol.responsableCentro,
+    Rol.recursosHumanos,
   ];
 
   final _formulario = GlobalKey<FormState>();
@@ -155,6 +156,7 @@ class _EstadoDialogoNuevoUsuario extends ConsumerState<_DialogoNuevoUsuario> {
         Rol.coordinadorMedico => 'CoordinadorMedico',
         Rol.profesionalSanitario => 'ProfesionalSanitario',
         Rol.responsableCentro => 'ResponsableCentro',
+        Rol.recursosHumanos => 'RecursosHumanos',
       };
 
   @override

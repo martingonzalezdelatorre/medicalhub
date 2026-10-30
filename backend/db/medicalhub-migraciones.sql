@@ -1577,3 +1577,50 @@ END;
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261030112633_TarifasTurno'
+)
+BEGIN
+    CREATE TABLE [TarifasTurno] (
+        [Id] uniqueidentifier NOT NULL,
+        [TipoTurnoId] uniqueidentifier NOT NULL,
+        [CategoriaProfesionalId] uniqueidentifier NOT NULL,
+        [Importe] decimal(12,2) NOT NULL,
+        [VersionFila] rowversion NOT NULL,
+        [OrganizacionId] uniqueidentifier NULL,
+        CONSTRAINT [PK_TarifasTurno] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_TarifasTurno_CategoriasProfesionales_CategoriaProfesionalId] FOREIGN KEY ([CategoriaProfesionalId]) REFERENCES [CategoriasProfesionales] ([Id]) ON DELETE NO ACTION,
+        CONSTRAINT [FK_TarifasTurno_TiposTurno_TipoTurnoId] FOREIGN KEY ([TipoTurnoId]) REFERENCES [TiposTurno] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261030112633_TarifasTurno'
+)
+BEGIN
+    CREATE INDEX [IX_TarifasTurno_CategoriaProfesionalId] ON [TarifasTurno] ([CategoriaProfesionalId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261030112633_TarifasTurno'
+)
+BEGIN
+    CREATE UNIQUE INDEX [IX_TarifasTurno_TipoTurnoId_CategoriaProfesionalId] ON [TarifasTurno] ([TipoTurnoId], [CategoriaProfesionalId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261030112633_TarifasTurno'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261030112633_TarifasTurno', N'10.0.13');
+END;
+
+COMMIT;
+GO
+

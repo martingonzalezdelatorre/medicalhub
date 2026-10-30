@@ -114,7 +114,21 @@ internal sealed class RequisitoCoberturaConfiguracion : IEntityTypeConfiguration
     }
 }
 
-internal sealed class ProfesionalConfiguracion : IEntityTypeConfiguration<Profesional>
+internal sealed class TarifaTurnoConfiguracion : IEntityTypeConfiguration<TarifaTurno>
+{
+    public void Configure(EntityTypeBuilder<TarifaTurno> b)
+    {
+        b.ToTable("TarifasTurno");
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Importe).HasPrecision(12, 2);
+        b.HasOne<TipoTurno>().WithMany().HasForeignKey(x => x.TipoTurnoId).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<CategoriaProfesional>().WithMany().HasForeignKey(x => x.CategoriaProfesionalId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x => new { x.TipoTurnoId, x.CategoriaProfesionalId }).IsUnique();
+    }
+}
+
+internal sealed class ProfesionalConfiguracion :IEntityTypeConfiguration<Profesional>
 {
     public void Configure(EntityTypeBuilder<Profesional> b)
     {

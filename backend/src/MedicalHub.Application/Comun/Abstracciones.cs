@@ -28,6 +28,7 @@ public interface IAppDbContext
     DbSet<Servicio> Servicios { get; }
     DbSet<TipoTurno> TiposTurno { get; }
     DbSet<RequisitoCobertura> RequisitosCobertura { get; }
+    DbSet<TarifaTurno> TarifasTurno { get; }
     DbSet<Profesional> Profesionales { get; }
     DbSet<Cuadrante> Cuadrantes { get; }
     DbSet<Turno> Turnos { get; }

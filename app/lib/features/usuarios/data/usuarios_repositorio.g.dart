@@ -23,4 +23,5 @@ const _$RolEnumMap = {
   Rol.coordinadorMedico: 'CoordinadorMedico',
   Rol.profesionalSanitario: 'ProfesionalSanitario',
   Rol.responsableCentro: 'ResponsableCentro',
+  Rol.recursosHumanos: 'RecursosHumanos',
 };

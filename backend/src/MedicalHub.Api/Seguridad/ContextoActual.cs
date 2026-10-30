@@ -35,6 +35,10 @@ public static class Politicas
     public const string LecturaSociedad = nameof(LecturaSociedad);
     /// <summary>Administrador de sociedad o coordinador médico (elaboración de cuadrantes y búsqueda de candidatos).</summary>
     public const string GestionPlanificacion = nameof(GestionPlanificacion);
+    /// <summary>Administrador de sociedad o RRHH y Administración (perfiles, tipos de turno y tarifas).</summary>
+    public const string GestionRecursosHumanos = nameof(GestionRecursosHumanos);
+    /// <summary>Lectura de centros y servicios: los roles de lectura más RRHH y Administración.</summary>
+    public const string LecturaEstructura = nameof(LecturaEstructura);
     /// <summary>Cualquier usuario de una sociedad con sesión completa.</summary>
     public const string UsuarioSociedad = nameof(UsuarioSociedad);
 }

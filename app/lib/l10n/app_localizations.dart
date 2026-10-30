@@ -436,6 +436,12 @@ abstract class AppLocalizations {
   /// **'Responsable de centro'**
   String get rolResponsableCentro;
 
+  /// No description provided for @rolRecursosHumanos.
+  ///
+  /// In es, this message translates to:
+  /// **'RRHH y Administración'**
+  String get rolRecursosHumanos;
+
   /// No description provided for @menuProfesionales.
   ///
   /// In es, this message translates to:
@@ -499,8 +505,62 @@ abstract class AppLocalizations {
   /// No description provided for @catCategorias.
   ///
   /// In es, this message translates to:
-  /// **'Categorías'**
+  /// **'Perfiles'**
   String get catCategorias;
+
+  /// No description provided for @catTarifas.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarifas por turno'**
+  String get catTarifas;
+
+  /// No description provided for @tarifasAyuda.
+  ///
+  /// In es, this message translates to:
+  /// **'Coste de cada turno según el perfil que lo trabaja. Los turnos de un servicio se definen en su ficha.'**
+  String get tarifasAyuda;
+
+  /// No description provided for @tarifasServicio.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio'**
+  String get tarifasServicio;
+
+  /// No description provided for @tarifasSinTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Este servicio todavía no tiene turnos. Créelos en la ficha del servicio.'**
+  String get tarifasSinTurnos;
+
+  /// No description provided for @tarifasSinPerfiles.
+  ///
+  /// In es, this message translates to:
+  /// **'Primero cree algún perfil en la pestaña «Perfiles».'**
+  String get tarifasSinPerfiles;
+
+  /// No description provided for @tarifasGestionarTurnos.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar turnos del servicio'**
+  String get tarifasGestionarTurnos;
+
+  /// No description provided for @tarifasImporte.
+  ///
+  /// In es, this message translates to:
+  /// **'€ por turno'**
+  String get tarifasImporte;
+
+  /// No description provided for @tarifasGuardado.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarifas guardadas'**
+  String get tarifasGuardado;
+
+  /// No description provided for @validaImporte.
+  ///
+  /// In es, this message translates to:
+  /// **'Importe no válido'**
+  String get validaImporte;
 
   /// No description provided for @catCompetencias.
   ///
@@ -763,7 +823,7 @@ abstract class AppLocalizations {
   /// No description provided for @campoCategoria.
   ///
   /// In es, this message translates to:
-  /// **'Categoría profesional'**
+  /// **'Perfil profesional'**
   String get campoCategoria;
 
   /// No description provided for @campoEspecialidades.

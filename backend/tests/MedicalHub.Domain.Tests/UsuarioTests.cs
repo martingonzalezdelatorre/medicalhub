@@ -73,6 +73,7 @@ public class UsuarioTests
     [InlineData(Rol.CoordinadorMedico, true, true)]
     [InlineData(Rol.ProfesionalSanitario, true, false)]
     [InlineData(Rol.ResponsableCentro, true, false)]
+    [InlineData(Rol.RecursosHumanos, true, true)]
     public void La_exigencia_de_mfa_depende_del_rol_y_de_la_politica(Rol rol, bool politica, bool esperado)
         => Assert.Equal(esperado, Nuevo(null, rol).RequiereMfa(politica));
 

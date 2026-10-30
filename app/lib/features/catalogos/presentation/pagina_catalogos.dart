@@ -7,6 +7,7 @@ import '../../../shared/validadores/validadores.dart';
 import '../../../shared/widgets/estado_asincrono.dart';
 import '../../../shared/widgets/utilidades_ui.dart';
 import '../data/catalogos_repositorio.dart';
+import 'pestana_tarifas.dart';
 
 class PaginaCatalogos extends StatelessWidget {
   const PaginaCatalogos({super.key});
@@ -15,18 +16,20 @@ class PaginaCatalogos extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return DefaultTabController(
-      length: TipoCatalogo.values.length,
+      length: TipoCatalogo.values.length + 1,
       child: Column(children: [
-        TabBar(tabs: [
+        TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
           Tab(text: t.catEspecialidades),
           Tab(text: t.catCategorias),
           Tab(text: t.catCompetencias),
+          Tab(text: t.catTarifas),
         ]),
         const Expanded(
           child: TabBarView(children: [
             _ListaCatalogo(TipoCatalogo.especialidades),
             _ListaCatalogo(TipoCatalogo.categorias),
             _ListaCatalogo(TipoCatalogo.competencias),
+            PestanaTarifas(),
           ]),
         ),
       ]),

@@ -17,7 +17,7 @@ public abstract class CatalogoControllerBase<T>(CatalogosServicio servicio) : Co
         => Ok(await servicio.ListarAsync<T>(incluirInactivas, ct));
 
     [HttpPost]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<ActionResult<CatalogoDto>> Crear(SolicitudCatalogo solicitud, CancellationToken ct)
     {
         var dto = await servicio.CrearAsync<T>(solicitud, ct);
@@ -25,12 +25,12 @@ public abstract class CatalogoControllerBase<T>(CatalogosServicio servicio) : Co
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<ActionResult<CatalogoDto>> Actualizar(Guid id, SolicitudCatalogo solicitud, CancellationToken ct)
         => await servicio.ActualizarAsync<T>(id, solicitud, ct);
 
     [HttpPost("{id:guid}/activar")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<IActionResult> Activar(Guid id, CancellationToken ct)
     {
         await servicio.CambiarEstadoAsync<T>(id, true, ct);
@@ -38,7 +38,7 @@ public abstract class CatalogoControllerBase<T>(CatalogosServicio servicio) : Co
     }
 
     [HttpPost("{id:guid}/desactivar")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<IActionResult> Desactivar(Guid id, CancellationToken ct)
     {
         await servicio.CambiarEstadoAsync<T>(id, false, ct);

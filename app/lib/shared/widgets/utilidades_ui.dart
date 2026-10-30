@@ -11,6 +11,7 @@ String etiquetaRol(AppLocalizations t, Rol rol) => switch (rol) {
       Rol.coordinadorMedico => t.rolCoordinadorMedico,
       Rol.profesionalSanitario => t.rolProfesionalSanitario,
       Rol.responsableCentro => t.rolResponsableCentro,
+      Rol.recursosHumanos => t.rolRecursosHumanos,
     };
 
 /// Mensaje comprensible para el usuario a partir de un fallo de la API.

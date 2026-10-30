@@ -29,6 +29,7 @@ class ShellNavegacion extends ConsumerWidget {
     final admin = perfil.tieneRol(Rol.administradorSociedad);
     final lectura = admin || perfil.tieneRol(Rol.coordinadorMedico) || perfil.tieneRol(Rol.responsableCentro);
     final gestion = admin || perfil.tieneRol(Rol.coordinadorMedico);
+    final rrhh = perfil.tieneRol(Rol.recursosHumanos);
     return [
       _Destino('/', Icons.home_outlined, t.menuInicio),
       if (lectura) _Destino('/planificacion', Icons.calendar_month_outlined, t.menuPlanificacion),
@@ -38,11 +39,11 @@ class ShellNavegacion extends ConsumerWidget {
       if (perfil.tieneRol(Rol.profesionalSanitario)) _Destino('/mi-disponibilidad', Icons.beach_access_outlined, t.menuMiDisponibilidad),
       if (lectura) _Destino('/cuadrantes', Icons.view_timeline_outlined, t.menuCuadrantes),
       if (lectura) _Destino('/profesionales', Icons.badge_outlined, t.menuProfesionales),
-      if (lectura) _Destino('/centros', Icons.local_hospital_outlined, t.menuCentros),
+      if (lectura || rrhh) _Destino('/centros', Icons.local_hospital_outlined, t.menuCentros),
       if (lectura) _Destino('/informes', Icons.insights_outlined, t.menuInformes),
       if (gestion) _Destino('/ausencias', Icons.event_busy_outlined, t.menuAusencias),
       if (gestion) _Destino('/reglas', Icons.rule_folder_outlined, t.menuReglas),
-      if (admin) _Destino('/catalogos', Icons.category_outlined, t.menuCatalogos),
+      if (admin || rrhh) _Destino('/catalogos', Icons.category_outlined, t.menuCatalogos),
       if (admin) _Destino('/usuarios', Icons.group_outlined, t.menuUsuarios),
       if (perfil.tieneRol(Rol.administradorPlataforma)) _Destino('/organizaciones', Icons.business_outlined, t.menuOrganizaciones),
     ];

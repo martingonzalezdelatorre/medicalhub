@@ -79,6 +79,14 @@ void main() {
       expect(find.text('Catálogos'), findsNothing);
     });
 
+    testWidgets('RRHH y Administración ve Catálogos y Centros, y no Usuarios ni Profesionales', (t) async {
+      await montarApp(t, _servidor(roles: ['RecursosHumanos']));
+      expect(find.text('Catálogos'), findsWidgets);
+      expect(find.text('Centros'), findsWidgets);
+      expect(find.text('Usuarios'), findsNothing);
+      expect(find.text('Profesionales'), findsNothing);
+    });
+
     testWidgets('en móvil las cinco secciones caben en la barra inferior', (t) async {
       await montarApp(t, _servidor(), tamano: const Size(375, 812));
       expect(find.byType(NavigationBar), findsOneWidget);
@@ -95,6 +103,15 @@ void main() {
       expect(redireccionar(sesion('CoordinadorMedico'), '/profesionales/nuevo'), '/');
       expect(redireccionar(sesion('AdministradorSociedad'), '/catalogos'), isNull);
       expect(redireccionar(sesion('AdministradorSociedad'), '/profesionales/nuevo'), isNull);
+    });
+
+    test('RRHH y Administración accede a catálogos, centros y servicios, pero no a usuarios ni planificación', () {
+      for (final ruta in ['/catalogos', '/centros', '/centros/c1', '/servicios/s1']) {
+        expect(redireccionar(sesion('RecursosHumanos'), ruta), isNull, reason: ruta);
+      }
+      for (final ruta in ['/usuarios', '/profesionales', '/cuadrantes', '/planificacion', '/informes', '/cobertura']) {
+        expect(redireccionar(sesion('RecursosHumanos'), ruta), '/', reason: ruta);
+      }
     });
 
     test('profesionales, centros y servicios exigen un rol de lectura', () {

@@ -39,6 +39,7 @@ class PaginaServicio extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final servicio = ref.watch(servicioProvider(id));
     final admin = ref.watch(authProvider).perfil?.tieneRol(Rol.administradorSociedad) ?? false;
+    final gestionaTurnos = admin || (ref.watch(authProvider).perfil?.tieneRol(Rol.recursosHumanos) ?? false);
     final categorias = {for (final c in ref.watch(catalogoCompletoProvider(TipoCatalogo.categorias)).value ?? <CatalogoDto>[]) c.id: c.nombre};
     final competencias = {for (final c in ref.watch(catalogoCompletoProvider(TipoCatalogo.competencias)).value ?? <CatalogoDto>[]) c.id: c.nombre};
 
@@ -89,7 +90,7 @@ class PaginaServicio extends ConsumerWidget {
           ),
           CabeceraSeccion(
             titulo: t.tiposTurnoTitulo,
-            accion: admin
+            accion: gestionaTurnos
                 ? TextButton.icon(
                     icon: const Icon(Icons.add),
                     label: Text(t.nuevoTipoTurno),
@@ -109,7 +110,7 @@ class PaginaServicio extends ConsumerWidget {
                 if (tipo.cruzaMedianoche) t.cruzaMedianoche,
                 t.duracionHoras(tipo.duracionHoras.toStringAsFixed(tipo.duracionHoras % 1 == 0 ? 0 : 1)),
               ].join(' · ')),
-              trailing: admin
+              trailing: gestionaTurnos
                   ? PopupMenuButton<String>(
                       onSelected: (accion) async {
                         if (accion == 'editar') {

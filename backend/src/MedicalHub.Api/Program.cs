@@ -79,6 +79,9 @@ builder.Services.AddAuthorization(o =>
     o.AddPolicy(Politicas.LecturaSociedad, p => p.Combine(completa)
         .RequireRole("AdministradorSociedad", "CoordinadorMedico", "ResponsableCentro"));
     o.AddPolicy(Politicas.GestionPlanificacion, p => p.Combine(completa).RequireRole("AdministradorSociedad", "CoordinadorMedico"));
+    o.AddPolicy(Politicas.GestionRecursosHumanos, p => p.Combine(completa).RequireRole("AdministradorSociedad", "RecursosHumanos"));
+    o.AddPolicy(Politicas.LecturaEstructura, p => p.Combine(completa)
+        .RequireRole("AdministradorSociedad", "CoordinadorMedico", "ResponsableCentro", "RecursosHumanos"));
     o.AddPolicy(Politicas.UsuarioSociedad, p => p.Combine(completa).RequireClaim("org"));
 });
 

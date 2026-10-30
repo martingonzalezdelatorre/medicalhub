@@ -1,7 +1,7 @@
 # E1 — Identidad y multiempresa
 
 ## Qué incluye
-- **Organizaciones** (sociedades) y **usuarios** con los cinco roles: `AdministradorPlataforma`, `AdministradorSociedad`, `CoordinadorMedico`, `ProfesionalSanitario`, `ResponsableCentro`.
+- **Organizaciones** (sociedades) y **usuarios** con los seis roles: `AdministradorPlataforma`, `AdministradorSociedad`, `CoordinadorMedico`, `ProfesionalSanitario`, `ResponsableCentro`, `RecursosHumanos` (RRHH y Administración: perfiles, tipos de turno y tarifas).
 - **Autenticación**: JWT de acceso (15 min, en memoria en el cliente) + token de refresco opaco y rotatorio (7 días, solo se guarda su hash SHA-256).
 - **Protección de cuentas**: bloqueo tras 5 fallos (15 min), límite de peticiones de login/refresco por IP, mensaje idéntico exista o no el usuario, política de contraseña (≥ 12 caracteres), cambio de contraseña que revoca todas las sesiones.
 - **MFA TOTP** (RFC 6238, compatible con Google/Microsoft Authenticator). Obligatorio para el administrador de plataforma siempre, y para administradores y coordinadores de una sociedad si su política `MfaObligatorio` está activa (por defecto, sí). Hasta que se activa, la sesión queda «MFA pendiente» y solo puede usar los endpoints de MFA, perfil, cambio de contraseña y cierre de sesión. Los secretos se cifran con Data Protection y cada código solo vale una vez.
@@ -39,7 +39,7 @@ En producción, defínalas una vez y **retírelas** después. En desarrollo pued
 - **Token de refresco en el cuerpo de la respuesta**, no en cookie `HttpOnly`, para usar el mismo flujo en web, móvil y escritorio. En web se guarda con `flutter_secure_storage` (almacenamiento del navegador): es más expuesto a XSS que una cookie. Mitigaciones: rotación con detección de reutilización, expiración corta del acceso y revocación al cambiar contraseña. Si se prefiere cookie en web, es un cambio acotado (E8, junto a la revisión de seguridad).
 - **Application referencia EF Core** (interfaz `IAppDbContext`) para evitar una capa de repositorios sin valor añadido.
 - **Validación propia** (clase `Validador`), sin FluentValidation, como decisión por defecto de la Fase 1.
-- Roles asignables en una sociedad: todos salvo `AdministradorPlataforma`. El alcance de `ResponsableCentro` por centro llega con los centros (E2).
+- Roles asignables en una sociedad: todos salvo `AdministradorPlataforma`. `RecursosHumanos` gestiona catálogos (perfiles), tipos de turno y tarifas, y lee centros y servicios; exige MFA. El alcance de `ResponsableCentro` por centro llega con los centros (E2).
 
 ## Pendiente / no incluido en E1
 - Recuperación de contraseña por correo (requiere el canal de email, E8).

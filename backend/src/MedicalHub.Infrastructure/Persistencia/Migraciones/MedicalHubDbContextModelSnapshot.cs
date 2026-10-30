@@ -445,6 +445,40 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.ToTable("Servicios", (string)null);
                 });
 
+            modelBuilder.Entity("MedicalHub.Domain.Estructura.TarifaTurno", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoriaProfesionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Importe")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<Guid?>("OrganizacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TipoTurnoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("VersionFila")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaProfesionalId");
+
+                    b.HasIndex("TipoTurnoId", "CategoriaProfesionalId")
+                        .IsUnique();
+
+                    b.ToTable("TarifasTurno", (string)null);
+                });
+
             modelBuilder.Entity("MedicalHub.Domain.Estructura.TipoTurno", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1673,6 +1707,21 @@ namespace MedicalHub.Infrastructure.Persistencia.Migraciones
                     b.Navigation("CategoriasAdmitidas");
 
                     b.Navigation("CompetenciasRequeridas");
+                });
+
+            modelBuilder.Entity("MedicalHub.Domain.Estructura.TarifaTurno", b =>
+                {
+                    b.HasOne("MedicalHub.Domain.Catalogos.CategoriaProfesional", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriaProfesionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MedicalHub.Domain.Estructura.TipoTurno", null)
+                        .WithMany()
+                        .HasForeignKey("TipoTurnoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MedicalHub.Domain.Estructura.TipoTurno", b =>

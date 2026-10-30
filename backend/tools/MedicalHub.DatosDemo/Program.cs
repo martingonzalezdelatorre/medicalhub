@@ -94,6 +94,7 @@ async Task<Guid> Usuario(string alias, string nombre, params Rol[] roles)
 
 var uCoord = await Usuario("coordinadora", "Marta Coordinadora Demo", Rol.CoordinadorMedico);
 var uResp = await Usuario("responsable", "Luis Responsable Demo", Rol.ResponsableCentro);
+await Usuario("rrhh", "Carmen RRHH Demo", Rol.RecursosHumanos);
 
 // 4. Centros y servicios
 var centros = sp.GetRequiredService<CentrosServicio>();

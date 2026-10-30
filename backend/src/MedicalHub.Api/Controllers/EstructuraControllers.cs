@@ -10,12 +10,12 @@ namespace MedicalHub.Api.Controllers;
 public sealed class CentrosController(CentrosServicio servicio) : ControllerBase
 {
     [HttpGet]
-    [Authorize(Politicas.LecturaSociedad)]
+    [Authorize(Politicas.LecturaEstructura)]
     public async Task<ActionResult<IReadOnlyList<CentroDto>>> Listar([FromQuery] bool incluirInactivos, CancellationToken ct)
         => Ok(await servicio.ListarAsync(incluirInactivos, ct));
 
     [HttpGet("{id:guid}")]
-    [Authorize(Politicas.LecturaSociedad)]
+    [Authorize(Politicas.LecturaEstructura)]
     public async Task<ActionResult<CentroDto>> Obtener(Guid id, CancellationToken ct) => await servicio.ObtenerAsync(id, ct);
 
     [HttpPost]
@@ -59,17 +59,32 @@ public sealed class CentrosController(CentrosServicio servicio) : ControllerBase
     }
 }
 
+/// <summary>Coste por turno de cada perfil. Dato económico: solo lo ve y lo gestiona el administrador de la sociedad.</summary>
+[ApiController]
+[Route("api/servicios/{servicioId:guid}/tarifas")]
+[Authorize(Politicas.GestionRecursosHumanos)]
+public sealed class TarifasController(TarifasServicio servicio) : ControllerBase
+{
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<TarifaDto>>> Listar(Guid servicioId, CancellationToken ct)
+        => Ok(await servicio.ListarAsync(servicioId, ct));
+
+    [HttpPut]
+    public async Task<ActionResult<IReadOnlyList<TarifaDto>>> Reemplazar(Guid servicioId, SolicitudTarifas solicitud, CancellationToken ct)
+        => Ok(await servicio.ReemplazarAsync(servicioId, solicitud, ct));
+}
+
 [ApiController]
 [Route("api/servicios")]
 public sealed class ServiciosController(ServiciosServicio servicio) : ControllerBase
 {
     [HttpGet]
-    [Authorize(Politicas.LecturaSociedad)]
+    [Authorize(Politicas.LecturaEstructura)]
     public async Task<ActionResult<IReadOnlyList<ServicioDto>>> Listar([FromQuery] Guid? centroId, [FromQuery] bool incluirInactivos, CancellationToken ct)
         => Ok(await servicio.ListarAsync(centroId, incluirInactivos, ct));
 
     [HttpGet("{id:guid}")]
-    [Authorize(Politicas.LecturaSociedad)]
+    [Authorize(Politicas.LecturaEstructura)]
     public async Task<ActionResult<ServicioDto>> Obtener(Guid id, CancellationToken ct) => await servicio.ObtenerAsync(id, ct);
 
     [HttpPost]
@@ -102,17 +117,17 @@ public sealed class ServiciosController(ServiciosServicio servicio) : Controller
     }
 
     [HttpPost("{id:guid}/tipos-turno")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<ActionResult<TipoTurnoDto>> CrearTipoTurno(Guid id, SolicitudTipoTurno solicitud, CancellationToken ct)
         => Created($"{Request.Path}", await servicio.CrearTipoTurnoAsync(id, solicitud, ct));
 
     [HttpPut("{id:guid}/tipos-turno/{tipoId:guid}")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<ActionResult<TipoTurnoDto>> ActualizarTipoTurno(Guid id, Guid tipoId, SolicitudTipoTurno solicitud, CancellationToken ct)
         => await servicio.ActualizarTipoTurnoAsync(id, tipoId, solicitud, ct);
 
     [HttpPost("{id:guid}/tipos-turno/{tipoId:guid}/activar")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<IActionResult> ActivarTipoTurno(Guid id, Guid tipoId, CancellationToken ct)
     {
         await servicio.CambiarEstadoTipoTurnoAsync(id, tipoId, true, ct);
@@ -120,7 +135,7 @@ public sealed class ServiciosController(ServiciosServicio servicio) : Controller
     }
 
     [HttpPost("{id:guid}/tipos-turno/{tipoId:guid}/desactivar")]
-    [Authorize(Politicas.AdministradorSociedad)]
+    [Authorize(Politicas.GestionRecursosHumanos)]
     public async Task<IActionResult> DesactivarTipoTurno(Guid id, Guid tipoId, CancellationToken ct)
     {
         await servicio.CambiarEstadoTipoTurnoAsync(id, tipoId, false, ct);

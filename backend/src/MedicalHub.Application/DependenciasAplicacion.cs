@@ -19,6 +19,7 @@ public static class DependenciasAplicacion
         servicios.AddScoped<CatalogosServicio>();
         servicios.AddScoped<CentrosServicio>();
         servicios.AddScoped<ServiciosServicio>();
+        servicios.AddScoped<TarifasServicio>();
         servicios.AddScoped<ProfesionalesServicio>();
         servicios.AddScoped<CalendarioServicio>();
         servicios.AddScoped<TurnosServicio>();

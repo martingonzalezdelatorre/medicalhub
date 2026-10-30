@@ -149,8 +149,8 @@ class _EstadoPaginaCobertura extends ConsumerState<PaginaCobertura> {
                 _profesionalId = p?.id;
                 _profesionalNombre = p?.nombreCompleto;
               }),
-              soloSinCubrir: _soloSinCubrir,
-              alSoloSinCubrir: (v) => setState(() => _soloSinCubrir = v),
+              agrupacion: _agrupacion,
+              alAgrupacion: (v) => setState(() => _agrupacion = v),
               hayFiltros: idProfesional != null || _soloSinCubrir,
               alLimpiar: () => setState(() {
                 _profesionalId = null;
@@ -160,16 +160,20 @@ class _EstadoPaginaCobertura extends ConsumerState<PaginaCobertura> {
               ancho: ancho,
             ),
           ),
-          SliverToBoxAdapter(child: _Resumen(turnos: lista, profesionalId: idProfesional, ancho: ancho)),
           SliverToBoxAdapter(
-            child: _SelectorAgrupacion(valor: _agrupacion, alCambiar: (v) => setState(() => _agrupacion = v)),
+            child: _Resumen(
+              turnos: lista,
+              ancho: ancho,
+              soloSinCubrir: _soloSinCubrir,
+              alSoloSinCubrir: (v) => setState(() => _soloSinCubrir = v),
+            ),
           ),
           if (lista.isEmpty)
             SliverFillRemaining(hasScrollBody: false, child: EstadoVacio(mensaje: t.cobSinResultados, icono: Icons.event_busy_outlined))
           else
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 32),
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 32),
                 child: switch (_agrupacion) {
                   _Agrupacion.dia => _PorDia(turnos: lista, rango: rango, resaltado: idProfesional, colores: colores, alPulsar: abrir),
                   _Agrupacion.hospital => _PorHospital(turnos: lista, resaltado: idProfesional, colores: colores, alPulsar: abrir),
@@ -206,6 +210,71 @@ Map<String, Color> _coloresTurno(List<TurnoDto> turnos) {
 
 List<AsignacionDto> _asignados(TurnoDto t) => [for (final n in t.necesidades) ...n.asignaciones];
 
+/// Turnos de un día: primero los que tienen huecos o sobran (los que requieren acción) y, dentro de cada bloque, por hora de inicio.
+List<TurnoDto> _ordenarPorUrgencia(Iterable<TurnoDto> turnos) {
+  int rango(TurnoDto x) => (x.excedido || x.plazasCubiertas < x.plazasTotales) ? 0 : 1;
+  return turnos.toList()..sort((a, b) => rango(a) != rango(b) ? rango(a).compareTo(rango(b)) : a.inicioLocal.compareTo(b.inicioLocal));
+}
+
+/// Icono que acompaña al semáforo para no depender solo del color.
+IconData _iconoEstado(int cubiertas, int total, {int excedidas = 0}) {
+  if (total == 0) return Icons.remove_circle_outline;
+  if (excedidas > 0) return Icons.error_outline;
+  if (cubiertas >= total) return Icons.check_circle_outline;
+  return Icons.warning_amber_rounded;
+}
+
+/// Pastilla «icono + asignados/plazas» con el color del semáforo.
+class _PastillaEstado extends StatelessWidget {
+  const _PastillaEstado({required this.texto, required this.color, required this.icono});
+
+  final String texto;
+  final Color color;
+  final IconData icono;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icono, size: 13, color: Colors.white),
+        const SizedBox(width: 3),
+        Text(texto, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+      ]),
+    );
+  }
+}
+
+/// Una barrita por plaza: rellena si está cubierta. Con muchas plazas se degrada a una barra continua.
+class _BarraPlazas extends StatelessWidget {
+  const _BarraPlazas({required this.cubiertas, required this.total, required this.color});
+
+  final int cubiertas;
+  final int total;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    if (total > 12 || total == 0) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(3),
+        child: LinearProgressIndicator(value: total == 0 ? 1 : (cubiertas / total).clamp(0, 1).toDouble(), minHeight: 5, color: color, backgroundColor: color.withValues(alpha: 0.15)),
+      );
+    }
+    return Row(children: [
+      for (var i = 0; i < total; i++)
+        Expanded(
+          child: Container(
+            height: 5,
+            margin: EdgeInsets.only(right: i == total - 1 ? 0 : 3),
+            decoration: BoxDecoration(color: i < cubiertas ? color : color.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(3)),
+          ),
+        ),
+    ]);
+  }
+}
+
 String _etiquetaDia(DateTime d) => toBeginningOfSentenceCase(DateFormat('EEEE d MMMM', 'es_ES').format(d));
 
 String _inicial(String nombre) => nombre.trim().isEmpty ? '?' : nombre.trim()[0].toUpperCase();
@@ -221,7 +290,7 @@ Color _colorProgreso(BuildContext context, int cubiertas, int total, {int excedi
 
 /// Reparte los hijos en 1, 2 o 3 columnas según el ancho disponible.
 class _Rejilla extends StatelessWidget {
-  const _Rejilla({required this.hijos, this.maxColumnas = 3, this.anchoMinimo = 320, this.espacio = 10});
+  const _Rejilla({required this.hijos, this.maxColumnas = 4, this.anchoMinimo = 260, this.espacio = 10});
 
   final List<Widget> hijos;
   final int maxColumnas;
@@ -240,6 +309,7 @@ class _Rejilla extends StatelessWidget {
 
 // ── Encabezado y filtros ──
 
+/// Una sola barra con periodo, navegación, agrupación y buscador; en escritorio todo cabe en dos filas como mucho.
 class _Encabezado extends StatelessWidget {
   const _Encabezado({
     required this.titulo,
@@ -249,8 +319,8 @@ class _Encabezado extends StatelessWidget {
     required this.profesionalId,
     required this.profesionalNombre,
     required this.alProfesional,
-    required this.soloSinCubrir,
-    required this.alSoloSinCubrir,
+    required this.agrupacion,
+    required this.alAgrupacion,
     required this.hayFiltros,
     required this.alLimpiar,
     required this.ancho,
@@ -263,8 +333,8 @@ class _Encabezado extends StatelessWidget {
   final String? profesionalId;
   final String? profesionalNombre;
   final ValueChanged<ProfesionalDto?> alProfesional;
-  final bool soloSinCubrir;
-  final ValueChanged<bool> alSoloSinCubrir;
+  final _Agrupacion agrupacion;
+  final ValueChanged<_Agrupacion> alAgrupacion;
   final bool hayFiltros;
   final VoidCallback alLimpiar;
   final double ancho;
@@ -280,66 +350,101 @@ class _Encabezado extends StatelessWidget {
       _Periodo.rango: t.cobRango,
     };
     final estrecho = ancho < 600;
-    final anchoFiltro = estrecho ? double.infinity : 240.0;
+    final ancha = ancho >= 1000;
 
-    final profesional = SizedBox(
-      width: anchoFiltro,
-      child: _BuscadorProfesional(profesionalId: profesionalId, nombre: profesionalNombre, alElegir: alProfesional),
+    final navegacion = Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton.filledTonal(tooltip: t.anterior, visualDensity: VisualDensity.compact, icon: const Icon(Icons.chevron_left), onPressed: () => alMover(-1)),
+      Flexible(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: estrecho ? 0 : 190),
+          child: Text(titulo,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              overflow: TextOverflow.ellipsis),
+        ),
+      ),
+      IconButton.filledTonal(tooltip: t.siguiente, visualDensity: VisualDensity.compact, icon: const Icon(Icons.chevron_right), onPressed: () => alMover(1)),
+    ]);
+
+    final periodos = Wrap(spacing: 6, runSpacing: 4, children: [
+      for (final e in etiquetas.entries)
+        ChoiceChip(
+          avatar: e.key == _Periodo.rango ? Icon(Icons.date_range_outlined, size: 16, color: periodo == e.key ? cs.onPrimary : cs.onSurface) : null,
+          label: Text(e.value),
+          visualDensity: VisualDensity.compact,
+          selected: periodo == e.key,
+          showCheckmark: false,
+          selectedColor: cs.primary,
+          labelStyle: TextStyle(fontWeight: FontWeight.w600, color: periodo == e.key ? cs.onPrimary : cs.onSurface),
+          side: BorderSide(color: periodo == e.key ? cs.primary : cs.outlineVariant),
+          onSelected: (_) => alPeriodo(e.key),
+        ),
+    ]);
+
+    final agrupar = SegmentedButton<_Agrupacion>(
+      showSelectedIcon: false,
+      style: const ButtonStyle(visualDensity: VisualDensity.compact),
+      segments: [
+        ButtonSegment(value: _Agrupacion.dia, icon: estrecho ? null : const Icon(Icons.today_outlined, size: 18), label: Text(t.cobPorDia)),
+        ButtonSegment(value: _Agrupacion.hospital, icon: estrecho ? null : const Icon(Icons.local_hospital_outlined, size: 18), label: Text(t.cobPorHospital)),
+        ButtonSegment(value: _Agrupacion.profesional, icon: estrecho ? null : const Icon(Icons.person_outline, size: 18), label: Text(t.cobPorProfesional)),
+      ],
+      selected: {agrupacion},
+      onSelectionChanged: (s) => alAgrupacion(s.first),
     );
+
+    final buscador = _BuscadorProfesional(profesionalId: profesionalId, nombre: profesionalNombre, alElegir: alProfesional);
+    final limpiar = hayFiltros
+        ? TextButton.icon(onPressed: alLimpiar, icon: const Icon(Icons.filter_alt_off_outlined, size: 18), label: Text(t.cobLimpiar))
+        : null;
+
+    final Widget contenido;
+    if (estrecho) {
+      contenido = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Center(child: navegacion),
+        const SizedBox(height: 8),
+        Center(child: periodos),
+        const SizedBox(height: 10),
+        SizedBox(width: double.infinity, child: agrupar),
+        const SizedBox(height: 10),
+        buscador,
+        if (limpiar != null) Align(alignment: Alignment.centerRight, child: limpiar),
+      ]);
+    } else {
+      contenido = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Wrap(spacing: 16, runSpacing: 8, alignment: WrapAlignment.spaceBetween, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          navegacion,
+          periodos,
+          if (ancha) agrupar,
+        ]),
+        const SizedBox(height: 10),
+        Wrap(spacing: 12, runSpacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          SizedBox(width: 260, child: buscador),
+          if (!ancha) agrupar,
+          ?limpiar,
+        ]),
+      ]);
+    }
 
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
       decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: cs.outlineVariant)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(children: [
-          IconButton.filledTonal(tooltip: t.anterior, icon: const Icon(Icons.chevron_left), onPressed: () => alMover(-1)),
-          Expanded(
-            child: Text(titulo,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                overflow: TextOverflow.ellipsis),
-          ),
-          IconButton.filledTonal(tooltip: t.siguiente, icon: const Icon(Icons.chevron_right), onPressed: () => alMover(1)),
-        ]),
-        const SizedBox(height: 10),
-        Wrap(spacing: 8, runSpacing: 6, alignment: WrapAlignment.center, children: [
-          for (final e in etiquetas.entries)
-            ChoiceChip(
-              avatar: e.key == _Periodo.rango ? Icon(Icons.date_range_outlined, size: 18, color: periodo == e.key ? cs.onPrimary : cs.onSurface) : null,
-              label: Text(e.value),
-              selected: periodo == e.key,
-              showCheckmark: false,
-              selectedColor: cs.primary,
-              labelStyle: TextStyle(fontWeight: FontWeight.w600, color: periodo == e.key ? cs.onPrimary : cs.onSurface),
-              side: BorderSide(color: periodo == e.key ? cs.primary : cs.outlineVariant),
-              onSelected: (_) => alPeriodo(e.key),
-            ),
-        ]),
-        const SizedBox(height: 12),
-        Wrap(spacing: 10, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
-          profesional,
-          FilterChip(
-            avatar: const Icon(Icons.warning_amber_rounded, size: 18),
-            label: Text(t.soloSinCubrir),
-            selected: soloSinCubrir,
-            onSelected: alSoloSinCubrir,
-          ),
-          if (hayFiltros) TextButton.icon(onPressed: alLimpiar, icon: const Icon(Icons.filter_alt_off_outlined, size: 18), label: Text(t.cobLimpiar)),
-        ]),
-      ]),
+      child: contenido,
     );
   }
 }
 
 // ── Resumen ──
 
+/// Franja de métricas en una línea. «Sin cubrir» es también un filtro: al pulsarla solo se ven los turnos con plazas libres.
 class _Resumen extends StatelessWidget {
-  const _Resumen({required this.turnos, required this.profesionalId, required this.ancho});
+  const _Resumen({required this.turnos, required this.ancho, required this.soloSinCubrir, required this.alSoloSinCubrir});
 
   final List<TurnoDto> turnos;
-  final String? profesionalId;
   final double ancho;
+  final bool soloSinCubrir;
+  final ValueChanged<bool> alSoloSinCubrir;
 
   @override
   Widget build(BuildContext context) {
@@ -354,75 +459,57 @@ class _Resumen extends StatelessWidget {
 
     final tiles = [
       _Metrica(icono: Icons.event_note_outlined, valor: '${turnos.length}', etiqueta: t.cobTurnos, color: cs.primary),
-      _Metrica(icono: Icons.verified_outlined, valor: '$pct %', etiqueta: t.cobCobertura, color: _colorProgreso(context, cubiertas, totales, excedidas: excedidas)),
-      _Metrica(icono: Icons.warning_amber_rounded, valor: '$sin', etiqueta: t.cobPlazasSinCubrir, color: sin > 0 ? cs.error : Colors.green.shade600),
+      _Metrica(icono: _iconoEstado(cubiertas, totales, excedidas: excedidas), valor: '$pct %', etiqueta: t.cobCobertura, color: _colorProgreso(context, cubiertas, totales, excedidas: excedidas)),
+      _Metrica(
+        icono: Icons.warning_amber_rounded,
+        valor: '$sin',
+        etiqueta: t.cobPlazasSinCubrir,
+        color: sin > 0 ? cs.error : Colors.green.shade600,
+        tooltip: t.soloSinCubrir,
+        seleccionada: soloSinCubrir,
+        alPulsar: () => alSoloSinCubrir(!soloSinCubrir),
+      ),
       _Metrica(icono: Icons.groups_2_outlined, valor: '$personas', etiqueta: t.cobProfesionales, color: cs.tertiary),
     ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-      child: _Rejilla(hijos: tiles, maxColumnas: 4, anchoMinimo: ancho < 600 ? 150 : 200, espacio: 8),
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
+      child: _Rejilla(hijos: tiles, maxColumnas: 4, anchoMinimo: ancho < 600 ? 150 : 180, espacio: 8),
     );
   }
 }
 
 class _Metrica extends StatelessWidget {
-  const _Metrica({required this.icono, required this.valor, required this.etiqueta, required this.color});
+  const _Metrica({required this.icono, required this.valor, required this.etiqueta, required this.color, this.alPulsar, this.tooltip, this.seleccionada = false});
 
   final IconData icono;
   final String valor;
   final String etiqueta;
   final Color color;
+  final VoidCallback? alPulsar;
+  final String? tooltip;
+  final bool seleccionada;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.09), borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withValues(alpha: 0.25))),
+    final contenido = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       child: Row(children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(color: color.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(12)),
-          child: Icon(icono, color: color, size: 22),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(valor, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: color, height: 1.1)),
-            Text(etiqueta, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
-          ]),
-        ),
+        Icon(icono, color: color, size: 22),
+        const SizedBox(width: 8),
+        Text(valor, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: color, height: 1.1)),
+        const SizedBox(width: 8),
+        Expanded(child: Text(etiqueta, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis)),
+        if (alPulsar != null) Icon(seleccionada ? Icons.filter_alt : Icons.filter_alt_outlined, size: 16, color: color),
       ]),
     );
-  }
-}
-
-class _SelectorAgrupacion extends StatelessWidget {
-  const _SelectorAgrupacion({required this.valor, required this.alCambiar});
-
-  final _Agrupacion valor;
-  final ValueChanged<_Agrupacion> alCambiar;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-      child: SizedBox(
-        width: double.infinity,
-        child: SegmentedButton<_Agrupacion>(
-          showSelectedIcon: false,
-          segments: [
-            ButtonSegment(value: _Agrupacion.dia, icon: const Icon(Icons.today_outlined, size: 18), label: Text(t.cobPorDia)),
-            ButtonSegment(value: _Agrupacion.hospital, icon: const Icon(Icons.local_hospital_outlined, size: 18), label: Text(t.cobPorHospital)),
-            ButtonSegment(value: _Agrupacion.profesional, icon: const Icon(Icons.person_outline, size: 18), label: Text(t.cobPorProfesional)),
-          ],
-          selected: {valor},
-          onSelectionChanged: (s) => alCambiar(s.first),
-        ),
-      ),
+    final tarjeta = Material(
+      color: color.withValues(alpha: seleccionada ? 0.22 : 0.09),
+      shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: color.withValues(alpha: seleccionada ? 0.8 : 0.25), width: seleccionada ? 1.5 : 1)),
+      clipBehavior: Clip.antiAlias,
+      child: alPulsar == null ? contenido : InkWell(onTap: alPulsar, child: contenido),
     );
+    return tooltip == null ? tarjeta : Tooltip(message: tooltip!, child: tarjeta);
   }
 }
 
@@ -454,17 +541,10 @@ class _CabeceraGrupo extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: destacado ? cs.primary : null),
                 overflow: TextOverflow.ellipsis),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-            child: Text('${cubiertas + excedidas}/$totales', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
-          ),
+          _PastillaEstado(texto: '${cubiertas + excedidas}/$totales', color: color, icono: _iconoEstado(cubiertas, totales, excedidas: excedidas)),
         ]),
         const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(value: totales == 0 ? 1 : cubiertas / totales, minHeight: 5, color: color, backgroundColor: color.withValues(alpha: 0.15)),
-        ),
+        _BarraPlazas(cubiertas: cubiertas, total: totales, color: color),
       ]),
     );
   }
@@ -488,7 +568,7 @@ class _PorDia extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       for (final d in dias) ...[
         Builder(builder: (context) {
-          final delDia = turnos.where((x) => soloFecha(x.dia) == d).toList()..sort((a, b) => a.inicioLocal.compareTo(b.inicioLocal));
+          final delDia = _ordenarPorUrgencia(turnos.where((x) => soloFecha(x.dia) == d));
           return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             _CabeceraGrupo(titulo: _etiquetaDia(d), icono: Icons.calendar_today_outlined, turnos: delDia, destacado: d == hoy),
             _Rejilla(hijos: [
@@ -523,7 +603,7 @@ class _PorHospital extends StatelessWidget {
             _CabeceraGrupo(titulo: c.value, icono: Icons.local_hospital_outlined, turnos: delCentro, destacado: true),
             for (final d in dias) _FilaDia(
               dia: d,
-              turnos: (delCentro.where((x) => soloFecha(x.dia) == d).toList()..sort((a, b) => a.inicioLocal.compareTo(b.inicioLocal))),
+              turnos: _ordenarPorUrgencia(delCentro.where((x) => soloFecha(x.dia) == d)),
               resaltado: resaltado,
               colores: colores,
               alPulsar: alPulsar,
@@ -549,7 +629,6 @@ class _FilaDia extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final esHoy = soloFecha(DateTime.now()) == dia;
     final tarjetas = _Rejilla(
-      maxColumnas: 3,
       hijos: [
         for (final x in turnos)
           TarjetaCobertura(turno: x, resaltado: resaltado, colorTipo: colores[x.tipoTurno]!, mostrarCentro: false, alPulsar: () => alPulsar(x)),
@@ -849,7 +928,7 @@ class TarjetaCobertura extends StatelessWidget {
         onTap: alPulsar,
         child: Container(
           decoration: BoxDecoration(border: Border(left: BorderSide(color: colorTipo, width: 6))),
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               if (turno.esGuardia) const Padding(padding: EdgeInsets.only(right: 4), child: Icon(Icons.nightlight_outlined, size: 16)),
@@ -863,10 +942,10 @@ class TarjetaCobertura extends StatelessWidget {
                 ),
               Semantics(
                 label: t.plazasCubiertasSemantica(turno.asignados, turno.plazasTotales),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(color: estado, borderRadius: BorderRadius.circular(12)),
-                  child: Text('${turno.asignados}/${turno.plazasTotales}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                child: _PastillaEstado(
+                  texto: '${turno.asignados}/${turno.plazasTotales}',
+                  color: estado,
+                  icono: _iconoEstado(turno.plazasCubiertas, turno.plazasTotales, excedidas: turno.plazasExcedidas),
                 ),
               ),
             ]),
@@ -878,25 +957,29 @@ class TarjetaCobertura extends StatelessWidget {
             ]),
             Text(mostrarCentro ? '${turno.centro} · ${turno.servicio}' : turno.servicio,
                 style: texto.bodySmall?.copyWith(color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 10),
-            // Por categoría: «Médico 4/4», «Enfermería 2/3»… con el semáforo de cada una y quiénes están en ella
+            const SizedBox(height: 8),
+            _BarraPlazas(cubiertas: turno.plazasCubiertas, total: turno.plazasTotales, color: estado),
+            const SizedBox(height: 8),
+            // Por categoría: «Médico 4/4», «Enfermería 2/3»… Con una sola necesidad sin categoría la pastilla ya lo dice todo.
             for (final n in turno.necesidades) ...[
               Builder(builder: (context) {
                 final asignados = n.asignaciones.length;
                 final c = asignados > n.numeroPlazas ? cs.error : (asignados == n.numeroPlazas ? Colors.green.shade600 : Colors.amber.shade700);
+                final cabecera = turno.necesidades.length > 1 || n.categoria != null;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      Container(width: 10, height: 10, decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
-                      const SizedBox(width: 6),
-                      Expanded(child: Text(n.categoria ?? t.cobCualquierCategoria, style: texto.labelLarge?.copyWith(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis)),
-                      Text('$asignados/${n.numeroPlazas}', style: texto.labelLarge?.copyWith(color: c, fontWeight: FontWeight.w800)),
-                    ]),
-                    const SizedBox(height: 6),
-                    Wrap(spacing: 6, runSpacing: 6, children: [
+                    if (cabecera)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(children: [
+                          Expanded(child: Text(n.categoria ?? t.cobCualquierCategoria, style: texto.labelMedium?.copyWith(fontWeight: FontWeight.w700, color: cs.onSurfaceVariant), overflow: TextOverflow.ellipsis)),
+                          Text('$asignados/${n.numeroPlazas}', style: texto.labelMedium?.copyWith(color: c, fontWeight: FontWeight.w800)),
+                        ]),
+                      ),
+                    Wrap(spacing: 4, runSpacing: 4, children: [
                       for (final a in n.asignaciones) _ChipProfesional(nombre: a.profesional, resaltado: a.profesionalId == resaltado),
-                      for (var i = 0; i < n.plazasLibres; i++) _ChipLibre(texto: t.cobSinAsignar),
+                      if (n.plazasLibres > 0) _ChipLibre(texto: n.plazasLibres == 1 ? t.cobSinAsignar : '${t.cobSinAsignar} ×${n.plazasLibres}'),
                     ]),
                   ]),
                 );
@@ -927,16 +1010,13 @@ class _ChipProfesional extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final fondo = resaltado ? cs.primary : cs.primary.withValues(alpha: 0.10);
+    // Los asignados quedan en gris discreto; solo el profesional filtrado y los huecos llaman la atención.
+    final fondo = resaltado ? cs.primary : cs.surfaceContainerHighest;
     final frente = resaltado ? cs.onPrimary : cs.onSurface;
     return Container(
-      padding: const EdgeInsets.fromLTRB(3, 3, 10, 3),
-      decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(20)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        CircleAvatar(radius: 11, backgroundColor: resaltado ? cs.onPrimary.withValues(alpha: 0.25) : cs.primary.withValues(alpha: 0.2), child: Text(_inicial(nombre), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: frente))),
-        const SizedBox(width: 6),
-        Flexible(child: Text(nombre, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: frente), overflow: TextOverflow.ellipsis)),
-      ]),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(10)),
+      child: Text(nombre, style: TextStyle(fontSize: 12, fontWeight: resaltado ? FontWeight.w700 : FontWeight.w500, color: frente), overflow: TextOverflow.ellipsis),
     );
   }
 }
@@ -948,8 +1028,8 @@ class _ChipLibre extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: Colors.amber.shade800.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.amber.shade800.withValues(alpha: 0.5))),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: Colors.amber.shade800.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.amber.shade800.withValues(alpha: 0.5))),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.person_add_alt_outlined, size: 14, color: Colors.amber.shade800),
         const SizedBox(width: 5),
