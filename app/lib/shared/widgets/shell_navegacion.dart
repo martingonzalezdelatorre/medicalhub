@@ -101,8 +101,8 @@ class ShellNavegacion extends ConsumerWidget {
         foregroundColor: Colors.white,
         backgroundColor: Colors.transparent,
         shape: const Border(),
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
-        flexibleSpace: const DecoratedBox(decoration: BoxDecoration(gradient: TemaApp.degradadoMarca)),
+        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
+        flexibleSpace: const DecoratedBox(decoration: BoxDecoration(gradient: TemaApp.degradadoBarra)),
         leading: esDetalle
             ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go(enNotificaciones ? '/' : seccion))
             : (conCajon

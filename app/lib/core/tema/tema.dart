@@ -30,6 +30,13 @@ class TemaApp {
     colors: [Color(0xFF0B6E8A), Color(0xFF138FA8), Color(0xFF2BB3B8)],
   );
 
+  /// Degradado más oscuro para la barra superior: el texto blanco mantiene contraste suficiente (≥ 4,5:1) en todo el ancho.
+  static const degradadoBarra = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF0A5A73), Color(0xFF0B6E8A), Color(0xFF117F97)],
+  );
+
   static ThemeData claro() => _construir(Brightness.light);
   static ThemeData oscuro() => _construir(Brightness.dark);
 

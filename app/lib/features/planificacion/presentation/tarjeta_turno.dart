@@ -29,15 +29,16 @@ class TarjetaTurno extends StatelessWidget {
     final nombres = [for (final n in turno.necesidades) ...n.asignaciones.map((a) => a.profesional)];
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: compacta ? 3 : 5, horizontal: compacta ? 0 : 16),
+      margin: EdgeInsets.only(top: compacta ? 6 : 0, bottom: compacta ? 0 : 10),
+      elevation: 0,
       clipBehavior: Clip.antiAlias,
-      color: Color.alphaBlend(color.withValues(alpha: 0.07), Theme.of(context).colorScheme.surface),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: color.withValues(alpha: 0.30))),
+      color: Color.alphaBlend(color.withValues(alpha: 0.06), Theme.of(context).colorScheme.surface),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: color.withValues(alpha: 0.22))),
       child: InkWell(
         onTap: alPulsar,
         child: Container(
-          decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 6))),
-          padding: EdgeInsets.all(compacta ? 8 : 14),
+          decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
+          padding: EdgeInsets.fromLTRB(compacta ? 10 : 16, compacta ? 10 : 14, compacta ? 10 : 16, compacta ? 10 : 14),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               if (turno.esGuardia) const Padding(padding: EdgeInsets.only(right: 4), child: Icon(Icons.nightlight_outlined, size: 16)),
@@ -56,6 +57,7 @@ class TarjetaTurno extends StatelessWidget {
                 ),
               ),
             ]),
+            SizedBox(height: compacta ? 4 : 6),
             if (compacta) Text(franjaTurno(turno), style: Theme.of(context).textTheme.bodySmall),
             Text(compacta ? turno.servicio : '${turno.servicio} · ${turno.centro}', style: Theme.of(context).textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
             if (mostrarNombres && nombres.isNotEmpty)

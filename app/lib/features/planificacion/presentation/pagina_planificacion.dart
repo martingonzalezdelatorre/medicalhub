@@ -158,45 +158,36 @@ class _Cabecera extends StatelessWidget {
       VistaCalendario.mes: t.vistaMes,
       VistaCalendario.agenda: t.vistaAgenda,
     };
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
-      ),
-      child: Column(children: [
-        Row(children: [
-          IconButton.filledTonal(tooltip: t.anterior, icon: const Icon(Icons.chevron_left), onPressed: () => alMover(-1)),
-          Expanded(
-            child: Text(titulo,
-                textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis),
-          ),
-          IconButton.filledTonal(tooltip: t.siguiente, icon: const Icon(Icons.chevron_right), onPressed: () => alMover(1)),
-          const SizedBox(width: 6),
-          FilledButton.tonalIcon(
-            style: FilledButton.styleFrom(minimumSize: const Size(0, 40), padding: const EdgeInsets.symmetric(horizontal: 14)),
-            onPressed: alHoy,
-            icon: const Icon(Icons.today_outlined, size: 18),
-            label: Text(t.hoy),
-          ),
-        ]),
-        const SizedBox(height: 10),
-        Wrap(spacing: 8, runSpacing: 6, alignment: WrapAlignment.center, children: [
-          for (final e in etiquetas.entries)
-            ChoiceChip(
-              label: Text(e.value),
-              selected: vista == e.key,
-              showCheckmark: false,
-              selectedColor: cs.primary,
-              labelStyle: TextStyle(fontWeight: FontWeight.w600, color: vista == e.key ? cs.onPrimary : cs.onSurface),
-              side: BorderSide(color: vista == e.key ? cs.primary : cs.outlineVariant),
-              onSelected: (_) => alCambiarVista(e.key),
-            ),
-        ]),
-      ]),
+    final navegacion = Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton.outlined(tooltip: t.anterior, icon: const Icon(Icons.chevron_left), onPressed: () => alMover(-1)),
+      const SizedBox(width: 6),
+      IconButton.outlined(tooltip: t.siguiente, icon: const Icon(Icons.chevron_right), onPressed: () => alMover(1)),
+      const SizedBox(width: 12),
+      OutlinedButton(onPressed: alHoy, child: Text(t.hoy)),
+    ]);
+    final tituloW = Text(titulo,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.3), overflow: TextOverflow.ellipsis);
+    final selector = SegmentedButton<VistaCalendario>(
+      showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(visualDensity: VisualDensity.compact),
+      segments: [for (final e in etiquetas.entries) ButtonSegment(value: e.key, label: Text(e.value))],
+      selected: {vista},
+      onSelectionChanged: (v) => alCambiarVista(v.first),
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+      child: ancho < 600
+          ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Row(children: [Expanded(child: tituloW), navegacion]),
+              const SizedBox(height: 14),
+              selector,
+            ])
+          : Row(children: [
+              Expanded(child: tituloW),
+              navegacion,
+              const SizedBox(width: 20),
+              selector,
+            ]),
     );
   }
 }
@@ -216,8 +207,8 @@ class _Filtros extends ConsumerWidget {
     final servicios = (ref.watch(serviciosActivosProvider).value ?? const <ServicioDto>[]).where((s) => centroId == null || s.centroId == centroId).toList();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-      child: Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+      child: Wrap(spacing: 12, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
         SizedBox(
           width: 190,
           child: DropdownButtonFormField<String?>(
@@ -273,30 +264,51 @@ class _VistaAgenda extends StatelessWidget {
     final visibles = dias.where((d) => mostrarDiasVacios || porDia[d]!.isNotEmpty || ofrecidas.any((o) => o.dia == d)).toList();
 
     if (visibles.isEmpty) return EstadoVacio(mensaje: t.sinTurnos, icono: Icons.event_busy_outlined);
+    final cs = Theme.of(context).colorScheme;
+    final hoy = soloFecha(DateTime.now());
     return ContenidoCentrado(
-      child: ListView(padding: const EdgeInsets.only(bottom: 24), children: [
-        for (final d in visibles) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 16, 4),
-            child: Row(children: [
-              Container(
-                width: 8,
-                height: 8,
-                margin: const EdgeInsets.only(right: 8),
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        itemCount: visibles.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 20),
+        itemBuilder: (context, idx) {
+          final d = visibles[idx];
+          final esHoy = d == hoy;
+          final vacio = porDia[d]!.isEmpty && !ofrecidas.any((o) => o.dia == d);
+          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            SizedBox(
+              width: 56,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: soloFecha(DateTime.now()) == d ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline),
+                  gradient: esHoy ? TemaApp.degradadoMarca : null,
+                  color: esHoy ? null : cs.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(children: [
+                  Text(DateFormat('EEE', 'es_ES').format(d).toUpperCase().replaceAll('.', ''),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          letterSpacing: 0.8, fontWeight: FontWeight.w700, color: esHoy ? Colors.white70 : cs.onSurfaceVariant)),
+                  Text('${d.day}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: esHoy ? Colors.white : null)),
+                ]),
               ),
-              Text(_nombreDia(d),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: soloFecha(DateTime.now()) == d ? Theme.of(context).colorScheme.primary : null)),
-            ]),
-          ),
-          for (final o in ofrecidas.where((o) => o.dia == d)) _TarjetaOfrecida(o),
-          if (porDia[d]!.isEmpty && !ofrecidas.any((o) => o.dia == d))
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(t.sinTurnos, style: Theme.of(context).textTheme.bodySmall)),
-          for (final turno in porDia[d]!) TarjetaTurno(turno: turno, alPulsar: () => alPulsarTurno(turno), mostrarNombres: true),
-        ],
-      ]),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 2, bottom: 8),
+                  child: Text(_nombreDia(d), style: Theme.of(context).textTheme.labelLarge?.copyWith(color: esHoy ? cs.primary : cs.onSurfaceVariant)),
+                ),
+                for (final o in ofrecidas.where((o) => o.dia == d)) _TarjetaOfrecida(o),
+                if (vacio) Text(t.sinTurnos, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.outline)),
+                for (final turno in porDia[d]!) TarjetaTurno(turno: turno, alPulsar: () => alPulsarTurno(turno), mostrarNombres: true),
+              ]),
+            ),
+          ]);
+        },
+      ),
     );
   }
 }
@@ -314,36 +326,52 @@ class _VistaSemana extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hoy = soloFecha(DateTime.now());
+    final cs = Theme.of(context).colorScheme;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         for (var i = 0; i < 7; i++)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                InkWell(
-                  onTap: () => alPulsarDia(lunes.add(Duration(days: i))),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      gradient: lunes.add(Duration(days: i)) == hoy ? TemaApp.degradadoMarca : null,
-                      color: lunes.add(Duration(days: i)) == hoy ? null : Theme.of(context).colorScheme.surface,
-                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(toBeginningOfSentenceCase(DateFormat('EEE d', 'es_ES').format(lunes.add(Duration(days: i)))),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.w700, color: lunes.add(Duration(days: i)) == hoy ? Colors.white : null)),
-                  ),
+          Builder(builder: (context) {
+            final dia = lunes.add(Duration(days: i));
+            final esHoy = dia == hoy;
+            return Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(minHeight: 280),
+                decoration: BoxDecoration(
+                  color: esHoy ? cs.primary.withValues(alpha: 0.06) : cs.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: esHoy ? cs.primary.withValues(alpha: 0.4) : Colors.transparent),
                 ),
-                for (final o in ofrecidas.where((o) => o.dia == lunes.add(Duration(days: i)))) _TarjetaOfrecida(o, compacta: true),
-                for (final turno in turnos.where((x) => soloFecha(x.dia) == lunes.add(Duration(days: i))))
-                  TarjetaTurno(turno: turno, alPulsar: () => alPulsarTurno(turno), compacta: true),
-              ]),
-            ),
-          ),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  InkWell(
+                    onTap: () => alPulsarDia(dia),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(children: [
+                        Text(DateFormat('EEE', 'es_ES').format(dia).toUpperCase().replaceAll('.', ''),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.8, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: 34,
+                          height: 34,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(gradient: esHoy ? TemaApp.degradadoMarca : null, shape: BoxShape.circle),
+                          child: Text('${dia.day}', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: esHoy ? Colors.white : null)),
+                        ),
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  for (final o in ofrecidas.where((o) => o.dia == dia)) _TarjetaOfrecida(o, compacta: true),
+                  for (final turno in turnos.where((x) => soloFecha(x.dia) == dia))
+                    TarjetaTurno(turno: turno, alPulsar: () => alPulsarTurno(turno), compacta: true),
+                ]),
+              ),
+            );
+          }),
       ]),
     );
   }
@@ -368,9 +396,16 @@ class _VistaMes extends StatelessWidget {
     final iniciales = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       child: Column(children: [
-        Row(children: [for (final i in iniciales) Expanded(child: Center(child: Padding(padding: const EdgeInsets.all(4), child: Text(i, style: Theme.of(context).textTheme.labelMedium))))]),
+        Row(children: [
+          for (final i in iniciales)
+            Expanded(
+                child: Center(
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(i, style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700, color: esquema.onSurfaceVariant))))),
+        ]),
         for (var s = 0; s < semanas; s++)
           Row(children: [
             for (var i = 0; i < 7; i++)
@@ -386,19 +421,20 @@ class _VistaMes extends StatelessWidget {
                     button: true,
                     child: InkWell(
                       onTap: () => alPulsarDia(dia),
+                      borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        height: 72,
-                        margin: const EdgeInsets.all(1),
-                        padding: const EdgeInsets.all(4),
+                        height: 84,
+                        margin: const EdgeInsets.all(3),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: dia == hoy
-                              ? esquema.primary.withValues(alpha: 0.14)
-                              : (delMes ? esquema.surface : esquema.surfaceContainerLow),
-                          borderRadius: BorderRadius.circular(12),
+                              ? esquema.primary.withValues(alpha: 0.12)
+                              : (delMes ? esquema.surfaceContainerLow : Colors.transparent),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                               color: dia == hoy
                                   ? esquema.primary
-                                  : (sinCubrir > 0 ? esquema.error.withValues(alpha: 0.6) : esquema.outlineVariant),
+                                  : (sinCubrir > 0 ? esquema.error.withValues(alpha: 0.6) : Colors.transparent),
                               width: dia == hoy ? 2 : 1),
                         ),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -472,12 +508,12 @@ class _TarjetaOfrecida extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final detalle = [if (o.centro != null) o.centro!, o.turno ?? t.cualquierTurno].join(' · ');
     return Container(
-      margin: compacta ? const EdgeInsets.only(top: 4) : const EdgeInsets.fromLTRB(16, 4, 16, 2),
-      padding: EdgeInsets.symmetric(horizontal: compacta ? 6 : 12, vertical: compacta ? 6 : 10),
+      margin: compacta ? const EdgeInsets.only(top: 6) : const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.symmetric(horizontal: compacta ? 8 : 14, vertical: compacta ? 8 : 12),
       decoration: BoxDecoration(
         color: cs.tertiary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.tertiary.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.35)),
       ),
       child: Row(children: [
         Icon(Icons.event_available_outlined, size: compacta ? 14 : 18, color: cs.tertiary),
